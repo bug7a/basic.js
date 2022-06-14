@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>TextBox Example</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+        </style>
+
+        <script>
+            
+        // VARIABLES
+            
+        var txtName
+
+        // SPECIAL FUNCTIONS
+        
+        // First running function.
+        var start = function() {
+            
+            // TEXTBOX: Your name. Parameters: (left, top)
+            txtName = createTextBox(30, 50)
+            that.title = "Your name:"
+            that.minimal = 1
+            that.color = "whitesmoke"
+            that.onChange(printName)
+            
+        }
+        
+        // OTHER FUNCTIONS
+
+        var printName = function(self) {
+
+            print("Name: " + self.text)
+
+        }
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

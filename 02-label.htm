@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>Label Example</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+        </style>
+
+        <script>
+            
+        // VARIABLES
+            
+        var lblBottomInfo
+
+        // SPECIAL FUNCTIONS
+            
+        // First running function.
+        var start = function() {
+            
+            // LABEL: Bottom Info. Parameters: (left, top, width, height)
+            lblBottomInfo = createLabel(0, 0, page.width, "auto")
+            that.text = "This is a label"
+            that.bottom = 20
+            that.textAlign = "center"
+            that.color = "gold"
+            that.textColor = "rgba(0, 0, 0, 0.4)"
+            that.spaceY = 10
+
+            page.onResize(pageResized)
+            
+        }
+        
+        // OTHER FUNCTIONS
+        
+        var pageResized = function() {
+            
+            lblBottomInfo.width = page.width
+            
+        }
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>Button Example</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+        </style>
+
+        <script>
+            
+        // VARIABLES
+            
+        var btnBlue
+
+        // SPECIAL FUNCTIONS
+            
+        // First running function.
+        var start = function() {
+
+            // BUTTON: First Button. Parameters: (left, top, width, height)
+            btnBlue = createButton(40, 40, 180, 50)
+            that.text = "First Button"
+            that.minimal = 1
+            //that.color = "orangered"
+
+            that.onClick(printHelloWorld)
+            
+        }
+        
+        // OTHER FUNCTIONS
+        
+        var printHelloWorld = function() {
+            
+            print("Hello World")
+            
+        }
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

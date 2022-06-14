@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>.add() Example</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+        </style>
+
+        <script>
+
+        // Box object names.
+        var boxGray, boxRed
+
+        var start = function() {
+            
+            // BOX: Gray box. Parameters: (left, top, width, height)
+            boxGray = createBox(0, 0, 120, 120)
+            that.color = "lightgray"
+            that.center()
+
+            // BOX: Red box. Parameters: (left, top, width, height)
+            boxRed = createBox(0, 0, 50, 50)
+            boxGray.add(that)
+            that.color = "orangered"
+            that.center()
+
+            page.onResize(pageResized)
+            
+        }
+
+        var pageResized = function() {
+
+            // Recalculate the position of the box.
+            boxGray.center()
+
+        }
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>
