@@ -1,11 +1,10 @@
 ### basic.js LIBRARY (v1.6.5)
 
-In this book, you will find a list and brief explanations of the codes you can use with the basic.js library.<br>
-This JavaScript library helps you to create interactive user interface with basic programming skills.<br />
+Create interactive user interfaces with basic programming skills.<br />
 
 <br>
 
-### Library:
+### Library Page:
 https://bug7a.github.io/basic.js/
 
 ### Handbook:
