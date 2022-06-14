@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>basic.js Code Editor</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <script src="library/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/basic-editor.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+            .editor {
+                
+                position:absolute;
+                margin:0px;
+                border-radius: 6px;
+                font-size: 11px;
+                
+            }
+
+        </style>
+
+        <script>
+            
+        var start = function() {
+
+            basicEditor.create(document.getElementById("code-example").innerHTML);
+
+        }
+
+        </script>
+
+    </head>
+    <body>
+        
+<div id="code-example" style="display:none">
+    // VARIABLES
+            
+    var btnBlue
+
+    // SPECIAL FUNCTIONS
+        
+    // First running function.
+    var start = function() {
+
+        // BUTTON: First Button. Parameters: (left, top, width, height)
+        btnBlue = createButton(40, 40, 180, 50)
+        that.text = "First Button"
+        that.minimal = 1
+        //that.color = "orangered"
+
+        that.onClick(printHelloWorld)
+        
+    }
+    
+    // OTHER FUNCTIONS
+    
+    var printHelloWorld = function() {
+        
+        print("Hello World")
+        
+    }
+</div>
+        
+    </body>
+</html>

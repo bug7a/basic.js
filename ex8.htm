@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>basic.js Code Editor</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <script src="library/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/basic-editor.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+            .editor {
+                
+                position:absolute;
+                margin:0px;
+                border-radius: 6px;
+                font-size: 11px;
+                
+            }
+
+        </style>
+
+        <script>
+            
+        var start = function() {
+
+            basicEditor.create(document.getElementById("code-example").innerHTML);
+
+        }
+
+        </script>
+
+    </head>
+    <body>
+        
+<div id="code-example" style="display:none">
+    // Box object names.
+    var boxGray, boxRed
+
+    var start = function() {
+        
+        // BOX: Gray box. Parameters: (left, top, width, height)
+        boxGray = createBox(0, 0, 120, 120)
+        that.color = "lightgray"
+        that.center()
+
+        // BOX: Red box. Parameters: (left, top, width, height)
+        boxRed = createBox(0, 0, 50, 50)
+        boxGray.add(that)
+        that.color = "orangered"
+        that.center()
+
+        page.onResize(pageResized)
+        
+    }
+
+    var pageResized = function() {
+
+        // Recalculate the position of the box.
+        boxGray.center()
+
+    }
+</div>
+        
+    </body>
+</html>

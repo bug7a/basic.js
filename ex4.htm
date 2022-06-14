@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>basic.js Code Editor</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <script src="library/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/basic-editor.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+            .editor {
+                
+                position:absolute;
+                margin:0px;
+                border-radius: 6px;
+                font-size: 11px;
+                
+            }
+
+        </style>
+
+        <script>
+            
+        var start = function() {
+
+            basicEditor.create(document.getElementById("code-example").innerHTML);
+
+        }
+
+        </script>
+
+    </head>
+    <body>
+        
+<div id="code-example" style="display:none">
+    // VARIABLES
+            
+    var txtName
+
+    // SPECIAL FUNCTIONS
+    
+    // First running function.
+    var start = function() {
+        
+        // TEXTBOX: Your name. Parameters: (left, top)
+        txtName = createTextBox(30, 50)
+        that.title = "Your name:"
+        that.minimal = 1
+        that.color = "whitesmoke"
+        that.onChange(printName)
+        
+    }
+    
+    // OTHER FUNCTIONS
+
+    var printName = function(self) {
+
+        print("Name: " + self.text)
+
+    }
+</div>
+        
+    </body>
+</html>

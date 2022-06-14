@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>basic.js Code Editor</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <script src="library/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
+        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/basic-editor.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+                overflow: hidden;
+            }
+
+            .editor {
+                
+                position:absolute;
+                margin:0px;
+                border-radius: 6px;
+                font-size: 11px;
+                
+            }
+
+        </style>
+
+        <script>
+            
+        var start = function() {
+
+            basicEditor.create(document.getElementById("code-example").innerHTML);
+
+        }
+
+        </script>
+
+    </head>
+    <body>
+        
+<div id="code-example" style="display:none">
+    // Box object name.
+    var box
+
+    var start = function() {
+        
+        // BOX: Orangered box.
+        box = createBox()
+        that.width = 120
+        that.height = 120
+        that.color = "orangered"
+        that.round = 4
+        that.center()
+        that.setMotion("left 0.3s, top 0.3s, width 0.3s, height 0.3s")
+        that.onClick(extendBox)
+        
+    }
+    
+    var extendBox = function(self) {
+
+        self.width += 50
+        self.height += 50
+        self.center()
+
+    }
+</div>
+        
+    </body>
+</html>
