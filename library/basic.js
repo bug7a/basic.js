@@ -1065,6 +1065,15 @@ class Button extends Basic_UIComponent {
         }
     }
 
+    get spaceX() {
+        return parseInt(this.contElement.style.paddingLeft) || 0;
+    }
+
+    set spaceX($value) {
+        this.contElement.style.paddingLeft = $value + "px";
+        this.contElement.style.paddingRight = $value + "px";
+    }
+
     onClick($func) {
         this.clickable = 1;
         this._addEventListener("click", $func, this.buttonElement);
