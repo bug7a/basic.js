@@ -130,6 +130,8 @@ basic.start = function () {
     page.bodyElement.style.overflow = "hidden";
     page.box = createBox(0, 0, page.width, page.height);
     that.element.style.position = "fixed";
+    //that.element.style.width = "100%";
+    //that.element.style.height = "100%";
     that.color = "transparent";
     
     page.onResize(function() {
@@ -137,7 +139,7 @@ basic.start = function () {
             page.refreshSize();
         }
     });
-
+    
     if (typeof start === "function") {
         start();
         basic.afterStart();
@@ -280,17 +282,17 @@ basic.date = {
         let dt = new Date();
         return dt.getFullYear();
     },
-    get mountNumber() {
+    get monthNumber() {
         let dt = new Date();
-        let mouth = dt.getMonth();
-        mouth++;
-        return mouth;
+        let month = dt.getMonth();
+        month++;
+        return month;
     },
     get ayAdi() {
-        return basic.aylar[this.mountNumber - 1];
+        return basic.aylar[this.monthNumber - 1];
     },
-    get mountName() {
-        return basic.months[this.mountNumber - 1];
+    get monthName() {
+        return basic.months[this.monthNumber - 1];
     },
     get dayNumber() {
         let dt = new Date();
@@ -1061,6 +1063,15 @@ class Button extends Basic_UIComponent {
         } else {
             this.buttonElement.classList.remove("minimal");
         }
+    }
+
+    get spaceX() {
+        return parseInt(this.contElement.style.paddingLeft) || 0;
+    }
+
+    set spaceX($value) {
+        this.contElement.style.paddingLeft = $value + "px";
+        this.contElement.style.paddingRight = $value + "px";
     }
 
     onClick($func) {
@@ -2025,6 +2036,7 @@ basic.resizeDetection.whenDetected = new ResizeObserver(function(entries) {
 })
 
 // When content is loaded,
+
 window.addEventListener("load", function () {
-    basic.start()
+    basic.start();
 });
