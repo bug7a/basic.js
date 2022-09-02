@@ -118,8 +118,8 @@ basic.resizeDetection = {};
 basic.resizeDetection.objectAndFunctionList = [];
 
 basic.motionController = {};
-basic.motionController.WITH_MOTION_TIME = 2;
-basic.motionController.DONT_MOTION_TIME = 1;
+basic.motionController.WITH_MOTION_TIME = 50;
+basic.motionController.DONT_MOTION_TIME = 40;
 
 basic.start = function () {
 
@@ -1806,7 +1806,7 @@ basic.moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
             $this.top = parseInt($obj.top - $this.height - $space);
 
         } else if (!isNaN($obj.bottom)) {
-            $this.bottom = parseInt($obj.bottom + $this.height + $space);
+            $this.bottom = parseInt($obj.bottom + $obj.height + $space);
 
         }
 
@@ -1824,7 +1824,7 @@ basic.moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
             $this.left = parseInt($obj.left + $obj.width + $space);
 
         } else if (!isNaN($obj.right)) {
-            $this.right = parseInt($obj.right - $obj.width - $space);
+            $this.right = parseInt($obj.right - $this.width - $space);
 
         }
 
@@ -1841,7 +1841,7 @@ basic.moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
             $this.top = parseInt($obj.top + $obj.height + $space);
 
         } else if (!isNaN($obj.bottom)) {
-            $this.bottom = parseInt($obj.bottom - $obj.height - $space);
+            $this.bottom = parseInt($obj.bottom - $this.height - $space);
 
         }
 
@@ -1880,13 +1880,20 @@ basic.moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
 
         switch ($secondPosition) {
             case "top":
+                if (!isNaN($obj.top)) {
+                    //$this.top += parseInt($obj.top);
+        
+                } else if (!isNaN($obj.bottom)) {
+                    $this.bottom += parseInt(_difference);
+        
+                }
                 break;
             case "bottom":
                 if (!isNaN($obj.top)) {
                     $this.top += parseInt(_difference);
         
                 } else if (!isNaN($obj.bottom)) {
-                    $this.bottom -= parseInt(_difference);
+                    //$this.bottom = parseInt($obj.bottom);
         
                 }
                 break;
@@ -1895,7 +1902,7 @@ basic.moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
                     $this.top += parseInt(_difference / 2);
         
                 } else if (!isNaN($obj.bottom)) {
-                    $this.bottom -= parseInt(_difference / 2);
+                    $this.bottom += parseInt(_difference / 2);
         
                 }
                 break;
@@ -1907,13 +1914,20 @@ basic.moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
 
         switch ($secondPosition) {
             case "left":
+                if (!isNaN($obj.left)) {
+                    //$this.left = parseInt($obj.left);
+        
+                } else if (!isNaN($obj.right)) {
+                    $this.right = parseInt($obj.right + _difference);
+        
+                }
                 break;
             case "right":
                 if (!isNaN($obj.left)) {
                     $this.left += parseInt(_difference);
         
                 } else if (!isNaN($obj.right)) {
-                    $this.right -= parseInt(_difference);
+                    //$this.right = parseInt($obj.right);
         
                 }
                 break;
@@ -1922,7 +1936,7 @@ basic.moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
                     $this.left += parseInt(_difference / 2);
         
                 } else if (!isNaN($obj.right)) {
-                    $this.right -= parseInt(_difference / 2);
+                    $this.right += parseInt(_difference / 2);
         
                 }
                 break;

@@ -4,13 +4,13 @@ Create interactive user interfaces with basic programming skills.<br />
 
 <br>
 
-### Library Page:
+### Web Page:
 https://bug7a.github.io/basic.js/
 
 ### Handbook:
 https://bug7a.github.io/basic.js-handbook/
 
-### Examples:
+### More Starter Examples:
 https://bug7a.github.io/basic.js-examples/
 
 ### Project Example #1:
@@ -22,17 +22,15 @@ https://bug7a.github.io/cordova-mobile-app-ui-template/
 
 <br><br>
 
-### Contact information
+### INFORMATION:
 
-Starting Date: 25 October 2020<br>
+Started Date: 25 October 2020<br>
 Developer: Bugra Ozden<br>
 Email: bugra.ozden@gmail.com<br>
 Web Site: http://bugraozden.com<br><br>
 
-I wish you well,<br />
-Good work.<br /><br />
 
-### License
+### LICENSE:
 
 You are free:<br />
 
@@ -42,4 +40,5 @@ to make commercial use of the work<br />
 
 <https://creativecommons.org/licenses/by/4.0/><br /><br />
 
+Have Fun.
 
