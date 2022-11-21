@@ -6,19 +6,19 @@ movingCircles.MOVE_TIME_MIN = "30s"
 
 movingCircles.create = function(box) {
 
-    for (var i = 0; i < 5; i++ ) {
+    for (var i = 0; i < 3; i++ ) {
 
         // BOX: dot with motion
         var randomSize = random(200, 700)
-        box.b1 = createBox(0, 0, randomSize, randomSize)
+        box["b" + i] = createBox(0, 0, randomSize, randomSize)
         box.add(that)
         that.color = "#141414"
         that.round = 600
         // that.opacity = random(2, 6) / 100
         that.opacity = 0.04
         that.startPoint = {}
-        that.startPoint.left = random(0, page.width + (box.b1.width * 2)) - box.b1.width
-        that.startPoint.top = random(0, page.height + (box.b1.height * 2)) - box.b1.height
+        that.startPoint.left = random(0, page.width + (box["b" + i].width * 2)) - box["b" + i].width
+        that.startPoint.top = random(0, page.height + (box["b" + i].height * 2)) - box["b" + i].height
         that.left = that.startPoint.left
         that.top = that.startPoint.top
         that.setMotion("top " + movingCircles.MOVE_TIME_MIN + ", left " + movingCircles.MOVE_TIME_MIN)

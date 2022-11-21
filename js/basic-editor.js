@@ -104,7 +104,7 @@ basicEditor.runCodeAndRefresh = function() {
 
 basicEditor.startFirst = function() {
 
-    selectBox(basicEditor.box.boxPreview);
+    setDefaultContainerBox(basicEditor.box.boxPreview);
     page = basicEditor.box.boxPreview;
 
 }
