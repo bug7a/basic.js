@@ -12,27 +12,23 @@
         <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
 
         <script>
-            
-        // VARIABLES
-            
-        var imgIcon
-
-        // SPECIAL FUNCTIONS
         
         // First running function.
         var start = function() {
             
-            // IMAGE: Bottom Info. Parameters: (left, top, width, height)
-            imgIcon = createImage(0, 20, 128, 128)
+            // IMAGE: Bottom Info.
+            page.imgIcon = createImage()
+            that.width = 128
+            that.height = 128
+            //that.autoSize = 1
             that.load("images/strawberry.png")
-            that.right = 20
             that.space = 15
             that.color = "rgba(0, 0, 0, 0.05)"
+            that.right = 20
+            that.top = 20
             that.onLoad(printImageSizes)
             
         }
-        
-        // OTHER FUNCTIONS
 
         var printImageSizes = function(self) {
 

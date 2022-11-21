@@ -13,17 +13,11 @@
 
         <script>
             
-        // VARIABLES
-            
-        var box
-
-        // SPECIAL FUNCTIONS
-        
         // First running function.
         var start = function() {
             
             // BOX: My box.
-            box = createBox()
+            page.box = createBox()
             that.right = 20
             that.bottom = 20
             that.width = 120
@@ -34,8 +28,6 @@
             
         }
         
-        // OTHER FUNCTIONS
-
         var extendBox = function(self) {
 
             self.width += 20

@@ -21,14 +21,12 @@
 
         var plantList = [];
             
-        var boxItems
-            
         var start = function() {
 
             page.color = "whitesmoke"
 
             // BOX: Fruit items container box.
-            boxItems = createBox(40, 40, 300, 230)
+            page.boxItems = createBox(40, 40, 300, 230)
             that.color = "white"
             that.round = 13
             that.scrollY = 1
@@ -38,7 +36,7 @@
 
                 // PLANTITEM: Every item.
                 createPlantItem(plantDataList[i].name, plantDataList[i].description, plantDataList[i].filePath)
-                boxItems.add(that)
+                page.boxItems.add(that)
 
                 plantList.push(that)
 
@@ -49,20 +47,18 @@
         }
         
         var pageResized = function() {
-
-            boxItems.center()
-
+            page.boxItems.center()
         }
         
         var createPlantItem = function(titleText, descriptionText, iconFullPath) {
 
-            var ITEM_WIDTH = 300
+            const ITEM_WIDTH = 300
 
             // BOX: Object container box
-            var box = createBox(0, 0, ITEM_WIDTH, 94)
-            that.color = "transparent"
-            // Disable coordinate system.
-            that.element.style.position = "relative"
+            const box = createBox()
+            box.width = ITEM_WIDTH
+            box.height = 94
+            box.color = "transparent"
 
             // BOX: Item background box
             box.boxBackground = createBox(4, 2, ITEM_WIDTH - 8, 90)
@@ -92,6 +88,9 @@
             that.text = descriptionText
             that.textColor = "gray"
             that.fontSize = 14
+
+            // Show item as relative:
+            box.position = "relative"
 
             makeBasicObject(box)
             return box
