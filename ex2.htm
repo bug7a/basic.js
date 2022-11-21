@@ -44,34 +44,27 @@
     <body>
         
 <div id="code-example" style="display:none">
-    // VARIABLES
-            
-    var lblBottomInfo
-
-    // SPECIAL FUNCTIONS
-        
     // First running function.
     var start = function() {
         
-        // LABEL: Bottom Info. Parameters: (left, top, width, height)
-        lblBottomInfo = createLabel(0, 0, page.width, "auto")
+        // LABEL: Bottom Info.
+        page.lblBottomInfo = createLabel()
+        that.width = page.width
+        that.height = "auto"
         that.text = "This is a label"
-        that.bottom = 20
         that.textAlign = "center"
         that.color = "gold"
         that.textColor = "rgba(0, 0, 0, 0.4)"
         that.spaceY = 10
-
+        that.left = 0
+        that.bottom = 20
+        
         page.onResize(pageResized)
         
     }
     
-    // OTHER FUNCTIONS
-    
     var pageResized = function() {
-        
-        lblBottomInfo.width = page.width
-        
+        page.lblBottomInfo.width = page.width
     }
 </div>
         

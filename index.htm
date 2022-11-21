@@ -78,7 +78,7 @@
             that.color = "black"
             that.scrollY = 1
 
-            selectBox(box)
+            setDefaultContainerBox(box)
 
             box.imgUpBackground = createImage(0, 0, page.width, 600)
             that.load("images/background.png")
@@ -96,9 +96,9 @@
             that.color = "transparent"
             that.element.style.position = "relative"
 
-            box.homePage.header.imgLogo = createImage(380, 165, 240, 87)
+            box.homePage.header.imgLogo = createImage(380, 125, 255, 142) // 255 x 142 - 170 X 94
             box.homePage.header.add(that)
-            that.load("images/logo.svg")
+            that.load("images/basicjs-logo.svg")
             that.center("left")
 
             box.homePage.header.lblDescription = createLabel(44, 306, 935, 150)
@@ -108,9 +108,28 @@
             that.textAlign = "center"
             that.center("left")
 
+            box.homePage.header.btnExample = createLabel()
+            box.homePage.header.add(that)
+            that.width = "auto";
+            that.height = "auto";
+            that.text = "Full Project Example"
+            that.color = "rgba(0, 0, 0, 0.05)"
+            that.round = 6
+            that.fontSize = 16
+            that.spaceY = 8
+            that.spaceX = 18
+            that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
+            that.element.classList.add("motion-zoomOnMouseOver-forButton")
+            that.clickable = 1
+            that.right = 20
+            that.top = 30
+            that.onClick(function() {
+                go("https://bug7a.github.io/cordova-mobile-app-ui-template/", "_blank")
+            })
+
             box.homePage.header.btn1 = createLabel(0, 470, "auto", "auto")
             box.homePage.header.add(that)
-            that.text = "<b>Handbook</b> v1.6.5"
+            that.text = "<b>Handbook</b> v1.7"
             that.color = "rgba(0, 0, 0, 0.05)"
             that.round = 6
             that.fontSize = 24

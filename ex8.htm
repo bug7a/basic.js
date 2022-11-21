@@ -44,19 +44,17 @@
     <body>
         
 <div id="code-example" style="display:none">
-    // Box object names.
-    var boxGray, boxRed
-
+    // First running function.
     var start = function() {
         
         // BOX: Gray box. Parameters: (left, top, width, height)
-        boxGray = createBox(0, 0, 120, 120)
+        page.boxGray = createBox(0, 0, 120, 120)
         that.color = "lightgray"
         that.center()
 
         // BOX: Red box. Parameters: (left, top, width, height)
-        boxRed = createBox(0, 0, 50, 50)
-        boxGray.add(that)
+        page.boxRed = createBox(0, 0, 50, 50)
+        page.boxGray.add(that)
         that.color = "orangered"
         that.center()
 
@@ -65,10 +63,8 @@
     }
 
     var pageResized = function() {
-
         // Recalculate the position of the box.
-        boxGray.center()
-
+        page.boxGray.center()
     }
 </div>
         

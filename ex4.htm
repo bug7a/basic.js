@@ -44,17 +44,11 @@
     <body>
         
 <div id="code-example" style="display:none">
-    // VARIABLES
-            
-    var txtName
-
-    // SPECIAL FUNCTIONS
-    
     // First running function.
     var start = function() {
         
         // TEXTBOX: Your name. Parameters: (left, top)
-        txtName = createTextBox(30, 50)
+        page.txtName = createTextBox(30, 50)
         that.title = "Your name:"
         that.minimal = 1
         that.color = "whitesmoke"
@@ -62,12 +56,8 @@
         
     }
     
-    // OTHER FUNCTIONS
-
     var printName = function(self) {
-
         print("Name: " + self.text)
-
     }
 </div>
         

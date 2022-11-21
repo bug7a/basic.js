@@ -44,17 +44,12 @@
     <body>
         
 <div id="code-example" style="display:none">
-    // VARIABLES
-            
-    var btnBlue
 
-    // SPECIAL FUNCTIONS
-        
     // First running function.
     var start = function() {
 
         // BUTTON: First Button. Parameters: (left, top, width, height)
-        btnBlue = createButton(40, 40, 180, 50)
+        page.btnBlue = createButton(40, 40, 180, 50)
         that.text = "HELLO"
         that.minimal = 1
         //that.round = 14
@@ -66,18 +61,14 @@
         //that.width = "auto"
         //that.spaceX = 20
         //that.color = "orangered"
-
         that.onClick(printHelloWorld)
-        
+
     }
-    
-    // OTHER FUNCTIONS
-    
+
     var printHelloWorld = function() {
-        
         print("Hello World")
-        
     }
+
 </div>
         
     </body>

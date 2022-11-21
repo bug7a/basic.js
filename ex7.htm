@@ -44,28 +44,26 @@
     <body>
         
 <div id="code-example" style="display:none">
-    // Box object names.
-    var boxGray, boxRed, boxOrange
-
+    // First running function.
     var start = function() {
         
         // BOX: Gray box. Parameters: (left, top, width, height)
-        boxGray = createBox(0, 0, 120, 120)
+        page.boxGray = createBox(0, 0, 120, 120)
         that.color = "lightgray"
         that.center()
 
         // BOX: Red box.
-        boxRed = createBox(0, 0, 120, 120)
+        page.boxRed = createBox(0, 0, 120, 120)
         that.color = "orangered"
-        that.aline(boxGray, "right", 4)
+        that.aline(page.boxGray, "right", 4)
 
         // BOX: Orange box.
-        boxOrange = createBox(0, 0, 40, 40)
+        page.boxOrange = createBox(0, 0, 40, 40)
         that.color = "orange"
         that.round = 40
         that.border = 6
         that.borderColor = "rgba(0, 0, 0, 0.2)"
-        that.aline(boxGray, "bottom", 20, "center")
+        that.aline(page.boxGray, "bottom", 20, "center")
 
         page.onResize(pageResized)
         
@@ -74,9 +72,9 @@
     var pageResized = function() {
 
         // Recalculate the position of the boxes.
-        boxGray.center()
-        boxRed.aline(boxGray, "right", 4)
-        boxOrange.aline(boxGray, "bottom", 20, "center")
+        page.boxGray.center()
+        page.boxRed.aline(boxGray, "right", 4)
+        page.boxOrange.aline(boxGray, "bottom", 20, "center")
 
     }
 </div>
