@@ -321,7 +321,7 @@
             // LABEL: Info.
             box.homePage.footer.lblInfo = createLabel(0, 275, 600, 100)
             box.homePage.footer.add(that)
-            that.text = "Developed by <b>Bugra Ozden</b><br>Licensed under <b>CC 4.0</b>"
+            that.text = "Developed by <b onclick='gotoBugraSite();' style='cursor: pointer;'>Bugra Ozden</b><br>Licensed under <b>CC 4.0</b>"
             that.fontSize = 12
             that.opacity = 0.8
             that.textAlign = "center"
@@ -345,6 +345,10 @@
 
             box.homePage.center("left")
             
+        }
+
+        const gotoBugraSite = function() {
+            window.open("https://bugraozden.com/", "_blank");
         }
 
         </script>
