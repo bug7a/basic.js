@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>TextBox example</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+            
+        window.onload = function() {
+        
+            // TEXTBOX: Your name. Parameters: (left, top)
+            page.txtName = createTextBox(30, 50);
+            that.title = "Your name:";
+            that.minimal = 1;
+            that.color = "whitesmoke";
+            that.onChange(printName);
+            
+        };
+        
+        const printName = function(changedTextBox) {
+            print("Name: " + changedTextBox.text);
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>startBox() and startFlexBox() usage</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        window.onload = function() {
+
+            startFlexBox({
+                justifyContent: "center", // Default.
+                alignItems: "center", // Default.
+                // (You dont have to write default options.)
+            });
+            that.width = "100%"; // Default.
+            that.height = "100%"; // Default.
+            that.color = "transparent" // Default.
+
+            // NOTE: startFlexBox() always displays at the desired position.
+            // To be affected, object position must be "relative".
+
+                // BOX: Gray box. Parameters: (left, top, width, height)
+                page.boxGray = startBox(0, 0, 120, 120);
+                that.color = "lightgray";
+                that.position = "relative"; // Default. 
+                // (Because object created in a startFlexBox.)
+
+                    // BOX: Red box. Parameters: (left, top, width, height);
+                    page.boxRed = createBox(0, 0, 50, 50);
+                    that.color = "orangered";
+                    that.positon = "absolute"; // Default.
+                    that.center();
+
+                    // NOTE: The .center() method performs a calculation when called.
+                    // To be affected, object position must be "absolute".
+
+                endBox();
+
+                // NOTE: page.boxRed object will create in page.boxGray object.
+
+            endFlexBox();
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

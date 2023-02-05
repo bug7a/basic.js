@@ -1,32 +1,16 @@
+
+
 /* Bismillah */
 
 /*
 
-
-(v1.7) Create interactive user interfaces with basic programming skills.
+basic.js (v1.7.2) Create interactive user interfaces with basic programming skills.
 - Project Site: https://bug7a.github.io/basic.js/
 
+Copyright 2020-2023 Bugra Ozden <bugra.ozden@gmail.com>
+- https://github.com/bug7a
 
-INFORMATION:
-
-Started Date: 25 October 2020
-Developer: Bugra Ozden
-Email: bugra.ozden@gmail.com
-Personal Site: http://bugraozden.com
-
-
-LICENSE:
-
-You are free:
-
-to Share — to copy, distribute and transmit the work
-to Remix — to adapt the work
-to make commercial use of the work
-
-https://creativecommons.org/licenses/by/4.0/
-
-Have Fun.
-
+Licensed under the Apache License, Version 2.0
 
 */
 
@@ -34,6 +18,7 @@ Have Fun.
     
     font-family: opensans;
     src: url(font/open-sans/OpenSans-Regular.ttf);
+    font-display: block;
     
 }
 
@@ -41,6 +26,7 @@ Have Fun.
     
     font-family: opensans-bold;
     src: url(font/open-sans/OpenSans-Bold.ttf);
+    font-display: block;
     
 }
 
@@ -63,24 +49,19 @@ Have Fun.
     
     position: absolute;
     display: block;
-    /* visibility: hidden; */
     overflow-x: hidden;
     overflow-y: hidden;
-    width: 100px;
-    height: 100px;
     background-color: whitesmoke;
     border-radius: 0px;
-    border: 0px solid gray;
+    border: 0px solid rgba(0, 0, 0, 0.6);
     font-family: opensans;
     font-size: 16px;
     text-align: left;
-    color: #4A4A4A;
+    color: rgba(0, 0, 0, 0.8);
     padding: 0px;
     margin: 0px;
     box-sizing: border-box;
     pointer-events: none;
-    /* firefoxda da scroll görünmesin */
-    scrollbar-width: none;
     
 }
 
@@ -88,14 +69,13 @@ Have Fun.
     
     position:absolute;
     display: block;
-    /* visibility: hidden; */
     overflow: hidden;
     font-family: opensans;
     font-size: 20px;
     text-align: left;
-    color:#4A4A4A;
+    color:rgba(0, 0, 0, 0.8);
     background-color: transparent;
-    border: 0px solid #4A4A4A;  
+    border: 0px solid rgba(0, 0, 0, 0.6);  
     padding: 0px;
     /* istenen genişlikten paddingi çıkartarak işlem yapıyor */
     box-sizing: border-box; 
@@ -107,7 +87,6 @@ Have Fun.
     
     position:absolute;
     display: block;
-    /* visibility: hidden; */
     overflow: hidden;
     font-family: opensans;
     font-size: 20px;
@@ -150,9 +129,10 @@ Have Fun.
 }
 
 .basic_textbox-main {
+    
     position:absolute;
     display: block;
-    /* visibility: hidden; */
+    
 }
 
 .basic_textbox {
@@ -236,10 +216,9 @@ Have Fun.
     
     position:absolute;
     display: block;
-    /* visibility: hidden; */
     overflow: hidden;
     background-color: transparent;
-    border: 0px solid #000000;
+    border: 0px solid rgba(0, 0, 0, 0.6);
     padding: 0px;
     margin: 0px;
     box-sizing: border-box;
@@ -248,20 +227,41 @@ Have Fun.
     
 }
 
+/* Custom scroll bar */
 .basic_box::-webkit-scrollbar {
     width: 0px;
     height: 0px;
 }
-  
-.basic_box::-webkit-scrollbar-track {
-    background: transparent;
-}
 
 .basic_box::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    border: 2px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
 }
 
 .basic_box::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border: 2px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+}
+
+.basic_box::-webkit-scrollbar-thumb:active {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+    border: 2px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+}
+
+.basic_box::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 0px;
+    /* border-left: 1px solid rgba(0, 0, 0, 0.2); */
+    /* border-top: 1px solid rgba(0, 0, 0, 0.2); */
+    background-clip: padding-box;
+}
+
+.basic_box::-webkit-scrollbar-corner {
+    background-color: transparent;
 }

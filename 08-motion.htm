@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>Motion example</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+    
+        window.onload = function() {
+            
+            // BOX: Orangered box.
+            page.box = createBox();
+            that.color = "orangered";
+            that.round = 4;
+            that.width = 120;
+            that.height = 120;
+            that.center();
+            // When there is a change, soften it with movement.
+            that.setMotion("left 0.3s, top 0.3s, width 0.3s, height 0.3s");
+            that.onClick(extendBox);
+            
+        };
+        
+        var extendBox = function(targetBox) {
+
+            targetBox.width += 50;
+            targetBox.height += 50;
+            targetBox.center();
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

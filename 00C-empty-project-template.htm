@@ -8,14 +8,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
         <!-- LIBRARY FILES -->
-        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
-        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
 
         <style>
 
         /* 
         body {
-            overflow: auto !important;
+            margin: 0px !important;
+            overflow: hidden !important;
         }
         */
 
@@ -25,37 +26,40 @@
             
         // VARIABLES
             
-        var myString = ""
-        var myInteger = 0
-        var myFloat = 0.5
-
-        
-        // SPECIAL FUNCTIONS
+        let myString = "";
+        let myFloat = 0.5;
+        let myInteger = 0;
             
         // First running function.
-        var start = function() {
+        window.onload = function() {
             
+            startFlexBox();
+
+                window.lblText = createLabel();
+                that.text = "Hello World!";
+
+                that.onClick(doSomthing1);
+
+            endFlexBox();
             
-        }
+        };
         
         // Function running every second.
-        var loop = function() {
-                        
+        const loop = function() {
             
-        }
-        
+        };
         
         // OTHER FUNCTIONS
+        const doSomthing1 = function() {
+
+            myInteger++;
+            lblText.text = "Clicked Count: " + myInteger;
+            
+        };
         
-        var doSomthing1 = function() {
+        const doSomething2 = function() {
             
-            
-        }
-        
-        var doSomething2 = function() {
-            
-            
-        }
+        };
 
         </script>
 

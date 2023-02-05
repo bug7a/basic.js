@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>Custom Component, based on JSON data</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+        
+        let plantItemDataList = [
+            { id: "1", name: "Broccoli", description: "Vegetable", iconPath: "images/broccoli.png" },
+            { id: "2", name: "Strawberry", description: "Fruit", iconPath: "images/strawberry.png" },
+            { id: "3", name: "Carrot", description: "Vegetable", iconPath: "images/carrot.png" },
+            { id: "4", name: "Blueberries", description: "Fruit", iconPath: "images/blueberries.png" },
+        ];
+
+        let plantItemList = [];
+            
+        window.onload = function() {
+
+            page.color = "whitesmoke";
+
+            // BOX: Plant items container box. Parameters: left, top, width, height
+            page.boxItems = createBox(0, 0, 300, "100%");
+            that.color = "transparent";
+            that.scrollY = 1;
+            that.right = 0;
+
+            createPlantItems();
+            createChangeTestButton();
+            
+        };
+
+        const createPlantItems = function() {
+
+            // Clear all items.
+            plantItemList = [];
+            page.boxItems.html = "";
+
+            // Add items from plantItemDataList.
+            for(index in plantItemDataList) {
+
+                // PLANT ITEM: Create a plant item object.
+                const item = createPlantItem(plantItemDataList[index], index);
+                // Move the created item into the container box.
+                page.boxItems.add(item);
+                // Give position after moving into the box to show the object.
+                item.position = "relative";
+                // On item clicked.
+                item.onClick(function(clickedItem) {
+                    print("Clicked item index: " + clickedItem.index);
+                });
+
+                // Keep the object for later use.
+                plantItemList.push(item);
+
+            }
+
+            // NOTE: You can make any change on plantItemDataList and 
+            // call createPlantItems again to refresh all.
+            // or you can directly change any properties 
+            // of the created objects by using the plantItemList.
+
+        };
+        
+        const createPlantItem = function(data, index) {
+
+            // BOX: Object container box.
+            const box = startBox();
+            box.width = "100%";
+            box.height = 94;
+            box.color = "transparent";
+
+            // Keep item data:
+            box.data = data;
+            box.index = index;
+
+                // NOTE: You don't need to use the .add method after a started box.
+
+                // BOX: Item background box.
+                box.boxBackground = createBox(4, 2, "calc(100% - 8px)", 90);
+                that.color = "rgba(0, 0, 0, 0.01)";
+                that.round = 13;
+                that.border = 1;
+                that.borderColor = "rgba(0, 0, 0, 0.06)";
+                that.setMotion("background-color 1.2s");
+
+                // IMAGE: Item icon image.
+                box.imgIcon = createImage(30, 12, 70, 70);
+                that.load(data.iconPath);
+                that.round = 4;
+                that.color = "transparent";
+                that.border = 0;
+
+                // GROUP: Labels container box.
+                startFlexBox({
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                });
+                that.width = "calc(100% - 120px)";
+                that.right = 0;
+
+                    // LABEL: Item name text.
+                    box.lblName = createLabel(0, 0, "auto", "auto");
+                    that.text = data.name;
+                    that.position = "relative";
+
+                    // NOTE: Make "relative" to deactivating the coordinate system.
+                    // The default position is the "absolute" of the basic object.
+
+                    // LABEL: Item description text.
+                    box.lblDesc = createLabel(0, 0, "auto", "auto");
+                    that.text = data.description;
+                    that.textColor = "gray";
+                    that.fontSize = 14;
+                    that.position = "relative";
+
+                endFlexBox();
+
+            endBox();
+
+            // NOTE: Item will not be shown before giving position.
+
+            makeBasicObject(box);
+            return box;
+
+        };
+
+        const createChangeTestButton = function() {
+
+            const grayButtonStyle = function(btn) {
+
+                btn.fontSize = 14;
+                btn.width = "auto";
+                btn.height = 30;
+                btn.minimal = 1;
+                btn.color = "lightgray";
+                btn.spaceX = 10;
+
+                // NOTE: Style functions that can be conditioned by parameters.
+                // It's private style function. You can also have a 
+                // global style object like styles.grayButton()
+
+            };
+
+            // BUTTON: Test button.
+            createButton();
+            that.text = "Change";
+            grayButtonStyle(that);
+            // Adjust the position to show the object.
+            that.left = 10;
+            that.bottom = 10;
+            that.onClick(setSomeProperties);
+
+        };
+        
+        // Change any properties after createing:
+        const setSomeProperties = function() {
+
+            const index = 1;
+            const item = plantItemList[index];
+
+            item.lblName.text = "Edited Name";
+            item.lblDesc.text = "";
+            item.boxBackground.color = "#D3CFC1";
+            item.imgIcon.load("images/blueberries.png");
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>
