@@ -9,8 +9,8 @@
 
         <!-- LIBRARY FILES -->
         <script src="library/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
-        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/basic-editor.js" type="text/javascript" charset="utf-8"></script>
 
         <style>
@@ -44,21 +44,25 @@
     <body>
         
 <div id="code-example" style="display:none">
-    // First running function.
-    var start = function() {
-        
-        // TEXTBOX: Your name. Parameters: (left, top)
-        page.txtName = createTextBox(30, 50)
-        that.title = "Your name:"
-        that.minimal = 1
-        that.color = "whitesmoke"
-        that.onChange(printName)
-        
-    }
+
     
-    var printName = function(self) {
-        print("Name: " + self.text)
-    }
+
+    window.onload = function() {
+        
+        // LABEL: Bottom Info.
+        page.lblBottomInfo = createLabel();
+        that.width = "100%";
+        that.height = "auto";
+        that.text = "This is a label";
+        that.textAlign = "center";
+        that.color = "gold";
+        that.textColor = "rgba(0, 0, 0, 0.4)";
+        that.spaceY = 10;
+        that.left = 0;
+        that.bottom = 20;
+        
+    };
+    
 </div>
         
     </body>

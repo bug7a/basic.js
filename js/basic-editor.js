@@ -19,6 +19,7 @@ basicEditor.create = function($code = "") {
     that.right = 0
     that.element.setAttribute("id", "editor1")
     that.element.setAttribute("class", "editor")
+    that.clickable = 1;
 
     /*
     that.element.style.positon = "absolute"
@@ -41,9 +42,23 @@ basicEditor.create = function($code = "") {
 
     // BOX: Preview container box.
     basicEditor.box.boxPreview = createBox(10, 10, 450, 450)
-    basicEditor.box.add(that)
+    basicEditor.box.add(that);
     that.color = "white"
     that.round = 0
+    that.setMotion("top 0.2s");
+    //that.position = "sticky";
+    /*
+    window.top.document.addEventListener("scroll", function(event) {
+        console.log("scroll");
+    });
+    */
+   /*
+    window.top.box.element.addEventListener("scroll", function(event) {
+        //console.log(window.top.box.element.scrollTop);
+        basicEditor.box.boxPreview.top = window.top.box.element.scrollTop;
+        console.log(window.document.top);
+    });
+    */
 
     // LABEL: print preview
     basicEditor.box.lblPrint = createLabel(0, 0, 450, "auto")
@@ -52,7 +67,8 @@ basicEditor.create = function($code = "") {
     that.textColor = "white"
     that.opacity = 0.6
     that.fontSize = 12
-    that.aline(basicEditor.box.boxPreview, "bottom", 10)
+    that.setMotion("top 0.2s");
+    that.aline(basicEditor.box.boxPreview, "bottom", 10);
     
     page.onResize(pageResized)
 
@@ -82,18 +98,18 @@ basicEditor.runCodeAndRefresh = function() {
         var content = eval("editor1.getValue();")
         var runFunctionStr
 
-        runFunctionStr = "function() { ;basicEditor.startFirst(); " + content + " ;start(); }"
+        runFunctionStr = "function() { ;basicEditor.startFirst(); " + content + " ;window.onload(); }"
         
-        if (content.search("var start") != -1) {
+        //if (content.search("var start") != -1) {
             
             eval("var runFunction = " + runFunctionStr)
             runFunction()
             
-        } else {
+        //} else {
             
-            print("start() is needed in your code.")
+            //print("start() is needed in your code.")
             
-        }
+        //}
         
     } catch(e) {
         

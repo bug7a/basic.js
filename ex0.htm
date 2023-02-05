@@ -47,21 +47,29 @@
 
     
 
+    let clickedCount = 0;
+
     window.onload = function() {
         
-        // TEXTBOX: Your name. Parameters: (left, top)
-        page.txtName = createTextBox(30, 50);
-        that.title = "Your name:";
-        that.minimal = 1;
-        that.color = "whitesmoke";
-        that.onChange(printName);
+        startFlexBox();
+
+            window.lblText = createLabel();
+            that.text = "Hello World!";
+            that.element.style.cursor = "pointer";
+
+            that.onClick(increaseOne);
+
+        endFlexBox();
         
     };
     
-    const printName = function(changedTextBox) {
-        print("Name: " + changedTextBox.text);
+    const increaseOne = function() {
+
+        clickedCount++;
+        lblText.text = "Clicked Count: " + clickedCount;
+        
     };
-    
+
 </div>
         
     </body>

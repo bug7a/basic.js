@@ -9,8 +9,8 @@
 
         <!-- LIBRARY FILES -->
         <script src="library/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
-        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/basic-editor.js" type="text/javascript" charset="utf-8"></script>
 
         <style>
@@ -44,29 +44,32 @@
     <body>
         
 <div id="code-example" style="display:none">
-    // First running function.
-    var start = function() {
-        
-        // IMAGE: Bottom Info.
-        page.imgIcon = createImage()
-        that.width = 128
-        that.height = 128
-        //that.autoSize = 1
-        that.load("images/strawberry.png")
-        that.space = 15
-        that.color = "rgba(0, 0, 0, 0.05)"
-        that.right = 20
-        that.top = 20
-        that.onLoad(printImageSizes)
-        
-    }
 
-    var printImageSizes = function(self) {
 
-        print("Width: " + self.naturalWidth)
-        print("Height: " + self.naturalHeight)
 
-    }
+    window.onload = function() {
+
+        // BUTTON: Blue Button. Parameters: (left, top, width, height)
+        page.btnBlue = createButton(40, 40, 180, 50);
+        that.text = "HELLO";
+        that.minimal = 1;
+        //that.round = 14;
+        //that.border = 3;
+        //that.borderColor = "rgba(0, 0, 0, 0.1)";
+        //that.buttonElement.style.fontFamily = "opensans-bold";
+        //that.fontSize = 22;
+        //that.textColor = "rgba(0, 0, 0, 0.7)";
+        //that.width = "auto";
+        //that.spaceX = 20;
+        //that.color = "orangered";
+        that.onClick(printHelloWorld);
+
+    };
+
+    const printHelloWorld = function() {
+        print("Hello World");
+    };
+
 </div>
         
     </body>

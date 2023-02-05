@@ -9,8 +9,8 @@
 
         <!-- LIBRARY FILES -->
         <script src="library/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
-        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/basic-editor.js" type="text/javascript" charset="utf-8"></script>
 
         <style>
@@ -44,89 +44,46 @@
     <body>
         
 <div id="code-example" style="display:none">
-    var plantDataList = [
-        { id: "1", name: "Broccoli", description: "Vegetable", filePath: "images/broccoli.png" },
-        { id: "2", name: "Strawberry", description: "Fruit", filePath: "images/strawberry.png" },
-        { id: "3", name: "Carrot", description: "Vegetable", filePath: "images/carrot.png" },
-    ]
 
-    var plantList = [];
-        
-    var start = function() {
-
-        page.color = "whitesmoke"
-
-        // BOX: Fruit items container box.
-        page.boxItems = createBox(40, 40, 300, 230)
-        that.color = "white"
-        that.round = 13
-        that.scrollY = 1
-        that.center()
-
-        for(var i = 0; i < plantDataList.length; i++) {
-
-            // PLANTITEM: Every item.
-            createPlantItem(plantDataList[i].name, plantDataList[i].description, plantDataList[i].filePath)
-            page.boxItems.add(that)
-
-            plantList.push(that)
-
-        }
-        
-        page.onResize(pageResized)
-        
-    }
     
-    var pageResized = function() {
-        page.boxItems.center()
-    }
-    
-    var createPlantItem = function(titleText, descriptionText, iconFullPath) {
 
-        const ITEM_WIDTH = 300
+    window.onload = function() {
 
-        // BOX: Object container box
-        const box = createBox()
-        box.width = ITEM_WIDTH
-        box.height = 94
-        box.color = "transparent"
+        startFlexBox({
+            justifyContent: "center", // Default.
+            alignItems: "center", // Default.
+            // (You dont have to write default options.)
+        });
+        that.width = "100%"; // Default.
+        that.height = "100%"; // Default.
+        that.color = "transparent" // Default.
 
-        // BOX: Item background box
-        box.boxBackground = createBox(4, 2, ITEM_WIDTH - 8, 90)
-        box.add(that)
-        that.color = "rgba(0, 0, 0, 0.01)"
-        that.round = 13
-        that.border = 1
-        that.borderColor = "rgba(0, 0, 0, 0.04)"
-        that.setMotion("background-color 0.3s")
+        // NOTE: startFlexBox() always displays at the desired position.
+        // To be affected, object position must be "relative".
+        
+            // BOX: Gray box. Parameters: (left, top, width, height)
+            page.boxGray = startBox(0, 0, 120, 120);
+            that.color = "lightgray";
+            that.position = "relative"; // Default. 
+            // (Because object created in a startFlexBox.)
 
-        // IMAGE: Item icon image
-        box.imgLogo = createImage(30, 12, 70, 70)
-        box.add(that)
-        that.load(iconFullPath)
-        that.round = 4
-        that.color = "transparent"
-        that.border = 0
+                // BOX: Red box. Parameters: (left, top, width, height);
+                page.boxRed = createBox(0, 0, 50, 50);
+                that.color = "orangered";
+                that.positon = "absolute"; // Default.
+                that.center();
 
-        // LABEL: Item title text
-        box.lblTitle = createLabel(120, 25, 280, "auto")
-        box.add(that)
-        that.text = titleText
+                // NOTE: The .center() method performs a calculation when called.
+                // To be affected, object position must be "absolute".
 
-        // LABEL: Item description text
-        box.lblDesc = createLabel(120, 49, 280, "auto")
-        box.add(that)
-        that.text = descriptionText
-        that.textColor = "gray"
-        that.fontSize = 14
+            endBox();
 
-        // Show item as relative:
-        box.position = "relative"
+            // NOTE: page.boxRed object will create in page.boxGray object.
 
-        makeBasicObject(box)
-        return box
+        endFlexBox();
+        
+    };
 
-    }
 </div>
         
     </body>

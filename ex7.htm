@@ -9,8 +9,8 @@
 
         <!-- LIBRARY FILES -->
         <script src="library/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
-        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/basic-editor.js" type="text/javascript" charset="utf-8"></script>
 
         <style>
@@ -44,39 +44,42 @@
     <body>
         
 <div id="code-example" style="display:none">
-    // First running function.
-    var start = function() {
-        
-        // BOX: Gray box. Parameters: (left, top, width, height)
-        page.boxGray = createBox(0, 0, 120, 120)
-        that.color = "lightgray"
-        that.center()
 
-        // BOX: Red box.
-        page.boxRed = createBox(0, 0, 120, 120)
-        that.color = "orangered"
-        that.aline(page.boxGray, "right", 4)
-
-        // BOX: Orange box.
-        page.boxOrange = createBox(0, 0, 40, 40)
-        that.color = "orange"
-        that.round = 40
-        that.border = 6
-        that.borderColor = "rgba(0, 0, 0, 0.2)"
-        that.aline(page.boxGray, "bottom", 20, "center")
-
-        page.onResize(pageResized)
-        
-    }
     
-    var pageResized = function() {
 
-        // Recalculate the position of the boxes.
-        page.boxGray.center()
-        page.boxRed.aline(boxGray, "right", 4)
-        page.boxOrange.aline(boxGray, "bottom", 20, "center")
+    window.onload = function() {
+        
+        // BOX: My box.
+        page.box = createBox();
+        that.right = 0;
+        that.bottom = 0;
+        that.width = "100%";
+        that.height = 200;
+        that.color = "orangered";
+        that.round = 2;
+        that.clicksCount = 0;
+        that.onClick(increaseCount);
 
-    }
+        // LABEL: Box name text.
+        page.box.lblName = createLabel();
+        page.box.add(that);
+        that.text = "Red Box";
+        that.textColor = "rgba(0, 0, 0, 0.7)";
+        that.onResize(function(resizedLabel){
+            resizedLabel.center();
+        });
+        
+    };
+    
+    const increaseCount = function(clickedBox) {
+
+        clickedBox.clicksCount++;
+        clickedBox.lblName.text = "Box Clicked: " + clickedBox.clicksCount;
+        
+        clickedBox.bottom = clickedBox.clicksCount;
+
+    };
+    
 </div>
         
     </body>

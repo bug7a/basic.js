@@ -8,9 +8,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
         <!-- LIBRARY FILES -->
-        <link rel="stylesheet" type="text/css" href="library/basic.min.css">
-        <script src="library/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/moving-circles.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/launch-view.js" type="text/javascript" charset="utf-8"></script>
+
 
         <style>
 
@@ -25,16 +27,17 @@
 
             /* Track */
             .basic_box::-webkit-scrollbar-track {
-                background: white;
+                /* background: white; */
+                background: lightgray;
                 border-radius: 3px;
                 border: 1px solid black;
             }
             
             /* Handle */
             .basic_box::-webkit-scrollbar-thumb {
-                background: rgba(0, 0, 0, 0.9);
-                border-radius: 3px;
-                border: 2px solid rgba(0, 0, 0, 0);
+                background: rgba(0, 0, 0, 0.7);
+                border-radius: 6px;
+                border: 3px solid rgba(0, 0, 0, 0);
                 background-clip: padding-box;
             }
 
@@ -74,7 +77,7 @@
 
         var start = function() {
 
-            box = createBox(0, 0, page.width, page.height)
+            window.box = createBox(0, 0, page.width, page.height)
             that.color = "black"
             that.scrollY = 1
 
@@ -87,7 +90,7 @@
             that.color = "transparent"
             movingCircles.create(box.boxUpBackground)
 
-            box.homePage = createBox(0, 0, 1000, 9000)
+            box.homePage = createBox(0, 0, 1000, 10900)
             that.color = "transparent"
             that.center("left")
 
@@ -129,7 +132,7 @@
 
             box.homePage.header.btn1 = createLabel(0, 470, "auto", "auto")
             box.homePage.header.add(that)
-            that.text = "<b>Handbook</b> v1.7"
+            that.text = "<b>Handbook</b> v1.7.2"
             that.color = "rgba(0, 0, 0, 0.05)"
             that.round = 6
             that.fontSize = 24
@@ -164,19 +167,66 @@
                 box.homePage.header.btn2.aline(box.homePage.header.btn1, "right", 20)
             })
 
-            var exampleHeightList = [550, 550, 550, 550, 550, 550, 650, 550, 1350, 1350];
+            var exampleHeightList = [550, 2550, 1350, 550, 550, 550, 550, 550, 550, 650, 550];
+            var exampleNameList = [ 
+                "First example:", 
+                "Custom component, based on JSON data:", 
+                "Alternative usage with HTML template and CSS:",
+                "Button example:", 
+                "Label example:", 
+                "Image example:", 
+                "TextBox example:", 
+                "Box example:", 
+                "Motion Example:", 
+                ".center() and .aline() methods:", 
+                "startBox() and startFlexBox() usage:",
+            ];
 
-            for (var i = 1; i <= 10; i++) {
+            for (var i = 0; i <= 10; i++) {
 
-                box.homePage["ex" + i] = createBox(0, 0, 1000, exampleHeightList[i - 1])
+                box.homePage["ex" + i] = createBox(0, 0, 1000, exampleHeightList[i])
                 box.homePage.add(that)
                 that.color = "transparent"
                 that.element.style.position = "relative"
                 that.clickable = 1
-                that.html = "<iframe src='ex" + i + ".htm' width='100%' height='100%' style='border:0px solid lightgray;border-radius:4px;'></iframe>"
+                that.html = "<iframe id='ex" + i + "' src='ex" + i + ".htm' width='100%' height='100%' style='border:0px solid lightgray;border-radius:4px;'></iframe>"
                 that.element.style.marginTop = "80px"
 
+                createLabel();
+                box.homePage["ex" + i].add(that);
+                that.width = 1000;
+                that.top = 10;
+                that.left = 500;
+                that.color = "black";
+                that.textColor = "rgba(255, 255, 255, 0.8)";
+                that.text = exampleNameList[i];
+
+                const _i = i;
+
+                window.box.element.addEventListener("scroll", function(event) {
+
+                    if (box.homePage["ex" + _i].timeout) clearTimeout(box.homePage["ex" + _i].timeout);
+
+                    box.homePage["ex" + _i].timeout = setTimeout(function() {
+
+                        const iframeObj = document.getElementById('ex' + _i);
+                        const topSpace = box.homePage["ex" + _i].element.offsetTop;
+                        let top = window.box.element.scrollTop - topSpace + 10;
+                        let height = box.homePage["ex" + _i].height - iframeObj.contentWindow.basicEditor.box.boxPreview.height;
+
+                        if (top < 10) top = 10;
+                        if (top > height) top = height;
+
+                        iframeObj.contentWindow.basicEditor.box.boxPreview.top = top;
+                        iframeObj.contentWindow.basicEditor.box.lblPrint.aline(iframeObj.contentWindow.basicEditor.box.boxPreview, "bottom", 10);
+
+                    }, 25);
+                    
+                });
+
             }
+
+
 
             box.homePage.btnLive = createButton();
             box.homePage.add(that);
@@ -239,53 +289,36 @@
             }
             
             // LABEL: More Examples button.
-            box.homePage.footer.btnGroup.btn1 = createLabel(0, 0, 186, 44)
+            box.homePage.footer.btnGroup.btn1 = createLabel(0, 0, 270, 44) // 186
             box.homePage.footer.btnGroup.add(that)
-            that.text = "MORE EXAMPLES"
+            that.text = "MORE BEGINNER EXAMPLES"
             footerButtonStyle(that)
             that.onClick(function() {
                 go("https://bug7a.github.io/basic.js-examples/", "_blank")
             })
-            /*
-            that.onResize(function(self) {
-                print(self.width)
-                print(self.height)
-            })
-            */
 
+            
             // LABEL: Project #1 button.
-            box.homePage.footer.btnGroup.btn2 = createLabel(0, 0, 121, 44)
+            box.homePage.footer.btnGroup.btn2 = createLabel(0, 0, 161, 44)
             box.homePage.footer.btnGroup.add(that)
-            that.text = "PROJECT 1"
+            that.text = "FIRST PROJECT"
             footerButtonStyle(that)
             that.element.style.marginLeft = "10px"
             that.onClick(function() {
                 go("https://bug7a.github.io/javascript-single-page-application-example/", "_blank")
             })
-            /*
-            that.onResize(function(self) {
-                print(self.width)
-                print(self.height)
-            })
-            */
-            
 
             // LABEL: Project #2 button.
-            box.homePage.footer.btnGroup.btn3 = createLabel(0, 0, 121, 44)
+            box.homePage.footer.btnGroup.btn3 = createLabel(0, 0, 161, 44)
             box.homePage.footer.btnGroup.add(that)
-            that.text = "PROJECT 2"
+            that.text = "FULL PROJECT"
             footerButtonStyle(that)
             that.element.style.marginLeft = "10px"
             that.onClick(function() {
                 go("https://bug7a.github.io/cordova-mobile-app-ui-template/", "_blank")
             })
-            /*
-            that.onResize(function(self) {
-                print(self.width)
-                print(self.height)
-            })
-            */
 
+            /*
             // LABEL: ShowCase #1 button.
             box.homePage.footer.btnGroup.btn4 = createLabel(0, 0, 148, 44)
             box.homePage.footer.btnGroup.add(that)
@@ -295,12 +328,6 @@
             that.onClick(function() {
                 go("https://play.google.com/store/apps/details?id=com.bugraozden.roboticcodinggame", "_blank")
             })
-            /*
-            that.onResize(function(self) {
-                print(self.width)
-                print(self.height)
-            })
-            */
 
             // LABEL: ShowCase #2 button.
             box.homePage.footer.btnGroup.btn5 = createLabel(0, 0, 148, 44)
@@ -311,22 +338,19 @@
             that.onClick(function() {
                 go("https://play.google.com/store/apps/details?id=com.bugraozden.mathrace", "_blank")
             })
-            /*
-            that.onResize(function(self) {
-                print(self.width)
-                print(self.height)
-            })
             */
 
             // LABEL: Info.
             box.homePage.footer.lblInfo = createLabel(0, 275, 600, 100)
             box.homePage.footer.add(that)
-            that.text = "Developed by <b onclick='gotoBugraSite();' style='cursor: pointer;'>Bugra Ozden</b><br>Licensed under <b>CC 4.0</b>"
+            that.text = "Copyright 2020-2023 <b onclick='gotoBugraSite();' style='cursor: pointer;'>Bugra Ozden</b><br>Licensed under <b onclick='gotoLicenses();' style='cursor: pointer;'>the Apache License</b>, Version 2.0"
             that.fontSize = 12
             that.opacity = 0.8
             that.clickable = 1
             that.textAlign = "center"
             that.center("left")
+
+            launchView.create({ delayTime: 500 });
 
             page.onResize(pageResized)
             
@@ -350,6 +374,10 @@
 
         const gotoBugraSite = function() {
             window.open("https://bugraozden.com/", "_blank");
+        }
+
+        const gotoLicenses = function() {
+            window.open("http://www.apache.org/licenses/LICENSE-2.0", "_blank");
         }
 
         </script>
