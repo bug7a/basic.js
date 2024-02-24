@@ -2,7 +2,7 @@
 <html>
     <head>
         
-        <title>Box example</title>
+        <title>Box Example</title>
         
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -12,37 +12,39 @@
         <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
 
         <script>
+
+        let box;
             
-        window.onload = function() {
+        window.onload = () => {
             
             // BOX: My box.
-            page.box = createBox();
-            that.right = 0;
-            that.bottom = 0;
-            that.width = "100%";
-            that.height = 200;
-            that.color = "orangered";
-            that.round = 2;
-            that.clicksCount = 0;
+            box = Box({
+                right: 0,
+                bottom: 0,
+                width: "100%",
+                height: 200,
+                color: "orangered",
+            });
+            that.clickedCount = 0;
             that.onClick(increaseCount);
 
             // LABEL: Box name text.
-            page.box.lblName = createLabel();
-            page.box.add(that);
-            that.text = "Red Box";
-            that.textColor = "rgba(0, 0, 0, 0.7)";
-            that.onResize(function(resizedLabel){
-                resizedLabel.center();
+            box.lblName = Label({
+                top: 20,
+                left: 20,
+                text: "Click Me",
+                textColor: "rgba(0, 0, 0, 0.7)",
             });
+            box.add(that);
             
         };
         
-        const increaseCount = function(clickedBox) {
+        const increaseCount = (clickedBox) => {
 
-            clickedBox.clicksCount++;
-            clickedBox.lblName.text = "Box Clicked: " + clickedBox.clicksCount;
+            clickedBox.clickedCount++;
+            clickedBox.lblName.text = "Box Clicked: " + clickedBox.clickedCount;
             
-            clickedBox.bottom = clickedBox.clicksCount;
+            clickedBox.bottom = clickedBox.clickedCount;
 
         };
         

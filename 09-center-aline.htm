@@ -13,36 +13,44 @@
 
         <script>
         
-        window.onload = function() {
+        let boxGray;
+        let boxRed;
+        let boxOrange;
         
-            // BOX: Gray box. Parameters: (left, top, width, height)
-            page.boxGray = createBox(0, 0, 120, 120);
-            that.color = "lightgray";
+        // First running function.
+        window.onload = () => {
+            
+            // BOX: Gray box. Parameters: (left, top, width, height, props)
+            boxGray = Box(0, 0, 120, 120, {
+                color: "lightgray",
+            });
             that.center();
 
             // BOX: Red box.
-            page.boxRed = createBox(0, 0, 120, 120);
-            that.color = "orangered";
-            that.aline(previousThat, "right", 4);
+            boxRed = Box(0, 0, 120, 120, {
+                color: "orangered",
+            });
+            that.aline(boxGray, "right", 4);
 
             // BOX: Orange box.
-            page.boxOrange = createBox(0, 0, 40, 40);
-            that.color = "orange";
-            that.round = 40;
-            that.border = 6;
-            that.borderColor = "rgba(0, 0, 0, 0.2)";
-            that.aline(page.boxGray, "bottom", 20, "center");
+            boxOrange = Box(0, 0, 40, 40, {
+                color: "orange",
+                round: 40,
+                border: 6,
+                borderColor: "rgba(0, 0, 0, 0.2)",
+            });
+            that.aline(boxGray, "bottom", 20, "center");
 
             page.onResize(pageResized);
             
         };
         
-        var pageResized = function() {
+        const pageResized = () => {
 
             // Recalculate the position of the boxes.
-            page.boxGray.center();
-            page.boxRed.aline(page.boxGray, "right", 4);
-            page.boxOrange.aline(page.boxGray, "bottom", 20, "center");
+            boxGray.center();
+            boxRed.aline(boxGray, "right", 4);
+            boxOrange.aline(boxGray, "bottom", 20, "center");
 
             // NOTE: .center() and .aline() methods calculate only when called.
 

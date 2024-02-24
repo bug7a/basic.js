@@ -2,7 +2,7 @@
 <html>
     <head>
         
-        <title>TextBox example</title>
+        <title>Input Example</title>
         
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -12,20 +12,24 @@
         <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
 
         <script>
+
+        let inpName;
             
-        window.onload = function() {
-        
-            // TEXTBOX: Your name. Parameters: (left, top)
-            page.txtName = createTextBox(30, 50);
-            that.title = "Your name:";
-            that.minimal = 1;
-            that.color = "whitesmoke";
+        // First running function.
+        window.onload = () => {
+            
+            // INPUT: Your name. Parameters: (left, top)
+            inpName = Input(30, 50, {
+                title: "Your name:",
+                minimal: 1,
+                color: "whitesmoke",
+            });
             that.onChange(printName);
             
         };
         
-        const printName = function(changedTextBox) {
-            print("Name: " + changedTextBox.text);
+        const printName = (changedInput) => {
+            println("Name: " + changedInput.text);
         };
 
         </script>

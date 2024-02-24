@@ -85,10 +85,10 @@
         <script>
         
         let plantItemDataList = [
-            { id: "1", name: "Broccoli", description: "Vegetable", iconPath: "images/broccoli.png" },
-            { id: "2", name: "Strawberry", description: "Fruit", iconPath: "images/strawberry.png" },
-            { id: "3", name: "Carrot", description: "Vegetable", iconPath: "images/carrot.png" },
-            { id: "4", name: "Blueberries", description: "Fruit", iconPath: "images/blueberries.png" },
+            { id: "1", name: "Broccoli", description: "Vegetable", iconPath: "assets/broccoli.png" },
+            { id: "2", name: "Strawberry", description: "Fruit", iconPath: "assets/strawberry.png" },
+            { id: "3", name: "Carrot", description: "Vegetable", iconPath: "assets/carrot.png" },
+            { id: "4", name: "Blueberries", description: "Fruit", iconPath: "assets/blueberries.png" },
         ];
 
         let plantItemList = [];
@@ -124,7 +124,7 @@
                 item.position = "relative";
                 // On item clicked.
                 item.onClick(function(clickedItem) {
-                    print("Clicked item index: " + clickedItem.index);
+                    println("Clicked item index: " + clickedItem.index);
                 });
 
                 // Keep the object for later use.

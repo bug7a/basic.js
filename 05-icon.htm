@@ -2,7 +2,7 @@
 <html>
     <head>
         
-        <title>Label Example</title>
+        <title>Icon Example</title>
         
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -13,25 +13,32 @@
 
         <script>
 
-        let lblBottomInfo;
+        let icoLogo;
         
         // First running function.
         window.onload = () => {
             
-            // LABEL: Bottom Info.
-            lblBottomInfo = Label({
-                left: 0,
-                bottom: 20,
-                width: "100%",
-                height: "auto",
-                text: "This is a label",
-                textAlign: "center",
-                color: "gold",
-                textColor: "rgba(0, 0, 0, 0.4)",
-                spaceY: 10,
+            // IMAGE: Bottom Info.
+            icoLogo = Icon({
+                right: 20,
+                top: 20,
+                width: 128,
+                height: 128,
+                space: 15,
+                color: "rgba(0, 0, 0, 0.05)",
             });
+            //that.autoSize = 1;
+            that.load("assets/strawberry.png");
+            that.onLoad(printIconSizes);
             
-        }
+        };
+
+        const printIconSizes = (loadedIcon) => {
+
+            println("Width: " + loadedIcon.naturalWidth);
+            println("Height: " + loadedIcon.naturalHeight);
+
+        };
 
         </script>
 

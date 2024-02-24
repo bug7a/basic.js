@@ -2,7 +2,7 @@
 <html>
     <head>
         
-        <title>Button example</title>
+        <title>Button Example</title>
         
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -12,28 +12,32 @@
         <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
 
         <script>
-            
-        window.onload = function() {
 
-            // BUTTON: Blue Button. Parameters: (left, top, width, height)
-            page.btnBlue = createButton(40, 40, 180, 50);
-            that.text = "HELLO";
-            that.minimal = 1;
-            //that.round = 14;
-            //that.border = 3;
-            //that.borderColor = "rgba(0, 0, 0, 0.1)";
-            //that.buttonElement.style.fontFamily = "opensans-bold";
-            //that.fontSize = 22;
-            //that.textColor = "rgba(0, 0, 0, 0.7)";
-            //that.width = "auto";
-            //that.spaceX = 20;
-            //that.color = "orangered";
+        let btnBlue;
+            
+        // First running function.
+        window.onload = () => {
+
+            // BUTTON: First Button. Parameters: (left, top, width, height, props)
+            btnBlue = Button(40, 40, 180, 50, { 
+                text: "HELLO",
+                minimal: 1, 
+                //round: 14,
+                //border: 3,
+                //borderColor: "rgba(0, 0, 0, 0.1)",
+                //fontSize: 22,
+                //textColor: "rgba(0, 0, 0, 0.7)",
+                //width: "auto",
+                //spaceX: 20,
+                //color: "orangered",
+            });
+            //that.elem.style.fontFamily = "opensans-bold";
             that.onClick(printHelloWorld);
 
         };
 
-        const printHelloWorld = function() {
-            print("Hello World");
+        const printHelloWorld = () => {
+            println("Hello World");
         };
 
         </script>

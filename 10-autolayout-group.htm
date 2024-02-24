@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>Autolayout Group Example</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        // First running function.
+        window.onload = () => {
+
+            page.color = "whitesmoke";
+
+            // GROUP: Autolayout (Default: centered)
+            startFlexBox({
+                left: 0,
+                top: 0,
+                width: "100%",
+                height: "100%",
+                flexDirection: "row", // row, column
+                flexWrap: "nowrap", // wrap, nowrap
+                alignContent: "center", // flex-start, center, flex-end, space-between, space-around, stretch (up to down)
+                justifyContent: "center", // flex-start, center, flex-end, space-between, space-around, space-evenly (left to right)
+                alignItems: "center", // flex-start, flex-end, center, baseline, stretch
+            });
+
+                // BOX: Red 
+                Box({
+                    color: "orangered",
+                });
+
+                // BOX: Blue
+                Box({
+                    color: "steelblue",
+                });
+                that.elem.style.marginLeft = "8px";
+                
+            endFlexBox();
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

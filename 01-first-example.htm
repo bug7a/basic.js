@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>First Example</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+            
+        // VARIABLES
+            
+        let lblText;
+        let clickedCount = 0;
+            
+        // First running function.
+        window.onload = () => {
+        
+            // GROUP: Autolayout (Default: centered)
+            startFlexBox();
+
+                // LABEL: Clickable label
+                lblText = Label({
+                    text: "Click Me",
+                    color: "lightgray",
+                    spaceX: 12,
+                    spaceY: 4,
+                    round: 4,
+                    border: 1,
+                    borderColor: "rgba(0, 0, 0, 0.1)",
+                });
+                that.elem.style.cursor = "pointer";
+                that.onClick(increaseOne);
+
+            endFlexBox();
+            
+        };
+        
+        // OTHER FUNCTIONS
+        const increaseOne = function() {
+
+            clickedCount++;
+            lblText.text = "Clicked Count: " + clickedCount;
+
+            console.log(clickedCount);
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

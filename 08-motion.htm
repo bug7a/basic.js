@@ -12,15 +12,18 @@
         <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
 
         <script>
+
+        let box;
     
-        window.onload = function() {
+        window.onload = () => {
             
-            // BOX: Orangered box.
-            page.box = createBox();
-            that.color = "orangered";
-            that.round = 4;
-            that.width = 120;
-            that.height = 120;
+            // BOX: My box.
+            box = Box({
+                width: 120,
+                height: 120,
+                color: "orangered",
+                round: 4,
+            });
             that.center();
             // When there is a change, soften it with movement.
             that.setMotion("left 0.3s, top 0.3s, width 0.3s, height 0.3s");
@@ -28,11 +31,11 @@
             
         };
         
-        var extendBox = function(targetBox) {
+        const extendBox = (clickedBox) => {
 
-            targetBox.width += 50;
-            targetBox.height += 50;
-            targetBox.center();
+            clickedBox.width += 50;
+            clickedBox.height += 50;
+            clickedBox.center();
 
         };
 
