@@ -47,29 +47,48 @@
 
     
 
-    window.onload = function() {
+    let boxGray;
+    let boxRed;
+    let boxOrange;
+    
+    // First running function.
+    window.onload = () => {
         
-        // BOX: Orangered box.
-        page.box = createBox();
-        that.color = "orangered";
-        that.round = 4;
-        that.width = 120;
-        that.height = 120;
+        // BOX: Gray box. Parameters: (left, top, width, height, props)
+        boxGray = Box(0, 0, 120, 120, {
+            color: "lightgray",
+        });
         that.center();
-        // When there is a change, soften it with movement.
-        that.setMotion("left 0.3s, top 0.3s, width 0.3s, height 0.3s");
-        that.onClick(extendBox);
+
+        // BOX: Red box.
+        boxRed = Box(0, 0, 120, 120, {
+            color: "orangered",
+        });
+        that.aline(boxGray, "right", 4);
+
+        // BOX: Orange box.
+        boxOrange = Box(0, 0, 40, 40, {
+            color: "orange",
+            round: 40,
+            border: 6,
+            borderColor: "rgba(0, 0, 0, 0.2)",
+        });
+        that.aline(boxGray, "bottom", 20, "center");
+
+        page.onResize(pageResized);
         
     };
     
-    const extendBox = function(targetBox) {
+    const pageResized = () => {
 
-        targetBox.width += 50;
-        targetBox.height += 50;
-        targetBox.center();
+        // Recalculate the position of the boxes.
+        boxGray.center();
+        boxRed.aline(boxGray, "right", 4);
+        boxOrange.aline(boxGray, "bottom", 20, "center");
+
+        // NOTE: .center() and .aline() methods calculate only when called.
 
     };
-
 </div>
         
     </body>

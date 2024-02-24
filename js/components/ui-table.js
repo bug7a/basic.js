@@ -889,9 +889,9 @@ UITable.create = function(parameters = {}) {
 
         refreshItemBackgrounds();
 
-        //print(selectedTitleCellIndex);
-        //print(selectedSortingType);
-        //print(box.getTitleCellById(selectedTitleCellIndex));
+        //println(selectedTitleCellIndex);
+        //println(selectedSortingType);
+        //println(box.getTitleCellById(selectedTitleCellIndex));
         box.sort(box.titleCellList[selectedTitleCellIndex || 0].data.id, selectedSortingType);
 
         makeBasicObject(box);

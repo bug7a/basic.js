@@ -47,28 +47,25 @@
 
     
 
-    window.onload = function() {
+    let inpName;
+            
+    // First running function.
+    window.onload = () => {
         
-        // IMAGE: Strawberry image.
-        page.imgIcon = createImage();
-        that.width = 64;
-        that.height = 64;
-        //that.autoSize = 1;
-        that.load("images/strawberry.png");
-        that.space = 15;
-        that.color = "rgba(0, 0, 0, 0.05)";
-        that.right = 20;
-        that.top = 20;
-        that.onLoad(printImageSizes);
+        // INPUT: Your name. Parameters: (left, top)
+        inpName = Input(30, 50, {
+            title: "Your name:",
+            minimal: 1,
+            color: "whitesmoke",
+        });
+        that.onChange(printName);
         
     };
-
-    const printImageSizes = function(loadedImage) {
-
-        print("Width: " + loadedImage.naturalWidth);
-        print("Height: " + loadedImage.naturalHeight);
-
+    
+    const printName = (changedInput) => {
+        println("Name: " + changedInput.text);
     };
+    
 </div>
         
     </body>

@@ -47,27 +47,40 @@
 
     
 
+    let lblText;
     let clickedCount = 0;
-
-    window.onload = function() {
         
+    // First running function.
+    window.onload = () => {
+    
+        // GROUP: Autolayout (Default: centered)
         startFlexBox();
 
-            window.lblText = createLabel();
-            that.text = "Hello World!";
-            that.element.style.cursor = "pointer";
-
+            // LABEL: Clickable label
+            lblText = Label({
+                text: "Click Me",
+                color: "lightgray",
+                spaceX: 12,
+                spaceY: 4,
+                round: 4,
+                border: 1,
+                borderColor: "rgba(0, 0, 0, 0.1)",
+            });
+            that.elem.style.cursor = "pointer";
             that.onClick(increaseOne);
 
         endFlexBox();
         
     };
     
-    const increaseOne = function() {
+    // OTHER FUNCTIONS
+    const increaseOne = () => {
 
         clickedCount++;
         lblText.text = "Clicked Count: " + clickedCount;
-        
+
+        println(clickedCount);
+
     };
 
 </div>

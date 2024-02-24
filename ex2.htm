@@ -28,73 +28,6 @@
                 
             }
 
-            .item-model {
-
-            position: relative;
-            display: block;
-            width: 100%;
-            height: 100%;
-            background-color: transparent;
-            border: 0px solid white;
-
-            }
-
-            .item-model.background {
-
-            position:absolute;
-            top: 2px;
-            left: 4px;
-            width: calc(100% - 8px);
-            height: calc(100% - 4px);
-            background-color: rgba(0, 0, 0, 0.01);
-            border-radius: 13px;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            box-sizing: border-box;
-            transition: background-color 0.3s ease 0s;
-
-            }
-
-            .item-model.icon {
-
-            position:absolute;
-            left: 30px;
-            top: 12px;
-            width: 70px;
-            height: 70px;
-            border-radius: 4px;
-            background-color: transparent;
-            border-width: 0px;
-
-            }
-
-            .item-model.title {
-
-            position:absolute;
-            left: 120px;
-            top: 25px;
-            width: 280px;
-            height: auto;
-            font-family: opensans;
-            font-size: 20px;
-            text-align: left;
-            color: #4A4A4A;
-
-            }
-
-            .item-model.description {
-
-            position:absolute;
-            left: 120px;
-            top: 49px;
-            width: 280px;
-            height: auto;
-            color: gray;
-            font-family: opensans;
-            font-size: 14px;
-            text-align: left;
-
-            }
-
         </style>
 
         <script>
@@ -112,93 +45,35 @@
         
 <div id="code-example" style="display:none">
 
-    
 
-    let plantItemDataList = [
-        { id: "1", name: "Broccoli", description: "Vegetable", iconPath: "images/broccoli.png" },
-        { id: "2", name: "Strawberry", description: "Fruit", iconPath: "images/strawberry.png" },
-        { id: "3", name: "Carrot", description: "Vegetable", iconPath: "images/carrot.png" },
-        { id: "4", name: "Blueberries", description: "Fruit", iconPath: "images/blueberries.png" },
-    ];
 
-    let plantItemList = [];
-        
-    window.onload = function() {
+    let btnBlue;
+            
+    // First running function.
+    window.onload = () => {
 
-        page.color = "whitesmoke";
-
-        // BOX: Plant items container box. Parameters: left, top, width, height
-        page.boxItems = createBox(0, 0, 300, "100%");
-        that.color = "transparent";
-        that.scrollY = 1;
-        that.right = 0;
-
-        createPlantItems();
-        
-    };
-
-    const createPlantItems = function() {
-
-        // Clear all items.
-        plantItemList = [];
-        page.boxItems.html = "";
-
-        // Add items from plantItemDataList.
-        for(index in plantItemDataList) {
-
-            // PLANT ITEM: Create a plant item object.
-            const item = createPlantItem(plantItemDataList[index], index);
-            // Move the created item into the container box.
-            page.boxItems.add(item);
-            // Give position after moving into the box to show the object.
-            item.position = "relative";
-            // On item clicked.
-            item.onClick(function(clickedItem) {
-                print("Clicked item index: " + clickedItem.index);
-            });
-
-            // Keep the object for later use.
-            plantItemList.push(item);
-
-        }
-
-        // NOTE: You can make any change on plantItemDataList and 
-        // call createPlantItems again to refresh all.
-        // or you can directly change any properties 
-        // of the created objects by using the plantItemList.
+        // BUTTON: First Button. Parameters: (left, top, width, height, props)
+        btnBlue = Button(40, 40, 180, 50, { 
+            text: "HELLO",
+            minimal: 1, 
+            //round: 14,
+            //border: 3,
+            //borderColor: "rgba(0, 0, 0, 0.1)",
+            //fontSize: 22,
+            //textColor: "rgba(0, 0, 0, 0.7)",
+            //width: "auto",
+            //spaceX: 20,
+            //color: "orangered",
+        });
+        //that.elem.style.fontFamily = "opensans-bold";
+        that.onClick(printHelloWorld);
 
     };
-    
-    const createPlantItem = function(data, index) {
 
-        // BOX: Object container box
-        const box = createBox();
-        box.width = "100%";
-        box.height = 94;
-        box.color = "transparent";
-
-        // Keep item data:
-        box.data = data;
-        box.index = index;
-
-        // TEMPLATE:
-        box.html = `
-            <div class="item-model">
-                <div class="item-model background"></div>
-                <img class="item-model icon" src="${data.iconPath}">
-                <div class="item-model title">${data.name}</div>
-                <div class="item-model description">${data.description}</div>
-            </div>
-        `;
-
-        // NOTE: This technique may be more efficient 
-        // if you are going to display text-heavy content.
-
-        makeBasicObject(box);
-        return box;
-
+    const printHelloWorld = () => {
+        println("Hello World");
     };
-    
+
 </div>
         
     </body>

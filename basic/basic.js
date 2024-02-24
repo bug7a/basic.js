@@ -3,10 +3,10 @@
 
 /*
 
-basic.js (v1.7.2) Create interactive user interfaces with basic programming skills.
+basic.js (v1.7.4) Create interactive user interfaces with basic programming skills.
 - Project Site: https://bug7a.github.io/basic.js/
 
-Copyright 2020-2023 Bugra Ozden <bugra.ozden@gmail.com>
+Copyright 2020-2024 Bugra Ozden <bugra.ozden@gmail.com>
 - https://github.com/bug7a
 
 Licensed under the Apache License, Version 2.0
@@ -97,6 +97,7 @@ basic.months = [
 
 win.that = null;
 win.previousThat = null;
+win.prevThat = null;
 
 let defaultContainerBox;
 let previousDefaultContainerBox;
@@ -110,6 +111,7 @@ motionController.DONT_MOTION_TIME = 40;
 
 basic.start = function () {
 
+    // - windows için ayrı css dosyası olabilir.
     /*
     var link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -156,13 +158,13 @@ basic.afterStart = function () {
     // console.log(timeUsed);
 };
 
-window.printThePage = window.print;
-basic.print = function ($message) {
-    console.log($message);
+//window.printThePage = window.print;
+win.println = function ($message, $type = "log") {
+    console[$type]($message);
 };
-win.print = basic.print;
+//win.println = basic.println;
 
-basic.random = function ($first, $second) {
+win.random = function ($first, $second) {
 
     let result = 0;
 
@@ -182,9 +184,9 @@ basic.random = function ($first, $second) {
     return result;
 
 };
-win.random = basic.random;
+//win.random = basic.random;
 
-basic.num = function ($str, $type = "float") {
+win.num = function ($str, $type = "float") {
 
     if ($type == "float") {
         var i = parseFloat($str);
@@ -195,14 +197,14 @@ basic.num = function ($str, $type = "float") {
     }
 
 };
-win.num = basic.num;
+//win.num = basic.num;
 
-basic.str = function ($num) {
+win.str = function ($num) {
     return String($num);
 };
-win.str = basic.str;
+//win.str = basic.str;
 
-basic.isMobile = function () {
+win.isMobile = function () {
 
     let answer = 0;
 
@@ -214,9 +216,9 @@ basic.isMobile = function () {
     return answer;
 
 };
-win.isMobile = basic.isMobile;
+//win.isMobile = basic.isMobile;
 
-basic.go = function ($url, $windowType = "_self") {
+win.go = function ($url, $windowType = "_self") {
 
     // window.location.href = $url;
     var openedWindow = window.open($url, $windowType);
@@ -225,10 +227,10 @@ basic.go = function ($url, $windowType = "_self") {
     return openedWindow;
 
 };
-win.go = basic.go;
+//win.go = basic.go;
 
 // Tek haneli sayıyı, başına "0" ekleyerek iki haneli yapar. 03:10:05
-basic.twoDigitFormat = function($number) {
+win.twoDigitFormat = function($number) {
 
     if ($number <= 9) {
         $number = "0" + $number;
@@ -237,9 +239,9 @@ basic.twoDigitFormat = function($number) {
     return $number;
 
 };
-win.twoDigitFormat = basic.twoDigitFormat;
+//win.twoDigitFormat = basic.twoDigitFormat;
 
-basic.storage = {
+win.storage = {
 
     save(key, value) {
         window.localStorage.setItem(key, JSON.stringify(value));
@@ -252,9 +254,9 @@ basic.storage = {
     }
 
 };
-win.storage = basic.storage;
+//win.storage = basic.storage;
 
-basic.clock = {
+win.clock = {
 
     get hour() {
         let dt = new Date();
@@ -274,9 +276,9 @@ basic.clock = {
     }
 
 };
-win.clock = basic.clock;
+//win.clock = basic.clock;
 
-basic.date = {
+win.date = {
 
     get year() {
         let dt = new Date();
@@ -313,7 +315,7 @@ basic.date = {
     }
 
 };
-win.date = basic.date;
+//win.date = basic.date;
 
 // Common methods and properties of basic objects.
 class Basic_UIComponent {
@@ -357,6 +359,16 @@ class Basic_UIComponent {
 
     }
 
+    // alternative for containerBox
+    get parentBox() {
+        return this._containerBox;
+    }
+
+    // alternative for containerBox
+    set parentBox($value) {
+        this._containerBox = $value;
+    }
+
     get containerBox() {
         return this._containerBox;
     }
@@ -368,7 +380,11 @@ class Basic_UIComponent {
     // Hizalama ve boyutlandırma.
 
     get left() {
-        return parseFloat(this.contElement.style.left);
+        if (this.position == "absolute") {
+            return parseFloat(this.contElement.style.left);
+        } else {
+            return this.contElement.offsetLeft;
+        }
     }
 
     set left($value) {
@@ -377,7 +393,11 @@ class Basic_UIComponent {
     }
 
     get top() {
-        return parseFloat(this.contElement.style.top);
+        if (this.position == "absolute") {
+            return parseFloat(this.contElement.style.top);
+        } else {
+            return this.contElement.offsetTop;
+        }
     }
 
     set top($value) {
@@ -600,11 +620,15 @@ class Basic_UIComponent {
     // Otomatik hizalama metodları
 
     center($position) {
-        basic.moveToCenter(this, $position);
+        moveToCenter(this, $position);
+    }
+
+    centerBy($obj, $position) {
+        moveToCenterBy(this, $obj, $position);
     }
 
     aline($obj, $position, $space = 0, $secondPosition) {
-        basic.moveToAline(this, $obj, $position, $space, $secondPosition);
+        moveToAline(this, $obj, $position, $space, $secondPosition);
     }
 
     // -- Otomatik hizalama metodları SONU
@@ -615,8 +639,8 @@ class Basic_UIComponent {
     }
 
     // Toplu özellik değiştirmesi.
-    prop($values) {
-        basic.setProparties(this, $values);
+    props($defaultParams, $params, $props) {
+        setProparties(this, $defaultParams, $params, $props);
     }
 
     // Olay eklemek.
@@ -734,6 +758,11 @@ class MainBox {
 
     }
 
+    // short usage of element
+    get elem() {
+        return this._element;
+    }
+
     get element() {
         return this._element;
     }
@@ -839,7 +868,7 @@ class MainBox {
 }
 
 /* BOX COMPONENT */
-class Box extends Basic_UIComponent {
+class BBox extends Basic_UIComponent {
 
     constructor($left = -1000, $top = -1000, $width = 100, $height = 100) {
         
@@ -877,6 +906,10 @@ class Box extends Basic_UIComponent {
 
         makeBasicObject(this);
 
+    }
+
+    get elem() {
+        return this._element;
     }
 
     get element() {
@@ -958,20 +991,22 @@ class Box extends Basic_UIComponent {
     }
 
 }
-win.Box = Box;
+//win.Box = Box;
 
 // Alternatif kullanım
 win.createBox = function ($left, $top, $width, $height) {
-    return new Box($left, $top, $width, $height);
+    return new BBox($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
+/*
 win.cbox = function ($left, $top, $width, $height) {
-    return new Box($left, $top, $width, $height);
+    return new BBox($left, $top, $width, $height);
 }
+*/
 
 /* BUTTON COMPONENT */
-class Button extends Basic_UIComponent {
+class BButton extends Basic_UIComponent {
 
     constructor($left = -1000, $top = -1000, $width = basic.BUTTON_WIDTH, $height = basic.BUTTON_HEIGHT) {
 
@@ -1013,6 +1048,10 @@ class Button extends Basic_UIComponent {
 
         makeBasicObject(this);
 
+    }
+
+    get elem() {
+        return this._element;
     }
 
     get element() {
@@ -1087,20 +1126,22 @@ class Button extends Basic_UIComponent {
     }
 
 }
-win.Button = Button;
+//win.Button = Button;
 
 // Alternatif kullanım1
 win.createButton = function ($left, $top, $width, $height) {
-    return new Button($left, $top, $width, $height);
+    return new BButton($left, $top, $width, $height);
 }
 
 // Alternatif kullanım 2
+/*
 win.cbtn = function ($left, $top, $width, $height) {
-    return new Button($left, $top, $width, $height);
+    return new BButton($left, $top, $width, $height);
 }
+*/
 
 /* TEXTBOX COMPONENT */
-class TextBox extends Basic_UIComponent {
+class BTextBox extends Basic_UIComponent {
 
     /*
     _titleElement;
@@ -1161,6 +1202,10 @@ class TextBox extends Basic_UIComponent {
 
         makeBasicObject(this);
 
+    }
+
+    get elem() {
+        return this._mainElement;
     }
 
     get element() {
@@ -1315,20 +1360,26 @@ class TextBox extends Basic_UIComponent {
     }
 
 }
-win.TextBox = TextBox;
+//win.TextBox = TextBox;
 
 // Alternatif kullanım
 win.createTextBox = function ($left, $top, $width, $height) {
-    return new TextBox($left, $top, $width, $height);
+    return new BTextBox($left, $top, $width, $height);
+}
+
+win.createInput = function ($left, $top, $width, $height) {
+    return new BTextBox($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
+/*
 win.ctxt = function ($left, $top, $width, $height) {
-    return new TextBox($left, $top, $width, $height);
+    return new BTextBox($left, $top, $width, $height);
 }
+*/
 
 /* LABEL COMPONENT */
-class Label extends Basic_UIComponent {
+class BLabel extends Basic_UIComponent {
 
     constructor($left = -1000, $top = -1000, $width = "auto", $height = "auto") {
 
@@ -1371,6 +1422,10 @@ class Label extends Basic_UIComponent {
     }
 
     //sample: <b>text</b><br />
+
+    get elem() {
+        return this._element;
+    }
 
     get element() {
         return this._element;
@@ -1429,22 +1484,24 @@ class Label extends Basic_UIComponent {
     }
 
 }
-win.Label = Label;
+//win.Label = Label;
 
 // Alternatif kullanım
 win.createLabel = function ($left, $top, $width, $height) {
-    return new Label($left, $top, $width, $height);
+    return new BLabel($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
+/*
 win.clbl = function ($left, $top, $width, $height) {
-    return new Label($left, $top, $width, $height);
+    return new BLabel($left, $top, $width, $height);
 }
+*/
 
-window.ImageObj = window.Image;
+//window.ImageObj = window.Image;
 
 /* IMAGE COMPONENT */
-class Image extends Basic_UIComponent {
+class BImage extends Basic_UIComponent {
 
     // Not: CheckBox resim nesnesi ile yapılabilir.
     /*
@@ -1506,6 +1563,10 @@ class Image extends Basic_UIComponent {
 
         makeBasicObject(this);
 
+    }
+
+    get elem() {
+        return this._element;
     }
 
     get element() {
@@ -1574,6 +1635,7 @@ class Image extends Basic_UIComponent {
         }
 
         this._space = $value;
+        //this.contElement.style.padding = String($value + "%");
         var spaceX = parseInt((this.width / 100) * $value);
         var spaceY = parseInt((this.height / 100) * $value);
 
@@ -1607,25 +1669,31 @@ class Image extends Basic_UIComponent {
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the Image object.");
+        console.error("basic.js: add(): Insertion cannot be made inside the BImage object.");
     }
 
 }
-win.Image = Image;
+//win.BImage = BImage;
 
 // Alternatif kullanım
 win.createImage = function ($left, $top, $width, $height) {
 
-    return new Image($left, $top, $width, $height);
+    return new BImage($left, $top, $width, $height);
+
+}
+
+win.createIcon = function ($left, $top, $width, $height) {
+
+    return new BImage($left, $top, $width, $height);
 
 }
 
 // Alternatif kullanım
+/*
 win.cimg = function ($left, $top, $width, $height) {
-
-    return new Image($left, $top, $width, $height);
-
+    return new BImage($left, $top, $width, $height);
 }
+*/
 
 class Sound {
 
@@ -1740,16 +1808,33 @@ class Sound {
 /* ### FUNCTIONS ### */
 
 // Set styles with style object.
-basic.setProparties = function ($this, $values = []) {
+const setProparties = function ($this, $defaultParams = [], $params = [], $props = []) {
 
-    for (var valueTitle in $values) {
-        $this[valueTitle] = $values[valueTitle];
+    // Tüm özellikleri bu değişkende topla.
+    let allProps = {};
+
+    // defaultPrams
+    for (let parameterName in $defaultParams) {
+        allProps[parameterName] = $defaultParams[parameterName];
+    }
+    // params
+    for (let parameterName in $params) {
+        allProps[parameterName] = $params[parameterName];
+    }
+    // props
+    for (let propName in $props) {
+        allProps[propName] = $props[propName];
+    }
+
+    // Tüm özellikleri tek seferde nesneye uygula.
+    for (let propName in allProps) {
+        $this[propName] = allProps[propName];
     }
 
 };
 
 // Centering one object to box.
-basic.moveToCenter = function ($this, $position) {
+const moveToCenter = function ($this, $position) {
 
     if ($position == "left" || !$position) {
         let _w = $this.containerBox.width - (($this.containerBox.border || 0) * 2);
@@ -1768,8 +1853,33 @@ basic.moveToCenter = function ($this, $position) {
 
 };
 
+// Centering one object to an other object.
+const moveToCenterBy = function ($this, $obj, $position) {
+
+    if ($position == "left" || !$position) {
+        let _w = $obj.width;
+        $this.left = parseInt((_w - $this.width) / 2) + $obj.left;
+
+        if ($position) {
+            $this.top = $obj.top;
+        }
+
+    }
+
+    if ($position == "top" || !$position) {
+        let _h = $obj.height;
+        $this.top = parseInt((_h - $this.height) / 2) + $obj.top;
+
+        if ($position) {
+            $this.left = $obj.left;
+        }
+
+    }
+
+};
+
 // Alignment of one object with respect to another object.
-basic.moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
+const moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
 
     if ($position == "left") {
         if (!isNaN($obj.left)) {
@@ -1984,6 +2094,7 @@ basic.makeBasicObject = function($newObject) {
 
     // Object can be called as that.
     previousThat = that;
+    prevThat = previousThat;
     that = $newObject;
 
 };
@@ -2055,20 +2166,51 @@ const checkStartedBox = function() {
     }, 100);
 
 }
-basic.startFlexBox = function(parameters = {}) {
+win.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
 
-    if (!parameters.flexDirection) parameters.flexDirection = "row"; // row, column
-    if (!parameters.flexWrap) parameters.flexWrap = "nowrap"; // wrap, nowrap
-    if (!parameters.alignContent) parameters.alignContent = "center"; // flex-start, center, flex-end
-    if (!parameters.justifyContent) parameters.justifyContent = "center";
-    if (!parameters.alignItems) parameters.alignItems = "center";
+    // - Hiç bir parametre girilmez ise boş obje girilmiş gibi işlem yapar.
 
-    const box = createBox(0, 0, "100%", "100%");
-    that.color = "transparent";
+    let props = {};
+    let box = null;
+
+    if (typeof p1 == "object") {
+        box = createBox(0, 0, "100%", "100%");
+        props = p1;
+
+    } else if (typeof p2 == "object") {
+        box = createBox(p1, 0, "100%", "100%");
+        props = p2;
+
+    } else if (typeof p3 == "object") {
+        box = createBox(p1, p2, "100%", "100%");
+        props = p3;
+        
+    } else if (typeof p4 == "object") {
+        box = createBox(p1, p2, p3, "100%");
+        props = p4;
+        
+    } else if (typeof p5 == "object") {
+        box = createBox(p1, p2, p3, p4);
+        props = p5;
+    } else {
+        box = createBox(p1, p2, p3, p4);
+    }
+
+    if (!props.flexDirection) props.flexDirection = "row"; // row, column
+    if (!props.flexWrap) props.flexWrap = "nowrap"; // wrap, nowrap
+    if (!props.alignContent) props.alignContent = "center"; // flex-start, center, flex-end (column)
+    if (!props.justifyContent) props.justifyContent = "center"; // flex-start, center, flex-end (row)
+    if (!props.alignItems) props.alignItems = "center";
+    if (!props.color) props.color = "transparent";
+
+    box.props(props);
+
+    //const box = createBox(0, 0, "100%", "100%");
+    //that.color = "transparent";
 
     that.element.style.display = "flex";
-    for (let parameterName in parameters) {
-        box.element.style[parameterName] = parameters[parameterName];
+    for (let parameterName in props) {
+        box.element.style[parameterName] = props[parameterName];
     }
 
     if (startedBoxList.length == 0) {
@@ -2083,11 +2225,37 @@ basic.startFlexBox = function(parameters = {}) {
     return box;
 
 };
-win.startFlexBox = basic.startFlexBox;
+//win.startFlexBox = basic.startFlexBox;
 
-basic.startBox = function(left, top, width, height) {
+win.startBox = function(p1 = {}, p2, p3, p4, p5) {
 
-    const box = createBox(left, top, width, height);
+    let props = {};
+    let box = null;
+
+    if (typeof p1 == "object") {
+        box = createBox();
+        props = p1;
+
+    } else if (typeof p2 == "object") {
+        box = createBox(p1);
+        props = p2;
+
+    } else if (typeof p3 == "object") {
+        box = createBox(p1, p2);
+        props = p3;
+        
+    } else if (typeof p4 == "object") {
+        box = createBox(p1, p2, p3);
+        props = p4;
+        
+    } else if (typeof p5 == "object") {
+        box = createBox(p1, p2, p3, p4);
+        props = p5;
+    } else {
+        box = createBox(p1, p2, p3, p4);
+    }
+
+    box.props(props);
 
     if (startedBoxList.length == 0) {
         startedBoxList.push(getDefaultContainerBox());
@@ -2101,9 +2269,9 @@ basic.startBox = function(left, top, width, height) {
     return box;
 
 };
-win.startBox = basic.startBox;
+//win.startBox = basic.startBox;
 
-basic.endBox = function() {
+win.endBox = function() {
 
     if (startedBoxList.length > 1) {
         startedBoxList.pop();
@@ -2116,9 +2284,10 @@ basic.endBox = function() {
     }
 
 };
-basic.endFlexBox = basic.endBox;
-win.endBox = basic.endBox;
-win.endFlexBox = basic.endBox;
+//basic.endFlexBox = basic.endBox;
+//win.endBox = basic.endBox;
+//win.endFlexBox = basic.endBox;
+win.endFlexBox = win.endBox;
 
 basic.useImageAsText = function(parameters = {}, editCreatedImage) {
 
@@ -2166,10 +2335,189 @@ basic.restoreThatFromSaved = function() {
 
     that = savedThat;
     previousThat = savedExThat;
+    prevThat = previousThat;
 
 };
 win.restoreThatFromSaved = basic.restoreThatFromSaved;
 
+// Text, Input, Icon, Box, Button
+// Lbl, Inp, Img, Box, Btn
+// *** Label, Input, Icon, Box, Button
+
+win.Label = function(p1, p2, p3, p4, p5) {
+
+    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+
+    let props = {};
+    let obj = null;
+
+    if (typeof p1 == "object") {
+        obj = createLabel();
+        props = p1;
+
+    } else if (typeof p2 == "object") {
+        obj = createLabel(p1);
+        props = p2;
+
+    } else if (typeof p3 == "object") {
+        obj = createLabel(p1, p2);
+        props = p3;
+        
+    } else if (typeof p4 == "object") {
+        obj = createLabel(p1, p2, p3);
+        props = p4;
+        
+    } else if (typeof p5 == "object") {
+        obj = createLabel(p1, p2, p3, p4);
+        props = p5;
+    } else {
+        obj = createLabel(p1, p2, p3, p4);
+    }
+
+    obj.props(props);
+    return obj;
+
+}
+
+win.Input = function(p1, p2, p3, p4, p5) {
+
+    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+
+    let props = {};
+    let obj = null;
+
+    if (typeof p1 == "object") {
+        obj = createTextBox();
+        props = p1;
+
+    } else if (typeof p2 == "object") {
+        obj = createTextBox(p1);
+        props = p2;
+
+    } else if (typeof p3 == "object") {
+        obj = createTextBox(p1, p2);
+        props = p3;
+        
+    } else if (typeof p4 == "object") {
+        obj = createTextBox(p1, p2, p3);
+        props = p4;
+        
+    } else if (typeof p5 == "object") {
+        obj = createTextBox(p1, p2, p3, p4);
+        props = p5;
+    } else {
+        obj = createTextBox(p1, p2, p3, p4);
+    }
+
+    obj.props(props);
+    return obj;
+
+}
+
+win.Icon = function(p1, p2, p3, p4, p5) {
+
+    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+
+    let props = {};
+    let obj = null;
+
+    if (typeof p1 == "object") {
+        obj = createImage();
+        props = p1;
+
+    } else if (typeof p2 == "object") {
+        obj = createImage(p1);
+        props = p2;
+
+    } else if (typeof p3 == "object") {
+        obj = createImage(p1, p2);
+        props = p3;
+        
+    } else if (typeof p4 == "object") {
+        obj = createImage(p1, p2, p3);
+        props = p4;
+        
+    } else if (typeof p5 == "object") {
+        obj = createImage(p1, p2, p3, p4);
+        props = p5;
+    } else {
+        obj = createImage(p1, p2, p3, p4);
+    }
+
+    obj.props(props);
+    return obj;
+
+}
+
+win.Box = function(p1, p2, p3, p4, p5) {
+
+    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+
+    let props = {};
+    let obj = null;
+
+    if (typeof p1 == "object") {
+        obj = createBox();
+        props = p1;
+
+    } else if (typeof p2 == "object") {
+        obj = createBox(p1);
+        props = p2;
+
+    } else if (typeof p3 == "object") {
+        obj = createBox(p1, p2);
+        props = p3;
+        
+    } else if (typeof p4 == "object") {
+        obj = createBox(p1, p2, p3);
+        props = p4;
+        
+    } else if (typeof p5 == "object") {
+        obj = createBox(p1, p2, p3, p4);
+        props = p5;
+    } else {
+        obj = createBox(p1, p2, p3, p4);
+    }
+
+    obj.props(props);
+    return obj;
+
+}
+
+win.Button = function(p1, p2, p3, p4, p5) {
+
+    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+
+    let props = {};
+    let obj = null;
+
+    if (typeof p1 == "object") {
+        obj = createButton();
+        props = p1;
+
+    } else if (typeof p2 == "object") {
+        obj = createButton(p1);
+        props = p2;
+
+    } else if (typeof p3 == "object") {
+        obj = createButton(p1, p2);
+        props = p3;
+        
+    } else if (typeof p4 == "object") {
+        obj = createButton(p1, p2, p3);
+        props = p4;
+        
+    } else if (typeof p5 == "object") {
+        obj = createButton(p1, p2, p3, p4);
+        props = p5;
+    } else {
+        obj = createButton(p1, p2, p3, p4);
+    }
+
+    obj.props(props);
+    return obj;
+
+}
 
 // When content is loaded,
 window.addEventListener("load", function () {

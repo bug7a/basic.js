@@ -107,13 +107,13 @@ basicEditor.runCodeAndRefresh = function() {
             
         //} else {
             
-            //print("start() is needed in your code.")
+            //println("start() is needed in your code.")
             
         //}
         
     } catch(e) {
         
-        print("Error: " + e.message);
+        println("Error: " + e.message);
         
     }
 }
@@ -131,7 +131,7 @@ basicEditor.changeCode = function($code) {
 
 }
 
-var print = function(message) {
+var println = function(message) {
 
     basicEditor.box.lblPrint.text = message + "<br>" + basicEditor.box.lblPrint.text
     

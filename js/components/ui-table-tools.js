@@ -499,7 +499,7 @@ UITableTools.create = function(parameters = {}) {
         itemRow.cellList = [];
 
         for(var i = 0; i < box.titleCellDataList.length; i++) {
-            //print(box.titleCellDataList[i]);
+            //println(box.titleCellDataList[i]);
             const itemCell = createItemCell(itemData[box.titleCellDataList[i].itemDataIndex], box.titleCellDataList[i], itemRow, i);
             itemRow.add(itemCell);
             itemCell.position = "relative";
@@ -585,7 +585,7 @@ UITableTools.create = function(parameters = {}) {
                     fullText = JSON.stringify(fullText);
                 }
 
-                print(fullText);
+                println(fullText);
                 fullText = fullText.toLowerCase();
                 result = fullText.search(filterText.toLowerCase());
 

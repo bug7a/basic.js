@@ -47,40 +47,38 @@
 
     
 
-    window.onload = function() {
-        
-        // BOX: Gray box. Parameters: (left, top, width, height)
-        page.boxGray = createBox(0, 0, 120, 120);
-        that.color = "lightgray";
-        that.center();
+    // First running function.
+    window.onload = () => {
 
-        // BOX: Red box.
-        page.boxRed = createBox(0, 0, 120, 120);
-        that.color = "orangered";
-        that.aline(previousThat, "right", 4);
+        page.color = "whitesmoke";
 
-        // BOX: Orange box.
-        page.boxOrange = createBox(0, 0, 40, 40);
-        that.color = "orange";
-        that.round = 40;
-        that.border = 6;
-        that.borderColor = "rgba(0, 0, 0, 0.2)";
-        that.aline(page.boxGray, "bottom", 20, "center");
+        // GROUP: Autolayout (Default: centered)
+        startFlexBox({
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "100%",
+            flexDirection: "row", // row, column
+            flexWrap: "nowrap", // wrap, nowrap
+            alignContent: "center", // flex-start, center, flex-end, space-between, space-around, stretch (up to down)
+            justifyContent: "center", // flex-start, center, flex-end, space-between, space-around, space-evenly (left to right)
+            alignItems: "center", // flex-start, flex-end, center, baseline, stretch
+        });
 
-        page.onResize(pageResized);
-        
-    };
-    
-    const pageResized = function() {
+            // BOX: Red 
+            Box({
+                color: "orangered",
+            });
 
-        // Recalculate the position of the boxes.
-        page.boxGray.center();
-        page.boxRed.aline(page.boxGray, "right", 4);
-        page.boxOrange.aline(page.boxGray, "bottom", 20, "center");
-
-        // NOTE: .center() and .aline() methods calculate only when called.
+            // BOX: Blue
+            Box({
+                color: "steelblue",
+            });
+            
+        endFlexBox();
 
     };
+
 </div>
         
     </body>

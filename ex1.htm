@@ -48,163 +48,102 @@
 
     
 
-    let plantItemDataList = [
-        { id: "1", name: "Broccoli", description: "Vegetable", iconPath: "images/broccoli.png" },
-        { id: "2", name: "Strawberry", description: "Fruit", iconPath: "images/strawberry.png" },
-        { id: "3", name: "Carrot", description: "Vegetable", iconPath: "images/carrot.png" },
-        { id: "4", name: "Blueberries", description: "Fruit", iconPath: "images/blueberries.png" },
+    const plantDataList = [
+        { id: "1", title: "Broccoli", desc: "Vegetable", icon: "images/broccoli.png" },
+        { id: "2", title: "Strawberry", desc: "Fruit", icon: "images/strawberry.png" },
+        { id: "3", title: "Carrot", desc: "Vegetable", icon: "images/carrot.png" },
+        { id: "4", title: "Blueberries", desc: "Fruit", icon: "images/blueberries.png" },
     ];
-
     let plantItemList = [];
+    let boxItems;
         
-    window.onload = function() {
+    window.onload = () => {
 
         page.color = "whitesmoke";
 
-        // BOX: Plant items container box. Parameters: left, top, width, height
-        page.boxItems = createBox(0, 0, 300, "100%");
-        that.color = "transparent";
-        that.scrollY = 1;
-        that.right = 0;
+        // GROUP: Autolayout centered.
+        startFlexBox();
 
-        createPlantItems();
-        createChangeTestButton();
+            // BOX: Fruit items container box.
+            boxItems = startBox(40, 40, 300, "auto", {
+                color: "white",
+                round: 13,
+            });
+
+                for(let i = 0; i < plantDataList.length; i++) {
+
+                    // PLANTITEM: Every item.
+                    PlantItem(plantDataList[i]);
+                    plantItemList.push(that);
+
+                }
+
+            endBox(); // END BoxItems
+
+        endFlexBox(); // END Autolayout
         
     };
 
-    const createPlantItems = function() {
+    // CUSTOM COMPONENT:
+    const PlantItem = (params = {}) => {
 
-        // Clear all items.
-        plantItemList = [];
-        page.boxItems.html = "";
+        // Default values:
+        const defaults = {
+            width: 300,
+            height: 94,
+            color: "transparent",
+            position: "relative",
+        };
 
-        // Add items from plantItemDataList.
-        for(index in plantItemDataList) {
-
-            // PLANT ITEM: Create a plant item object.
-            const item = createPlantItem(plantItemDataList[index], index);
-            // Move the created item into the container box.
-            page.boxItems.add(item);
-            // Give position after moving into the box to show the object.
-            item.position = "relative";
-            // On item clicked.
-            item.onClick(function(clickedItem) {
-                print("Clicked item index: " + clickedItem.index);
-            });
-
-            // Keep the object for later use.
-            plantItemList.push(item);
-
-        }
-
-        // NOTE: You can make any change on plantItemDataList and 
-        // call createPlantItems again to refresh all.
-        // or you can directly change any properties 
-        // of the created objects by using the plantItemList.
-
-    };
-    
-    const createPlantItem = function(data, index) {
-
-        // BOX: Object container box.
+        // BOX: Component container box.
         const box = startBox();
-        box.width = "100%";
-        box.height = 94;
-        box.color = "transparent";
-
-        // Keep item data:
-        box.data = data;
-        box.index = index;
-
-            // NOTE: You don't need to use the .add method after a started box.
+        // Apply default values and params:
+        box.props(defaults, params);
 
             // BOX: Item background box.
-            box.boxBackground = createBox(4, 2, "calc(100% - 8px)", 90);
-            that.color = "rgba(0, 0, 0, 0.01)";
-            that.round = 13;
-            that.border = 1;
-            that.borderColor = "rgba(0, 0, 0, 0.06)";
-            that.setMotion("background-color 1.2s");
+            box.boxBackground = Box(4, 2, box.width - 8, 90, {
+                color: "rgba(0, 0, 0, 0.01)",
+                round: 13,
+                border: 1,
+                borderColor: "rgba(0, 0, 0, 0.04)",
+            });
+            that.setMotion("background-color 0.3s");
+            that.clickable = 1;
+            that.elem.style.cursor = "pointer";
 
             // IMAGE: Item icon image.
-            box.imgIcon = createImage(30, 12, 70, 70);
-            that.load(data.iconPath);
-            that.round = 4;
-            that.color = "transparent";
-            that.border = 0;
-
-            // GROUP: Labels container box.
-            startFlexBox({
-                flexDirection: "column",
-                alignItems: "flex-start",
+            Icon(30, 12, 70, 70, {
+                round: 4,
+                color: "transparent",
+                border: 0,
             });
-            that.width = "calc(100% - 120px)";
-            that.right = 0;
+            that.load(params.icon);
 
-                // LABEL: Item name text.
-                box.lblName = createLabel(0, 0, "auto", "auto");
-                that.text = data.name;
-                that.position = "relative";
+            // LABEL: Item title text.
+            Label(120, 25, 280, "auto", {
+                text: params.title,
+            });
 
-                // NOTE: Make "relative" to deactivating the coordinate system.
-                // The default position is the "absolute" of the basic object.
-
-                // LABEL: Item description text.
-                box.lblDesc = createLabel(0, 0, "auto", "auto");
-                that.text = data.description;
-                that.textColor = "gray";
-                that.fontSize = 14;
-                that.position = "relative";
-
-            endFlexBox();
+            // LABEL: Item description text.
+            Label(120, 49, 280, "auto", {
+                text: params.desc,
+                textColor: "gray",
+                fontSize: 14,
+            });
 
         endBox();
 
-        // NOTE: Item will not be shown before giving position.
+        // init code:
+        box.elem.addEventListener("mouseover", () => {
+            box.boxBackground.color = "rgba(90, 90, 0, 0.09)";
+        });
+
+        box.elem.addEventListener("mouseout", () => {
+            box.boxBackground.color = "rgba(0, 0, 0, 0.01)";
+        });
 
         makeBasicObject(box);
         return box;
-
-    };
-
-    const createChangeTestButton = function() {
-
-        const grayButtonStyle = function(btn) {
-
-            btn.fontSize = 14;
-            btn.width = "auto";
-            btn.height = 30;
-            btn.minimal = 1;
-            btn.color = "lightgray";
-            btn.spaceX = 10;
-
-            // NOTE: Style functions that can be conditioned by parameters.
-            // It's private style function. You can also have a 
-            // global style object like styles.grayButton()
-
-        };
-
-        // BUTTON: Test button.
-        createButton();
-        that.text = "Change";
-        grayButtonStyle(that);
-        // Adjust the position to show the object.
-        that.left = 10;
-        that.bottom = 10;
-        that.onClick(setSomeProperties);
-
-    };
-    
-    // Change any properties after createing:
-    const setSomeProperties = function() {
-
-        const index = 1;
-        const item = plantItemList[index];
-
-        item.lblName.text = "Edited Name";
-        item.lblDesc.text = "";
-        item.boxBackground.color = "#D3CFC1";
-        item.imgIcon.load("images/blueberries.png");
 
     };
 

@@ -47,22 +47,32 @@
 
     
 
-    window.onload = function() {
+    let icoLogo;
         
-        // LABEL: Bottom Info.
-        page.lblBottomInfo = createLabel();
-        that.width = "100%";
-        that.height = "auto";
-        that.text = "This is a label";
-        that.textAlign = "center";
-        that.color = "gold";
-        that.textColor = "rgba(0, 0, 0, 0.4)";
-        that.spaceY = 10;
-        that.left = 0;
-        that.bottom = 20;
+    // First running function.
+    window.onload = () => {
+        
+        // IMAGE: Bottom Info.
+        icoLogo = Icon({
+            right: 20,
+            top: 20,
+            width: 128,
+            height: 128,
+            space: 15,
+            color: "rgba(0, 0, 0, 0.05)",
+        });
+        //that.autoSize = 1;
+        that.load("images/strawberry.png");
+        that.onLoad(printIconSizes);
         
     };
-    
+
+    const printIconSizes = (loadedIcon) => {
+
+        println("Width: " + loadedIcon.naturalWidth);
+        println("Height: " + loadedIcon.naturalHeight);
+
+    };
 </div>
         
     </body>

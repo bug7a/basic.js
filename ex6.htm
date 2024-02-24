@@ -47,19 +47,39 @@
 
     
 
-    window.onload = function() {
+    let box;
+            
+    window.onload = () => {
         
-        // TEXTBOX: Your name. Parameters: (left, top)
-        page.txtName = createTextBox(30, 50);
-        that.title = "Your name:";
-        that.minimal = 1;
-        that.color = "whitesmoke";
-        that.onChange(printName);
+        // BOX: My box.
+        box = Box({
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: 200,
+            color: "orangered",
+        });
+        that.clickedCount = 0;
+        that.onClick(increaseCount);
+
+        // LABEL: Box name text.
+        box.lblName = Label({
+            top: 20,
+            left: 20,
+            text: "Click Me",
+            textColor: "rgba(0, 0, 0, 0.7)",
+        });
+        box.add(that);
         
     };
     
-    const printName = function(changedTextBox) {
-        print("Name: " + changedTextBox.text);
+    const increaseCount = (clickedBox) => {
+
+        clickedBox.clickedCount++;
+        clickedBox.lblName.text = "Box Clicked: " + clickedBox.clickedCount;
+        
+        clickedBox.bottom = clickedBox.clickedCount;
+
     };
     
 </div>

@@ -47,39 +47,32 @@
 
     
 
-    window.onload = function() {
+    let box;
+    
+    window.onload = () => {
         
         // BOX: My box.
-        page.box = createBox();
-        that.right = 0;
-        that.bottom = 0;
-        that.width = "100%";
-        that.height = 200;
-        that.color = "orangered";
-        that.round = 2;
-        that.clicksCount = 0;
-        that.onClick(increaseCount);
-
-        // LABEL: Box name text.
-        page.box.lblName = createLabel();
-        page.box.add(that);
-        that.text = "Red Box";
-        that.textColor = "rgba(0, 0, 0, 0.7)";
-        that.onResize(function(resizedLabel){
-            resizedLabel.center();
+        box = Box({
+            width: 120,
+            height: 120,
+            color: "orangered",
+            round: 4,
         });
+        that.center();
+        // When there is a change, soften it with movement.
+        that.setMotion("left 0.3s, top 0.3s, width 0.3s, height 0.3s");
+        that.onClick(extendBox);
         
     };
     
-    const increaseCount = function(clickedBox) {
+    const extendBox = (clickedBox) => {
 
-        clickedBox.clicksCount++;
-        clickedBox.lblName.text = "Box Clicked: " + clickedBox.clicksCount;
-        
-        clickedBox.bottom = clickedBox.clicksCount;
+        clickedBox.width += 50;
+        clickedBox.height += 50;
+        clickedBox.center();
 
     };
-    
+
 </div>
         
     </body>

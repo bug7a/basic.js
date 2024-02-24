@@ -45,31 +45,28 @@
         
 <div id="code-example" style="display:none">
 
+    
 
-
-    window.onload = function() {
-
-        // BUTTON: Blue Button. Parameters: (left, top, width, height)
-        page.btnBlue = createButton(40, 40, 180, 50);
-        that.text = "HELLO";
-        that.minimal = 1;
-        //that.round = 14;
-        //that.border = 3;
-        //that.borderColor = "rgba(0, 0, 0, 0.1)";
-        //that.buttonElement.style.fontFamily = "opensans-bold";
-        //that.fontSize = 22;
-        //that.textColor = "rgba(0, 0, 0, 0.7)";
-        //that.width = "auto";
-        //that.spaceX = 20;
-        //that.color = "orangered";
-        that.onClick(printHelloWorld);
-
+    let lblBottomInfo;
+        
+    // First running function.
+    window.onload = () => {
+        
+        // LABEL: Bottom Info.
+        lblBottomInfo = Label({
+            left: 0,
+            bottom: 20,
+            width: "100%",
+            height: "auto",
+            text: "This is a label",
+            textAlign: "center",
+            color: "gold",
+            textColor: "rgba(0, 0, 0, 0.4)",
+            spaceY: 10,
+        });
+        
     };
-
-    const printHelloWorld = function() {
-        print("Hello World");
-    };
-
+    
 </div>
         
     </body>

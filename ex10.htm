@@ -28,6 +28,73 @@
                 
             }
 
+            .item-model {
+
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            border: 0px solid white;
+
+            }
+
+            .item-model.background {
+
+            position:absolute;
+            top: 2px;
+            left: 4px;
+            width: calc(100% - 8px);
+            height: calc(100% - 4px);
+            background-color: rgba(0, 0, 0, 0.01);
+            border-radius: 13px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-sizing: border-box;
+            transition: background-color 0.3s ease 0s;
+
+            }
+
+            .item-model.icon {
+
+            position:absolute;
+            left: 30px;
+            top: 12px;
+            width: 70px;
+            height: 70px;
+            border-radius: 4px;
+            background-color: transparent;
+            border-width: 0px;
+
+            }
+
+            .item-model.title {
+
+            position:absolute;
+            left: 120px;
+            top: 25px;
+            width: 280px;
+            height: auto;
+            font-family: opensans;
+            font-size: 20px;
+            text-align: left;
+            color: #4A4A4A;
+
+            }
+
+            .item-model.description {
+
+            position:absolute;
+            left: 120px;
+            top: 49px;
+            width: 280px;
+            height: auto;
+            color: gray;
+            font-family: opensans;
+            font-size: 14px;
+            text-align: left;
+
+            }
+
         </style>
 
         <script>
@@ -47,43 +114,91 @@
 
     
 
+    let plantItemDataList = [
+        { id: "1", name: "Broccoli", description: "Vegetable", iconPath: "images/broccoli.png" },
+        { id: "2", name: "Strawberry", description: "Fruit", iconPath: "images/strawberry.png" },
+        { id: "3", name: "Carrot", description: "Vegetable", iconPath: "images/carrot.png" },
+        { id: "4", name: "Blueberries", description: "Fruit", iconPath: "images/blueberries.png" },
+    ];
+
+    let plantItemList = [];
+        
     window.onload = function() {
 
-        startFlexBox({
-            justifyContent: "center", // Default.
-            alignItems: "center", // Default.
-            // (You dont have to write default options.)
-        });
-        that.width = "100%"; // Default.
-        that.height = "100%"; // Default.
-        that.color = "transparent" // Default.
+        page.color = "whitesmoke";
 
-        // NOTE: startFlexBox() always displays at the desired position.
-        // To be affected, object position must be "relative".
-        
-            // BOX: Gray box. Parameters: (left, top, width, height)
-            page.boxGray = startBox(0, 0, 120, 120);
-            that.color = "lightgray";
-            that.position = "relative"; // Default. 
-            // (Because object created in a startFlexBox.)
+        // BOX: Plant items container box. Parameters: left, top, width, height
+        page.boxItems = createBox(0, 0, 300, "100%");
+        that.color = "transparent";
+        that.scrollY = 1;
+        that.right = 0;
 
-                // BOX: Red box. Parameters: (left, top, width, height);
-                page.boxRed = createBox(0, 0, 50, 50);
-                that.color = "orangered";
-                that.positon = "absolute"; // Default.
-                that.center();
-
-                // NOTE: The .center() method performs a calculation when called.
-                // To be affected, object position must be "absolute".
-
-            endBox();
-
-            // NOTE: page.boxRed object will create in page.boxGray object.
-
-        endFlexBox();
+        createPlantItems();
         
     };
 
+    const createPlantItems = function() {
+
+        // Clear all items.
+        plantItemList = [];
+        page.boxItems.html = "";
+
+        // Add items from plantItemDataList.
+        for(index in plantItemDataList) {
+
+            // PLANT ITEM: Create a plant item object.
+            const item = createPlantItem(plantItemDataList[index], index);
+            // Move the created item into the container box.
+            page.boxItems.add(item);
+            // Give position after moving into the box to show the object.
+            item.position = "relative";
+            // On item clicked.
+            item.onClick(function(clickedItem) {
+                println("Clicked item index: " + clickedItem.index);
+            });
+
+            // Keep the object for later use.
+            plantItemList.push(item);
+
+        }
+
+        // NOTE: You can make any change on plantItemDataList and 
+        // call createPlantItems again to refresh all.
+        // or you can directly change any properties 
+        // of the created objects by using the plantItemList.
+
+    };
+    
+    const createPlantItem = function(data, index) {
+
+        // BOX: Object container box
+        const box = createBox();
+        box.width = "100%";
+        box.height = 94;
+        box.color = "transparent";
+
+        // Keep item data:
+        box.data = data;
+        box.index = index;
+
+        // TEMPLATE:
+        box.html = `
+            <div class="item-model">
+                <div class="item-model background"></div>
+                <img class="item-model icon" src="${data.iconPath}">
+                <div class="item-model title">${data.name}</div>
+                <div class="item-model description">${data.description}</div>
+            </div>
+        `;
+
+        // NOTE: This technique may be more efficient 
+        // if you are going to display text-heavy content.
+
+        makeBasicObject(box);
+        return box;
+
+    };
+    
 </div>
         
     </body>
