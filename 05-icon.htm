@@ -16,7 +16,7 @@
         let icoLogo;
         
         // First running function.
-        window.onload = () => {
+        window.onload = function() {
             
             // IMAGE: Bottom Info.
             icoLogo = Icon({
@@ -33,7 +33,7 @@
             
         };
 
-        const printIconSizes = (loadedIcon) => {
+        const printIconSizes = function(loadedIcon) {
 
             println("Width: " + loadedIcon.naturalWidth);
             println("Height: " + loadedIcon.naturalHeight);

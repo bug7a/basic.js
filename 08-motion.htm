@@ -15,7 +15,7 @@
 
         let box;
     
-        window.onload = () => {
+        window.onload = function() {
             
             // BOX: My box.
             box = Box({
@@ -31,7 +31,7 @@
             
         };
         
-        const extendBox = (clickedBox) => {
+        const extendBox = function(clickedBox) {
 
             clickedBox.width += 50;
             clickedBox.height += 50;

@@ -22,7 +22,7 @@
         let plantItemList = [];
         let boxItems;
             
-        window.onload = () => {
+        window.onload = function() {
 
             page.color = "whitesmoke";
 
@@ -50,7 +50,7 @@
         };
         
         // CUSTOM COMPONENT:
-        const PlantItem = (params = {}) => {
+        const PlantItem = function(params = {}) {
 
             // Default values:
             const defaults = {

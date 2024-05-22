@@ -2,7 +2,7 @@
 <html>
     <head>
         
-        <title>New Project Name</title>
+        <title>.fitAuto example</title>
         
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -32,21 +32,37 @@
 
         // First running function.
         window.onload = function() {
-            
-        }
-        
-        // Function running every second.
-        const loop = function() {
-                        
-        }
-        
-        // OTHER FUNCTIONS
-        const doSomthing1 = function() {
+
+            page.fitAuto(1280, 720);
+
+            // GROUP: Centered
+            startFlexBox({
+                color: "#141414",
+            });
+                // BOX: Content container
+                startBox({
+                    width: 1280,
+                    height: 720,
+                    color: "white",
+                });
+
+                    // PUT CONTENT
+                    Label(10, 10, {
+                        text: "Your content size is always same size (1280x720px)"
+                    });
+                    that.center();
+
+                endBox();
+            endFlexBox();
+
+            page.onResize(pageResized);
             
         };
-        
-        const doSomething2 = function() {
-            
+
+        const pageResized = function() {
+
+            page.fitAuto(1280, 720);
+
         };
 
         </script>

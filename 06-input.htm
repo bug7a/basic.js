@@ -16,7 +16,7 @@
         let inpName;
             
         // First running function.
-        window.onload = () => {
+        window.onload = function() {
             
             // INPUT: Your name. Parameters: (left, top)
             inpName = Input(30, 50, {
@@ -28,7 +28,7 @@
             
         };
         
-        const printName = (changedInput) => {
+        const printName = function(changedInput) {
             println("Name: " + changedInput.text);
         };
 

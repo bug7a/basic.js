@@ -15,7 +15,7 @@
 
         let box;
             
-        window.onload = () => {
+        window.onload = function() {
             
             // BOX: My box.
             box = Box({
@@ -39,7 +39,7 @@
             
         };
         
-        const increaseCount = (clickedBox) => {
+        const increaseCount = function(clickedBox) {
 
             clickedBox.clickedCount++;
             clickedBox.lblName.text = "Box Clicked: " + clickedBox.clickedCount;

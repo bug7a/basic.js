@@ -18,7 +18,7 @@
         let boxOrange;
         
         // First running function.
-        window.onload = () => {
+        window.onload = function() {
             
             // BOX: Gray box. Parameters: (left, top, width, height, props)
             boxGray = Box(0, 0, 120, 120, {
@@ -45,7 +45,7 @@
             
         };
         
-        const pageResized = () => {
+        const pageResized = function() {
 
             // Recalculate the position of the boxes.
             boxGray.center();
