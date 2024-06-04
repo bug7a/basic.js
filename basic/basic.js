@@ -3,7 +3,7 @@
 
 /*
 
-basic.js (v24.05.22) Create interactive user interfaces with basic programming skills.
+basic.js (v24.06) Create interactive user interfaces with basic programming skills.
 - Project Site: https://bug7a.github.io/basic.js/
 
 Copyright 2020-2024 Bugra Ozden <bugra.ozden@gmail.com>
@@ -22,11 +22,11 @@ const win = window;
 if ( typeof module === "object" && typeof module.exports === "object" ) {
     module.exports = basic;
 } else {
-    win.basic = basic;
+    window.basic = basic;
 }
 */
 
-win.basic = basic;
+window.basic = basic;
 basic.startTime = Date.now();
 
 basic.ACTION_COLOR = "#689BD2";
@@ -95,9 +95,9 @@ basic.months = [
     "December"
 ];
 
-win.that = null;
-win.previousThat = null;
-win.prevThat = null;
+window.that = null;
+window.previousThat = null;
+window.prevThat = null;
 
 let defaultContainerBox = null;
 let previousDefaultContainerBox;
@@ -120,7 +120,7 @@ basic.start = function () {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
     */
 
-    win.page = new MainBox();
+    window.page = new MainBox();
     page.containerBox = null;
     setDefaultContainerBox(page);
 
@@ -159,12 +159,13 @@ basic.afterStart = function () {
 };
 
 //window.printThePage = window.print;
-win.println = function ($message, $type = "log") {
-    console[$type]($message);
+window.println = function ($message, $type = "log") {
+    const _console = console;
+    _console[$type]($message);
 };
-//win.println = basic.println;
+//window.println = basic.println;
 
-win.random = function ($first, $second) {
+window.random = function ($first, $second) {
 
     let result = 0;
 
@@ -184,9 +185,9 @@ win.random = function ($first, $second) {
     return result;
 
 };
-//win.random = basic.random;
+//window.random = basic.random;
 
-win.num = function ($str, $type = "float") {
+window.num = function ($str, $type = "float") {
 
     if ($type == "float") {
         const i = parseFloat($str);
@@ -197,14 +198,14 @@ win.num = function ($str, $type = "float") {
     }
 
 };
-//win.num = basic.num;
+//window.num = basic.num;
 
-win.str = function ($num) {
+window.str = function ($num) {
     return String($num);
 };
-//win.str = basic.str;
+//window.str = basic.str;
 
-win.isMobile = function () {
+window.isMobile = function () {
 
     let answer = 0;
 
@@ -216,9 +217,9 @@ win.isMobile = function () {
     return answer;
 
 };
-//win.isMobile = basic.isMobile;
+//window.isMobile = basic.isMobile;
 
-win.go = function ($url, $windowType = "_self") {
+window.go = function ($url, $windowType = "_self") {
 
     // window.location.href = $url;
     const openedWindow = window.open($url, $windowType);
@@ -227,10 +228,10 @@ win.go = function ($url, $windowType = "_self") {
     return openedWindow;
 
 };
-//win.go = basic.go;
+//window.go = basic.go;
 
 // Tek haneli sayıyı, başına "0" ekleyerek iki haneli yapar. 03:10:05
-win.twoDigitFormat = function($number) {
+window.twoDigitFormat = function($number) {
 
     if ($number <= 9) {
         $number = "0" + $number;
@@ -239,9 +240,9 @@ win.twoDigitFormat = function($number) {
     return $number;
 
 };
-//win.twoDigitFormat = basic.twoDigitFormat;
+//window.twoDigitFormat = basic.twoDigitFormat;
 
-win.storage = {
+window.storage = {
 
     save(key, value) {
         window.localStorage.setItem(key, JSON.stringify(value));
@@ -254,9 +255,9 @@ win.storage = {
     }
 
 };
-//win.storage = basic.storage;
+//window.storage = basic.storage;
 
-win.clock = {
+window.clock = {
 
     get hour() {
         let dt = new Date();
@@ -276,9 +277,9 @@ win.clock = {
     }
 
 };
-//win.clock = basic.clock;
+//window.clock = basic.clock;
 
-win.date = {
+window.date = {
 
     get year() {
         let dt = new Date();
@@ -315,7 +316,7 @@ win.date = {
     }
 
 };
-//win.date = basic.date;
+//window.date = basic.date;
 
 // Common methods and properties of basic objects.
 class Basic_UIComponent {
@@ -671,6 +672,22 @@ class Basic_UIComponent {
         if (func) {
             $element.removeEventListener($eventName, func);
         }   
+    }
+
+    on($eventName, $func, $useCapture = false) {
+        const _elem = (this._type == "textbox") ? this.inputElement : this.elem;
+        // WHY: Clickable bazen 0 da unutulabilir, otomatik 1 ver. Gerekirse kullanıcı 0 yapar.
+        this.clickable = 1;
+        _elem.addEventListener($eventName, $func, $useCapture);
+        // Olayı kolayca silebilmek için hazır bir fonksiyon gönder.
+        return function removeEvent() {
+            _elem.removeEventListener($eventName, $func);
+        };
+    }
+
+    off($eventName, $func) {
+        const _elem = (this._type == "textbox") ? this.inputElement : this.elem;
+        _elem.removeEventListener($eventName, $func);
     }
 
     onResize($func) {
@@ -1033,16 +1050,16 @@ class BBox extends Basic_UIComponent {
     }
 
 }
-//win.Box = Box;
+//window.Box = Box;
 
 // Alternatif kullanım
-win.createBox = function ($left, $top, $width, $height) {
+window.createBox = function ($left, $top, $width, $height) {
     return new BBox($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
 /*
-win.cbox = function ($left, $top, $width, $height) {
+window.cbox = function ($left, $top, $width, $height) {
     return new BBox($left, $top, $width, $height);
 }
 */
@@ -1168,16 +1185,16 @@ class BButton extends Basic_UIComponent {
     }
 
 }
-//win.Button = Button;
+//window.Button = Button;
 
 // Alternatif kullanım1
-win.createButton = function ($left, $top, $width, $height) {
+window.createButton = function ($left, $top, $width, $height) {
     return new BButton($left, $top, $width, $height);
 }
 
 // Alternatif kullanım 2
 /*
-win.cbtn = function ($left, $top, $width, $height) {
+window.cbtn = function ($left, $top, $width, $height) {
     return new BButton($left, $top, $width, $height);
 }
 */
@@ -1402,20 +1419,20 @@ class BTextBox extends Basic_UIComponent {
     }
 
 }
-//win.TextBox = TextBox;
+//window.TextBox = TextBox;
 
 // Alternatif kullanım
-win.createTextBox = function ($left, $top, $width, $height) {
+window.createTextBox = function ($left, $top, $width, $height) {
     return new BTextBox($left, $top, $width, $height);
 }
 
-win.createInput = function ($left, $top, $width, $height) {
+window.createInput = function ($left, $top, $width, $height) {
     return new BTextBox($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
 /*
-win.ctxt = function ($left, $top, $width, $height) {
+window.ctxt = function ($left, $top, $width, $height) {
     return new BTextBox($left, $top, $width, $height);
 }
 */
@@ -1526,16 +1543,16 @@ class BLabel extends Basic_UIComponent {
     }
 
 }
-//win.Label = Label;
+//window.Label = Label;
 
 // Alternatif kullanım
-win.createLabel = function ($left, $top, $width, $height) {
+window.createLabel = function ($left, $top, $width, $height) {
     return new BLabel($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
 /*
-win.clbl = function ($left, $top, $width, $height) {
+window.clbl = function ($left, $top, $width, $height) {
     return new BLabel($left, $top, $width, $height);
 }
 */
@@ -1719,16 +1736,16 @@ class BImage extends Basic_UIComponent {
     }
 
 }
-//win.BImage = BImage;
+//window.BImage = BImage;
 
 // Alternatif kullanım
-win.createImage = function ($left, $top, $width, $height) {
+window.createImage = function ($left, $top, $width, $height) {
 
     return new BImage($left, $top, $width, $height);
 
 }
 
-win.createIcon = function ($left, $top, $width, $height) {
+window.createIcon = function ($left, $top, $width, $height) {
 
     return new BImage($left, $top, $width, $height);
 
@@ -1736,7 +1753,7 @@ win.createIcon = function ($left, $top, $width, $height) {
 
 // Alternatif kullanım
 /*
-win.cimg = function ($left, $top, $width, $height) {
+window.cimg = function ($left, $top, $width, $height) {
     return new BImage($left, $top, $width, $height);
 }
 */
@@ -2089,12 +2106,12 @@ const moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
     
 };
 
-win.withPageZoom = function ($value) {
+window.withPageZoom = function ($value) {
     return parseFloat($value * (1 / page.zoom));
 };
-//win.withPageZoom = basic.withPageZoom;
+//window.withPageZoom = basic.withPageZoom;
 
-win.setLoopTimer = function ($time) {
+window.setLoopTimer = function ($time) {
     
     if (typeof loop === "function") {
 
@@ -2113,30 +2130,30 @@ win.setLoopTimer = function ($time) {
     }
 
 };
-//win.setLoopTimer = basic.setLoopTimer;
+//window.setLoopTimer = basic.setLoopTimer;
 
 // Yeni eklenen nesneler, seçili box nesnesinin içinde oluşturulur.
-win.setDefaultContainerBox = function ($box) {
+window.setDefaultContainerBox = function ($box) {
 
     previousDefaultContainerBox = defaultContainerBox || page;
     defaultContainerBox = $box;
 
 };
-//win.setDefaultContainerBox = basic.setDefaultContainerBox;
+//window.setDefaultContainerBox = basic.setDefaultContainerBox;
 
-win.restoreDefaultContainerBox = function() {
+window.restoreDefaultContainerBox = function() {
     defaultContainerBox = previousDefaultContainerBox || page;
 };
-//win.restoreDefaultContainerBox = basic.restoreDefaultContainerBox;
+//window.restoreDefaultContainerBox = basic.restoreDefaultContainerBox;
 
 // Nesne hangi kutu nesnesinin içine eklendiği.
-win.getDefaultContainerBox = function () {
+window.getDefaultContainerBox = function () {
     return defaultContainerBox;
 };
-//win.getDefaultContainerBox = basic.getDefaultContainerBox;
+//window.getDefaultContainerBox = basic.getDefaultContainerBox;
 
 // Add your custom object to basic.js ecosystem.
-win.makeBasicObject = function($newObject) {
+window.makeBasicObject = function($newObject) {
 
     // Object can be called as that.
     previousThat = that;
@@ -2144,7 +2161,7 @@ win.makeBasicObject = function($newObject) {
     that = $newObject;
 
 };
-//win.makeBasicObject = basic.makeBasicObject;
+//window.makeBasicObject = basic.makeBasicObject;
 
 resizeDetection.onResize = function($object, $func) {
 
@@ -2212,7 +2229,7 @@ const checkStartedBox = function() {
     }, 100);
 
 }
-win.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
+window.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
 
     // - Hiç bir parametre girilmez ise boş obje girilmiş gibi işlem yapar.
 
@@ -2242,21 +2259,35 @@ win.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
         box = createBox(p1, p2, p3, p4);
     }
 
-    if (!props.flexDirection) props.flexDirection = "row"; // row, column
-    if (!props.flexWrap) props.flexWrap = "nowrap"; // wrap, nowrap
-    if (!props.alignContent) props.alignContent = "center"; // flex-start, center, flex-end (column)
-    if (!props.justifyContent) props.justifyContent = "center"; // flex-start, center, flex-end (row)
-    if (!props.alignItems) props.alignItems = "center";
-    if (!props.color) props.color = "transparent";
+    const defaults = {
+        color: "transparent",
+    }
 
-    box.props(props);
+    const defaultFlexStyles = {
+        flexDirection: "row", // row, column
+        flexWrap: "nowrap", // wrap, nowrap
+        alignContent: "center", // flex-start, center, flex-end (column)
+        justifyContent: "center", // flex-start, center, flex-end (row)
+        alignItems: "center",
+        gap: "0px",
+    };
+
+    //if (!props.flexDirection) props.flexDirection = "row"; // row, column
+    //if (!props.flexWrap) props.flexWrap = "nowrap"; // wrap, nowrap
+    //if (!props.alignContent) props.alignContent = "center"; // flex-start, center, flex-end (column)
+    //if (!props.justifyContent) props.justifyContent = "center"; // flex-start, center, flex-end (row)
+    //if (!props.alignItems) props.alignItems = "center";
+    //if (!props.color) props.color = "transparent";
+
+    that.element.style.display = "flex";
+    box.props(defaults, defaultFlexStyles, props);
 
     //const box = createBox(0, 0, "100%", "100%");
     //that.color = "transparent";
 
-    that.element.style.display = "flex";
-    for (let parameterName in props) {
-        box.element.style[parameterName] = props[parameterName];
+    
+    for (let parameterName in defaultFlexStyles) {
+        box.element.style[parameterName] = box[parameterName];
     }
 
     if (startedBoxList.length == 0) {
@@ -2271,9 +2302,9 @@ win.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
     return box;
 
 };
-//win.startFlexBox = basic.startFlexBox;
+//window.startFlexBox = basic.startFlexBox;
 
-win.startBox = function(p1 = {}, p2, p3, p4, p5) {
+window.startBox = function(p1 = {}, p2, p3, p4, p5) {
 
     let props = {};
     let box = null;
@@ -2315,9 +2346,9 @@ win.startBox = function(p1 = {}, p2, p3, p4, p5) {
     return box;
 
 };
-//win.startBox = basic.startBox;
+//window.startBox = basic.startBox;
 
-win.endBox = function() {
+window.endBox = function() {
 
     if (startedBoxList.length > 1) {
         startedBoxList.pop();
@@ -2331,9 +2362,9 @@ win.endBox = function() {
 
 };
 //basic.endFlexBox = basic.endBox;
-//win.endBox = basic.endBox;
-//win.endFlexBox = basic.endBox;
-win.endFlexBox = win.endBox;
+//window.endBox = basic.endBox;
+//window.endFlexBox = basic.endBox;
+window.endFlexBox = window.endBox;
 
 /*
 basic.useImageAsText = function(parameters = {}, editCreatedImage) {
@@ -2365,34 +2396,34 @@ basic.useImageAsText = function(parameters = {}, editCreatedImage) {
     return htmText.outerHTML;
 
 };
-win.useImageAsText = basic.useImageAsText;
+window.useImageAsText = basic.useImageAsText;
 */
 
 let savedThat = null;
 let savedExThat = null;
 
-win.saveCurrentThat = function() {
+window.saveCurrentThat = function() {
 
     savedThat = that;
     savedExThat = previousThat;
 
 };
-//win.saveCurrentThat = basic.saveCurrentThat;
+//window.saveCurrentThat = basic.saveCurrentThat;
 
-win.restoreThatFromSaved = function() {
+window.restoreThatFromSaved = function() {
 
     that = savedThat;
     previousThat = savedExThat;
     prevThat = previousThat;
 
 };
-//win.restoreThatFromSaved = basic.restoreThatFromSaved;
+//window.restoreThatFromSaved = basic.restoreThatFromSaved;
 
 // Text, Input, Icon, Box, Button
 // Lbl, Inp, Img, Box, Btn
 // *** Label, Input, Icon, Box, Button
 
-win.Label = function(p1, p2, p3, p4, p5) {
+window.Label = function(p1, p2, p3, p4, p5) {
 
     // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
 
@@ -2427,7 +2458,7 @@ win.Label = function(p1, p2, p3, p4, p5) {
 
 };
 
-win.Input = function(p1, p2, p3, p4, p5) {
+window.Input = function(p1, p2, p3, p4, p5) {
 
     // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
 
@@ -2462,7 +2493,7 @@ win.Input = function(p1, p2, p3, p4, p5) {
 
 };
 
-win.Icon = function(p1, p2, p3, p4, p5) {
+window.Icon = function(p1, p2, p3, p4, p5) {
 
     // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
 
@@ -2497,7 +2528,7 @@ win.Icon = function(p1, p2, p3, p4, p5) {
 
 };
 
-win.Box = function(p1, p2, p3, p4, p5) {
+window.Box = function(p1, p2, p3, p4, p5) {
 
     // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
 
@@ -2532,7 +2563,7 @@ win.Box = function(p1, p2, p3, p4, p5) {
 
 };
 
-win.Button = function(p1, p2, p3, p4, p5) {
+window.Button = function(p1, p2, p3, p4, p5) {
 
     // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
 
@@ -2567,8 +2598,24 @@ win.Button = function(p1, p2, p3, p4, p5) {
 
 };
 
+window.startObject = function() {
+
+    saveCurrentThat();
+    return startBox();
+
+};
+
+window.endObject = function(box) {
+
+    endBox();
+    restoreThatFromSaved();
+    makeBasicObject(box);
+    return box;
+
+};
+
 /*
-win.BasicObject = function($defaultParams = {}, $params = {}, $props = {}) {
+window.BasicObject = function($defaultParams = {}, $params = {}, $props = {}) {
 
     let obj = {};
 

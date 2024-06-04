@@ -13,14 +13,14 @@
 
         <script>
 
-        const plantDataList = [
-            { id: "1", title: "Broccoli", desc: "Vegetable", icon: "assets/broccoli.png" },
-            { id: "2", title: "Strawberry", desc: "Fruit", icon: "assets/strawberry.png" },
-            { id: "3", title: "Carrot", desc: "Vegetable", icon: "assets/carrot.png" },
-            { id: "4", title: "Blueberries", desc: "Fruit", icon: "assets/blueberries.png" },
+        const itemDataList = [
+            { id: "1", label: "Broccoli", desc: "Vegetable", icon: "assets/broccoli.png" },
+            { id: "2", label: "Strawberry", desc: "Fruit", icon: "assets/strawberry.png" },
+            { id: "3", label: "Carrot", desc: "Vegetable", icon: "assets/carrot.png" },
+            { id: "4", label: "Blueberries", desc: "Fruit", icon: "assets/blueberries.png" },
         ];
-        let plantItemList = [];
-        let boxItems;
+        let itemList = [];
+        let containerBox;
             
         window.onload = function() {
 
@@ -30,25 +30,37 @@
             startFlexBox();
 
                 // BOX: Fruit items container box.
-                boxItems = startBox(40, 40, 300, "auto", {
+                containerBox = startBox(40, 40, 300, "auto", {
                     color: "white",
                     round: 13,
                 });
 
-                    for(let i = 0; i < plantDataList.length; i++) {
+                    for(let i = 0; i < itemDataList.length; i++) {
 
                         // PLANTITEM: Every item.
-                        PlantItem(plantDataList[i]);
-                        plantItemList.push(that);
+                        PlantItem(itemDataList[i]);
+                        itemList.push(that);
+
+                        const _item = that;
+
+                        that.on("click", function(event) {
+                            if (_item.selected == 1) {
+                                _item.selected = 0;
+                                _item.elem.style.filter = "none";
+                            } else {
+                                _item.selected = 1;
+                                _item.elem.style.filter = "grayscale(100%)";
+                            }
+                        });
 
                     }
 
-                endBox(); // END BoxItems
+                endBox(); // END containerBox
 
             endFlexBox(); // END Autolayout
             
         };
-        
+
         // CUSTOM COMPONENT:
         const PlantItem = function(params = {}) {
 
@@ -62,6 +74,7 @@
 
             // BOX: Component container box.
             const box = startBox();
+
             // Apply default values and params:
             box.props(defaults, params);
 
@@ -69,57 +82,56 @@
             const privateVariable = "";
             box.publicVariable = "";
 
-            const privateFunction = () => { 
+            const privateFunction = function() { 
 
             };
 
-            box.publicFunction = () => { 
+            box.publicFunction = function() { 
 
             };
 
-                // COMPONENT:
+            // COMPONENT VIEW:
+            // BOX: Item background box.
+            box.backgroundBox = Box(4, 2, box.width - 8, 90, {
+                color: "rgba(0, 0, 0, 0.01)",
+                round: 13,
+                border: 1,
+                borderColor: "rgba(0, 0, 0, 0.04)",
+            });
+            that.setMotion("background-color 0.3s");
+            that.clickable = 1;
+            that.elem.style.cursor = "pointer";
 
-                // BOX: Item background box.
-                box.boxBackground = Box(4, 2, box.width - 8, 90, {
-                    color: "rgba(0, 0, 0, 0.01)",
-                    round: 13,
-                    border: 1,
-                    borderColor: "rgba(0, 0, 0, 0.04)",
-                });
-                that.setMotion("background-color 0.3s");
-                that.clickable = 1;
-                that.elem.style.cursor = "pointer";
+            // IMAGE: Item icon image.
+            Icon(30, 12, 70, 70, {
+                round: 4,
+                color: "transparent",
+                border: 0,
+            });
+            that.load(box.icon);
 
-                // IMAGE: Item icon image.
-                Icon(30, 12, 70, 70, {
-                    round: 4,
-                    color: "transparent",
-                    border: 0,
-                });
-                that.load(params.icon);
+            // LABEL: Item label text.
+            Label(120, 25, 280, "auto", {
+                text: box.label,
+            });
 
-                // LABEL: Item title text.
-                Label(120, 25, 280, "auto", {
-                    text: params.title,
-                });
+            // LABEL: Item description text.
+            Label(120, 49, 280, "auto", {
+                text: box.desc,
+                textColor: "gray",
+                fontSize: 14,
+            });
 
-                // LABEL: Item description text.
-                Label(120, 49, 280, "auto", {
-                    text: params.desc,
-                    textColor: "gray",
-                    fontSize: 14,
-                });
+            // INIT CODE:
+            box.on("mouseover", function(event) {
+                box.backgroundBox.color = "rgba(90, 90, 0, 0.09)";
+            });
+
+            box.on("mouseout", function(event) {
+                box.backgroundBox.color = "rgba(0, 0, 0, 0.01)";
+            });
 
             endBox();
-
-            // init code:
-            box.elem.addEventListener("mouseover", () => {
-                box.boxBackground.color = "rgba(90, 90, 0, 0.09)";
-            });
-
-            box.elem.addEventListener("mouseout", () => {
-                box.boxBackground.color = "rgba(0, 0, 0, 0.01)";
-            });
 
             makeBasicObject(box);
             return box;
