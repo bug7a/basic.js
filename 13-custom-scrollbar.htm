@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>Custom Scroll Bar</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+        /* 
+        body {
+            margin: 0px !important;
+            overflow: hidden !important;
+        }
+        */
+
+        </style>
+
+        <script>
+        
+        // VARIABLES
+        let box = null;
+
+        // First running function.
+        window.onload = function() {
+
+            const _BUTTON_HEIGHT = 50;
+            const _SHOWN_BUTTON_COUNT = 5;
+            const _TOTAL_BUTTON_COUNT = 10;
+            const _TOTAL_WIDTH = 200;
+            const _BOX_ROUND = 4;
+
+            // BOX: Main container
+            box = startBox({
+                width: _TOTAL_WIDTH,
+                height: _BUTTON_HEIGHT * _SHOWN_BUTTON_COUNT,
+                color: "transparent",
+            });
+            that.center();
+
+                // BOX: Scrollable content container
+                box.contentBox = startBox(0, 0, "100%", "100%", {
+                    scrollY: 1,
+                    round: _BOX_ROUND,
+                    color: "whitesmoke",
+                });
+            
+                    // Create 10 Buttons
+                    for (let i = 1; i <= _TOTAL_BUTTON_COUNT; i++) {
+
+                        // BUTTON:
+                        Button({
+                            text: "Button " + i,
+                            color: "rgba(255, 255, 255, 0.0)",
+                            width: "100%",
+                            height: _BUTTON_HEIGHT,
+                            minimal: 1,
+                            round: 0,
+                        });
+                        //that.setMotion("background-color 0.3s");
+
+                        const _that = that;
+
+                        that.on("mouseover", function(event) {
+                            _that.color = "white";
+                            _that.elem.style.borderTop = "1px solid rgba(0, 0, 0, 0.2)";
+                            _that.elem.style.borderBottom = "1px solid rgba(0, 0, 0, 0.2)";
+                        });
+
+                        that.on("mouseout", function(event) {
+                            _that.color = "rgba(255, 255, 255, 0.0)";
+                            _that.elem.style.borderTop = "0px solid rgba(0, 0, 0, 0.2)";
+                            _that.elem.style.borderBottom = "0px solid rgba(0, 0, 0, 0.2)";
+                        });
+
+                        // Set positions one below the other.
+                        if (i > 1) {
+                            that.aline(prevThat, "bottom");
+                        } else {
+                            that.left = 0;
+                            that.top = 0;
+                        }
+
+                    } // end for
+
+                endBox(); // contentBox
+
+                // BOX: Border style 
+                box.borderBox = Box(0, 0, "100%", "100%", {
+                    color: "transparent",
+                    border: 1,
+                    borderColor: "rgba(0, 0, 0, 0.2)",
+                    round: _BOX_ROUND,
+                });
+                // WHY: Using the border as a separate object prevents other objects from being affected.
+                // Because basic.js uses internal borders.
+
+                // SCROLL BAR:
+                box.scrollBar = ScrollBar({
+                    scrollableBox: box.contentBox,
+                    bar_border: 0,
+                    bar_round: 2,
+                    bar_borderColor: "rgba(0, 0, 0, 1)",
+                    bar_width: 4,
+                    bar_mouseOverWidth: 8,
+                    bar_mouseOverColor: "black",
+                    bar_opacity: 0.6,
+                    bar_mouseOverOpacity: 0.8,
+                    bar_padding: 3,
+                    bar_color: "#141414",
+                    neverHide: 0,
+                });
+
+            endBox(); // box
+
+            page.onResize(function() {
+                box.center();
+            });
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>
