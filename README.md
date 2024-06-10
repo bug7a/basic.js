@@ -1,6 +1,6 @@
 ### basic.js UI LIBRARY
 
-Create interactive user interfaces with basic programming skills. (A JavaScript library for web app and hybrid mobile app development.)<br />
+Create interactive user interfaces with basic programming skills. (A JavaScript library for developing progressive web applications and hybrid mobile apps.)<br />
 
 <br>
 
