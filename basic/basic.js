@@ -16,7 +16,6 @@ Licensed under the Apache License, Version 2.0
 (function() {
 "use strict";
 const basic = {};
-const win = window;
 
 /*
 if ( typeof module === "object" && typeof module.exports === "object" ) {
@@ -422,6 +421,14 @@ class Basic_UIComponent {
     set bottom($value) {
         this.contElement.style.top = "";
         this.contElement.style.bottom = parseFloat($value) + "px";
+    }
+
+    get totalLeft() {
+        return calcSpace(this.contElement, "Left");
+    }
+
+    get totalTop() {
+        return calcSpace(this.contElement, "Top");
     }
     
     get width() {
@@ -1869,6 +1876,25 @@ class Sound {
 
 
 /* ### FUNCTIONS ### */
+
+// - bir elementin verilen yöne doğru ekran sınırına olan uzaklığını hesaplar.
+// elem: box.elem, lbl.elem
+// dir: "Left", "Top"
+const calcSpace = function(elem, dir) {
+
+    const _firstDiv = elem;
+
+    let _space = 0;
+    let _currentDiv = _firstDiv;
+
+    while (_currentDiv.offsetParent) {
+        _space += _currentDiv["offset" + dir];
+        _currentDiv = _currentDiv.offsetParent;
+    }
+
+    return _space;
+
+};
 
 // Set styles with style object.
 const setProparties = function ($this, $defaultParams = [], $params = [], $props = []) {
