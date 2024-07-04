@@ -157,7 +157,7 @@ basic.afterStart = function () {
     // console.log(timeUsed);
 };
 
-//window.printThePage = window.print;
+// you cant use console.log in *.min.js files but println
 window.println = function ($message, $type = "log") {
     const _console = console;
     _console[$type]($message);
@@ -171,14 +171,14 @@ window.random = function ($first, $second) {
     if ($second != undefined) {
 
         if ($second < $first) {
-            console.error("basic.js: random(): The second parameter (number) must be greater than the first.");
+            println("basic.js: random(): The second parameter (number) must be greater than the first.", "error");
         
         } else {
             result = $first + Math.round(Math.random() * ($second - $first));
         }
 
     } else {
-        console.error("basic.js: random(): Two parameters (numbers) must be sent.");
+        println("basic.js: random(): Two parameters (numbers) must be sent.", "error");
     }
 
     return result;
@@ -960,7 +960,7 @@ class BBox extends Basic_UIComponent {
         if (defaultContainerBox != null) {
             defaultContainerBox.element.appendChild(this._element);
         } else {
-            console.error("basic.js: The library is not yet ready for use. Put your code in window.onload");
+            println("basic.js: The library is not yet ready for use. Put your code in window.onload", "error");
         }
 
         this.width = $width;
@@ -1188,7 +1188,7 @@ class BButton extends Basic_UIComponent {
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the Button object.");
+        println("basic.js: add(): Insertion cannot be made inside the Button object.", "error");
     }
 
 }
@@ -1422,7 +1422,7 @@ class BTextBox extends Basic_UIComponent {
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the TextBox object.");
+        println("basic.js: add(): Insertion cannot be made inside the TextBox object.", "error");
     }
 
 }
@@ -1546,7 +1546,7 @@ class BLabel extends Basic_UIComponent {
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the Label object.");
+        println("basic.js: add(): Insertion cannot be made inside the Label object.", "error");
     }
 
 }
@@ -1739,7 +1739,7 @@ class BImage extends Basic_UIComponent {
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the BImage object.");
+        println("basic.js: add(): Insertion cannot be made inside the BImage object.", "error");
     }
 
 }
@@ -2249,7 +2249,7 @@ const checkStartedBox = function() {
         const startedBoxCount = startedBoxList.length - 1;
 
         if (startedBoxCount > 0) {
-            console.warn("basic.js: Some started boxes were not ended. Count: " + startedBoxCount);
+            println("basic.js: Some started boxes were not ended. Count: " + startedBoxCount, "warn");
         }
 
     }, 100);
@@ -2627,7 +2627,9 @@ window.Button = function(p1, p2, p3, p4, p5) {
 window.startObject = function() {
 
     saveCurrentThat();
-    return startBox();
+    return startBox({
+        color: "transparent", // WHY: Bir UI nesnesinin başlangıç arkaplanının "transparent" olması daha uygun.
+    });
 
 };
 
