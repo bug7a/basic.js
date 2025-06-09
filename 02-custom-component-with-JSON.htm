@@ -27,7 +27,7 @@
             page.color = "whitesmoke";
 
             // GROUP: Autolayout centered.
-            startFlexBox();
+            AutoLayout();
 
                 // BOX: Fruit items container box.
                 containerBox = startBox(40, 40, 300, "auto", {
@@ -35,61 +35,45 @@
                     round: 13,
                 });
 
-                    for(let i = 0; i < itemDataList.length; i++) {
+                    itemDataList.forEach((item) => {
+                        const newItem = PlantItem(item);
+                        itemList.push(newItem);
 
-                        // PLANTITEM: Every item.
-                        PlantItem(itemDataList[i]);
-                        itemList.push(that);
-
-                        const _item = that;
-
-                        that.on("click", function(event) {
-                            if (_item.selected == 1) {
-                                _item.selected = 0;
-                                _item.elem.style.filter = "none";
-                            } else {
-                                _item.selected = 1;
-                                _item.elem.style.filter = "grayscale(100%)";
-                                println(_item.id);
-                            }
+                        newItem.on("click", () => {
+                            newItem.selected = newItem.selected ? 0 : 1;
+                            newItem.elem.style.filter = newItem.selected ? "grayscale(100%)" : "none";
+                            if (newItem.selected) println(newItem.id);
                         });
-
-                    }
+                    });       
 
                 endBox(); // END containerBox
-
-            endFlexBox(); // END Autolayout
+            endAutoLayout(); // END Autolayout
             
         };
 
-        // CUSTOM COMPONENT:
+        // DEFAULT VALUES: PlantItem
+        const PlantItemDefaults = {
+            width: 300,
+            height: 94,
+            color: "transparent",
+            position: "relative",
+        };
+
+        // CUSTOM COMPONENT: PlantItem
         const PlantItem = function(params = {}) {
 
-            // Default values:
-            const defaults = {
-                width: 300,
-                height: 94,
-                color: "transparent",
-                position: "relative",
-            };
-
             // BOX: Component container box.
-            const box = startBox();
+            const box = startObject();
 
             // Apply default values and params:
-            box.props(defaults, params);
+            box.props(PlantItemDefaults, params);
 
             // Private, public variables and functions:
-            const privateVariable = "";
-            box.publicVariable = "";
+            const privateVariable = null;
+            box.publicVariable = null;
 
-            const privateFunction = function() { 
-
-            };
-
-            box.publicFunction = function() { 
-
-            };
+            const privateFunction = function() {};
+            box.publicFunction = function() {};
 
             // COMPONENT VIEW:
             // BOX: Item background box.
@@ -132,10 +116,7 @@
                 box.backgroundBox.color = "rgba(0, 0, 0, 0.01)";
             });
 
-            endBox();
-
-            makeBasicObject(box);
-            return box;
+            return endObject(box);
 
         };
 

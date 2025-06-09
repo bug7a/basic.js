@@ -19,6 +19,14 @@
             page.color = "whitesmoke";
 
             // GROUP: Autolayout (Default: centered)
+            AutoLayout({
+                flow: "horizontal", // "vectorial"
+                align: "center", // "top left", "center right"
+                gap: 10,
+                padding: 0, // [0, 0, 0, 0]
+            });
+            /*
+            // If you need more options, use startFlexBox
             startFlexBox({
                 left: 0,
                 top: 0,
@@ -29,7 +37,10 @@
                 alignContent: "center", // flex-start, center, flex-end, space-between, space-around, stretch (up to down)
                 justifyContent: "center", // flex-start, center, flex-end, space-between, space-around, space-evenly (left to right)
                 alignItems: "center", // flex-start, flex-end, center, baseline, stretch
+                gap: "10px",
             });
+            //that.elem.style.flexDirection = "column"; // to change after created
+            */
 
                 // BOX: Red 
                 Box({
@@ -40,9 +51,10 @@
                 Box({
                     color: "steelblue",
                 });
-                that.elem.style.marginLeft = "8px";
+                //that.elem.style.marginLeft = "8px";
                 
-            endFlexBox();
+            //endFlexBox();
+            endAutoLayout();
 
         };
 

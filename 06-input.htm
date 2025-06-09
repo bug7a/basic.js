@@ -24,12 +24,12 @@
                 minimal: 1,
                 color: "whitesmoke",
             });
-            that.onChange(printName);
+            that.on("input", printName); // events: input, change, focus, paste
             
         };
         
-        const printName = function(changedInput) {
-            println("Name: " + changedInput.text);
+        const printName = function(event) {
+            println("Name: " + inpName.text);
         };
 
         </script>

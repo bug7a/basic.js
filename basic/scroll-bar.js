@@ -276,8 +276,8 @@ const ScrollBar = function(params = {}) {
     // Scroll barlar basarak kaydırılabilsin.
     box.boxScrollBarTop.clickable = 1;
     box.boxScrollBarLeft.clickable = 1;
-    box.boxScrollBarTop.elem.style.cursor = "default";
-    box.boxScrollBarLeft.elem.style.cursor = "default";
+    //box.boxScrollBarTop.elem.style.cursor = "default";
+    //box.boxScrollBarLeft.elem.style.cursor = "default";
 
     const _highlightTopBar = function() {
         box.boxScrollBarTop.width = box.bar_mouseOverWidth;
@@ -394,7 +394,7 @@ const ScrollBar = function(params = {}) {
             color: "transparent",
             clickable: 1,
         });
-        that.elem.style.cursor = "grabbing";
+        //that.elem.style.cursor = "grabbing";
         page.add(that);
 
         _fullscreenBox.elem.addEventListener('mousemove', mouseMoved_scrollbarButton);

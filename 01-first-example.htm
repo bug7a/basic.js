@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         
         <title>First Example</title>
@@ -14,30 +14,33 @@
         <script>
             
         // VARIABLES
-            
         let lblText;
         let clickedCount = 0;
             
         // First running function.
         window.onload = function() {
         
-            // GROUP: Autolayout (Default: centered)
-            startFlexBox();
+            // GROUP: AutoLayout (Default: horizontal centered)
+            AutoLayout({
+                // flow: "horizontal", // "vectorial"
+                // align: "center", // "top left", "center right"
+                // gap: 0,
+                // padding: 0, // [0, 0, 0, 0]
+            });
 
                 // LABEL: Clickable label
                 lblText = Label({
                     text: "Click Me",
                     color: "lightgray",
-                    spaceX: 12,
-                    spaceY: 4,
+                    padding: [12, 4],
                     round: 4,
                     border: 1,
                     borderColor: "rgba(0, 0, 0, 0.1)",
                 });
                 that.elem.style.cursor = "pointer";
-                that.onClick(increaseOne);
+                that.on("click", increaseOne);
 
-            endFlexBox();
+            endAutoLayout();
             
         };
         
@@ -47,7 +50,7 @@
             clickedCount++;
             lblText.text = "Clicked Count: " + clickedCount;
 
-            console.log(clickedCount);
+            println(clickedCount);
 
         };
 

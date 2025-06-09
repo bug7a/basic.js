@@ -27,7 +27,9 @@
             that.center();
             // When there is a change, soften it with movement.
             that.setMotion("left 0.3s, top 0.3s, width 0.3s, height 0.3s");
-            that.onClick(extendBox);
+            that.on("click", function(event) {
+                extendBox(box);
+            });
             
         };
         

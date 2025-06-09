@@ -1,6 +1,6 @@
 ### basic.js UI LIBRARY
 
-Create interactive user interfaces with basic programming skills. A JavaScript library for developing single page applications and hybrid mobile apps. You don't have to use HTML or CSS with this tecnique.<br />
+Use basic programming to create web-based applications. You don't have to write HTML or CSS with this technique.<br />
 
 <br>
 
@@ -10,7 +10,7 @@ https://bug7a.github.io/basic.js/
 ### Handbook:
 https://bug7a.github.io/basic.js-handbook/
 
-### Beginner Examples:
+### Beginner Examples (NOT UPDATED):
 https://bug7a.github.io/basic.js-examples/
 
 ### basic.js UI Components:
@@ -25,8 +25,8 @@ https://bug7a.github.io/javascript-mobile-app-template/
 <br>
 
 ### SHOWCASE
-### Mobile App on Google Play:
-https://play.google.com/store/apps/details?id=com.bugraozden.expense
+### Mobile App on Web:
+https://bug7a.github.io/expense/
 
 ### PC Game on Steam:
 https://store.steampowered.com/app/2923920/
@@ -43,5 +43,5 @@ I wish you to see its benefits.<br /><br />
 
 ### LICENSE
 
-Copyright 2020-2024 Bugra Ozden <bugra.ozden@gmail.com><br />
+Copyright 2020-2025 Bugra Ozden <bugra.ozden@gmail.com><br />
 Licensed under the Apache License, Version 2.0<br /><br />
