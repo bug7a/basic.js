@@ -3,7 +3,7 @@
 
 /*
 
-basic.js (v25.06) Use basic programming to create web-based applications. You don't have to write HTML or CSS with this technique.
+basic.js (v25.06) A lightweight JavaScript library for building web-based applications with simple code. No need to write HTML or CSS — just use basic JavaScript.
 - Project Site: https://bug7a.github.io/basic.js/
 
 Copyright 2020-2025 Bugra Ozden <bugra.ozden@gmail.com>

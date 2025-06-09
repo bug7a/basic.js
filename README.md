@@ -1,6 +1,6 @@
 ### basic.js UI LIBRARY
 
-Use basic programming to create web-based applications. You don't have to write HTML or CSS with this technique.<br />
+A lightweight JavaScript library for building web-based applications with simple code. No need to write HTML or CSS — just use basic JavaScript.<br />
 
 <br>
 

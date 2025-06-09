@@ -19,10 +19,12 @@
             
         // First running function.
         window.onload = function() {
+
+            page.color = "whitesmoke";
         
             // GROUP: AutoLayout (Default: horizontal centered)
             AutoLayout({
-                // flow: "horizontal", // "vectorial"
+                // flow: "horizontal", // "vertical"
                 // align: "center", // "top left", "center right"
                 // gap: 0,
                 // padding: 0, // [0, 0, 0, 0]
@@ -31,7 +33,7 @@
                 // LABEL: Clickable label
                 lblText = Label({
                     text: "Click Me",
-                    color: "lightgray",
+                    color: "white",
                     padding: [12, 4],
                     round: 4,
                     border: 1,
