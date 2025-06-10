@@ -101,6 +101,12 @@
             that.color = "transparent"
             that.element.style.position = "relative"
 
+            box.homePage.header.imgLogo = createImage(380, 10, 535, 310) // 255 x 142 - 170 X 94
+            box.homePage.header.add(that)
+            that.load("images/basic-js-nocolor-4x.png")
+            that.center("left")
+
+            /*
             box.homePage.header.imgLogo = createImage(380, 125, 255, 142) // 255 x 142 - 170 X 94
             box.homePage.header.add(that)
             that.load("images/basicjs-noship-logo.svg")
@@ -110,6 +116,7 @@
             box.homePage.header.add(that)
             that.load("images/ship.svg")
             that.setMotion("transform 2s");
+            */
 
             const moveShip = () => {
 
@@ -131,10 +138,10 @@
 
             //moveShip();
 
-            box.homePage.header.lblDescription = createLabel(44, 306, 935, 150)
+            box.homePage.header.lblDescription = createLabel(44, 260, 935, 150)
             box.homePage.header.add(that)
-            that.text = "Create interactive user interfaces<br>with basic programming skills."
-            that.fontSize = 44
+            that.text = "A lightweight <b>JavaScript</b> library for building<br><b>web-based applications</b> with <b>simple code</b>.<br><span style='font-size:20px;'>No need to write <b>HTML</b> or <b>CSS</b> — just use basic <b>JavaScript</b>.<span>"
+            that.fontSize = 37
             that.textAlign = "center"
             that.center("left")
 
@@ -148,18 +155,39 @@
             that.fontSize = 16
             that.spaceY = 8
             that.spaceX = 18
-            that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
-            that.element.classList.add("motion-zoomOnMouseOver-forButton")
+            //that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
+            //that.element.classList.add("motion-zoomOnMouseOver-forButton")
             that.clickable = 1
             that.right = 20
             that.top = 30
+            that.elem.style.cursor = "pointer";
             that.onClick(function() {
                 go("https://bug7a.github.io/javascript-mobile-app-template/", "_blank")
             })
 
+            box.homePage.header.btn3 = createLabel(0, 150, "auto", "auto")
+            box.homePage.header.add(that)
+            that.text = "UI Components"
+            that.color = "rgba(0, 0, 0, 0.05)"
+            that.round = 6
+            that.fontSize = 16
+            that.spaceY = 8
+            that.spaceX = 18
+            //that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
+            //that.element.classList.add("motion-zoomOnMouseOver-forButton")
+            that.clickable = 1
+            that.elem.style.cursor = "pointer";
+            box.homePage.header.btn3.aline(box.homePage.header.btnExample, "bottom", 8);
+            //box.homePage.header.btn3.aline(box.homePage.header.btn1, "right", 8);
+            that.onClick(function() {
+                go("https://bug7a.github.io/basic.js-ui-components/", "_blank")
+            });
+
+
+
             box.homePage.header.btn1 = createLabel(0, 470, "auto", "auto")
             box.homePage.header.add(that)
-            that.text = "<b>Handbook</b> v1.7.4"
+            that.text = "<b>Handbook</b> v25.06"
             that.color = "rgba(0, 0, 0, 0.05)"
             that.round = 6
             that.fontSize = 24
@@ -184,15 +212,27 @@
             that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
             that.element.classList.add("motion-zoomOnMouseOver-forButton")
             that.clickable = 1
+            //box.homePage.header.btn2.aline(box.homePage.header.btn1, "left", 8);
             that.onClick(function() {
                 go("https://github.com/bug7a/basic.js", "_blank")
             })
+
+            /*
+            box.homePage.header.btn1.onResize(function() {
+                box.homePage.header.btn1.center("left");
+                box.homePage.header.btn2.aline(box.homePage.header.btn1, "left", 8);
+                box.homePage.header.btn3.aline(box.homePage.header.btn1, "right", 8);
+            });
+            */
+
+            
             that.onResize(function(self) {
                 var _width = self.width + box.homePage.header.btn1.width + 20
                 var _left = (1000 - _width) / 2
                 box.homePage.header.btn1.left = _left
                 box.homePage.header.btn2.aline(box.homePage.header.btn1, "right", 20)
             })
+            
 
             var exampleHeightList = [650, 1650, 550, 550, 550, 550, 600, 550, 750, 550, 1350];
             var exampleNameList = [ 
@@ -370,7 +410,7 @@
             // LABEL: Info.
             box.homePage.footer.lblInfo = createLabel(0, 275, 600, 100)
             box.homePage.footer.add(that)
-            that.text = "Copyright 2020-2024 <b onclick='gotoBugraSite();' style='cursor: pointer;'>Bugra Ozden</b><br>Licensed under <b onclick='gotoLicenses();' style='cursor: pointer;'>the Apache License</b>, Version 2.0"
+            that.text = "Copyright 2020-2025 <b onclick='gotoBugraSite();' style='cursor: pointer;'>Bugra Ozden</b><br>Licensed under <b onclick='gotoLicenses();' style='cursor: pointer;'>the Apache License</b>, Version 2.0"
             that.fontSize = 12
             that.opacity = 0.8
             that.clickable = 1

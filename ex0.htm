@@ -47,34 +47,41 @@
 
     
 
+    // VARIABLES
     let lblText;
     let clickedCount = 0;
         
     // First running function.
-    window.onload = () => {
+    window.onload = function() {
+
+        page.color = "whitesmoke";
     
-        // GROUP: Autolayout (Default: centered)
-        startFlexBox();
+        // GROUP: AutoLayout (Default: horizontal centered)
+        AutoLayout({
+            // flow: "horizontal", // "vertical"
+            // align: "center", // "top left", "center right"
+            // gap: 0,
+            // padding: 0, // [0, 0, 0, 0]
+        });
 
             // LABEL: Clickable label
             lblText = Label({
                 text: "Click Me",
-                color: "lightgray",
-                spaceX: 12,
-                spaceY: 4,
+                color: "white",
+                padding: [12, 4],
                 round: 4,
                 border: 1,
                 borderColor: "rgba(0, 0, 0, 0.1)",
             });
             that.elem.style.cursor = "pointer";
-            that.onClick(increaseOne);
+            that.on("click", increaseOne);
 
-        endFlexBox();
+        endAutoLayout();
         
     };
     
     // OTHER FUNCTIONS
-    const increaseOne = () => {
+    const increaseOne = function() {
 
         clickedCount++;
         lblText.text = "Clicked Count: " + clickedCount;

@@ -3,10 +3,10 @@
 
 /*
 
-basic.js (v1.7.4) Create interactive user interfaces with basic programming skills.
+basic.js (v25.06) A lightweight JavaScript library for building web-based applications with simple code. No need to write HTML or CSS — just use basic JavaScript.
 - Project Site: https://bug7a.github.io/basic.js/
 
-Copyright 2020-2024 Bugra Ozden <bugra.ozden@gmail.com>
+Copyright 2020-2025 Bugra Ozden <bugra.ozden@gmail.com>
 - https://github.com/bug7a
 
 Licensed under the Apache License, Version 2.0
@@ -16,17 +16,16 @@ Licensed under the Apache License, Version 2.0
 (function() {
 "use strict";
 const basic = {};
-const win = window;
 
 /*
 if ( typeof module === "object" && typeof module.exports === "object" ) {
     module.exports = basic;
 } else {
-    win.basic = basic;
+    window.basic = basic;
 }
 */
 
-win.basic = basic;
+window.basic = basic;
 basic.startTime = Date.now();
 
 basic.ACTION_COLOR = "#689BD2";
@@ -45,61 +44,16 @@ basic.BUTTON_TEXT_COLOR = "rgba(0, 0, 0, 0.65)";
 basic.TEXTBOX_WIDTH = 270;
 basic.TEXTBOX_HEIGHT = 50;
 
-basic.gunler = [
-    "Pazar",
-    "Pazartesi", 
-    "Salı", 
-    "Çarşamba", 
-    "Perşembe", 
-    "Cuma", 
-    "Cumartesi"
-];
+basic.gunler = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+basic.days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+basic.aylar = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+basic.months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-basic.days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
-];
+window.that = null;
+window.previousThat = null;
+window.prevThat = null;
 
-basic.aylar = [
-    "Ocak", 
-    "Şubat", 
-    "Mart", 
-    "Nisan",
-    "Mayıs",
-    "Haziran",
-    "Temmuz",
-    "Ağustos",
-    "Eylül",
-    "Ekim",
-    "Kasım",
-    "Aralık"
-];
-
-basic.months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-];
-
-win.that = null;
-win.previousThat = null;
-win.prevThat = null;
-
-let defaultContainerBox;
+let defaultContainerBox = null;
 let previousDefaultContainerBox;
 let loopTimer;
 const resizeDetection = {};
@@ -120,7 +74,7 @@ basic.start = function () {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
     */
 
-    win.page = new MainBox();
+    window.page = new MainBox();
     page.containerBox = null;
     setDefaultContainerBox(page);
 
@@ -158,38 +112,39 @@ basic.afterStart = function () {
     // console.log(timeUsed);
 };
 
-//window.printThePage = window.print;
-win.println = function ($message, $type = "log") {
-    console[$type]($message);
+// you cant use console.log in *.min.js files but println
+window.println = function ($message, $type = "log") {
+    const _console = console;
+    _console[$type]($message);
 };
-//win.println = basic.println;
+//window.println = basic.println;
 
-win.random = function ($first, $second) {
+window.random = function ($first, $second) {
 
     let result = 0;
 
     if ($second != undefined) {
 
         if ($second < $first) {
-            console.error("basic.js: random(): The second parameter (number) must be greater than the first.");
+            println("basic.js: random(): The second parameter (number) must be greater than the first.", "error");
         
         } else {
             result = $first + Math.round(Math.random() * ($second - $first));
         }
 
     } else {
-        console.error("basic.js: random(): Two parameters (numbers) must be sent.");
+        println("basic.js: random(): Two parameters (numbers) must be sent.", "error");
     }
 
     return result;
 
 };
-//win.random = basic.random;
+//window.random = basic.random;
 
-win.num = function ($str, $type = "float") {
+window.num = function ($str, $type = "float") {
 
     if ($type == "float") {
-        var i = parseFloat($str);
+        const i = parseFloat($str);
         return Math.round(i * 100) / 100;
         
     } else if ($type == "integer" || $type == "int") {
@@ -197,14 +152,14 @@ win.num = function ($str, $type = "float") {
     }
 
 };
-//win.num = basic.num;
+//window.num = basic.num;
 
-win.str = function ($num) {
+window.str = function ($num) {
     return String($num);
 };
-//win.str = basic.str;
+//window.str = basic.str;
 
-win.isMobile = function () {
+window.isMobile = function () {
 
     let answer = 0;
 
@@ -216,21 +171,21 @@ win.isMobile = function () {
     return answer;
 
 };
-//win.isMobile = basic.isMobile;
+//window.isMobile = basic.isMobile;
 
-win.go = function ($url, $windowType = "_self") {
+window.go = function ($url, $windowType = "_self") {
 
     // window.location.href = $url;
-    var openedWindow = window.open($url, $windowType);
+    const openedWindow = window.open($url, $windowType);
     // openedWindow.document.write("<p>Test Message</p>");
 
     return openedWindow;
 
 };
-//win.go = basic.go;
+//window.go = basic.go;
 
 // Tek haneli sayıyı, başına "0" ekleyerek iki haneli yapar. 03:10:05
-win.twoDigitFormat = function($number) {
+window.twoDigitFormat = function($number) {
 
     if ($number <= 9) {
         $number = "0" + $number;
@@ -239,9 +194,9 @@ win.twoDigitFormat = function($number) {
     return $number;
 
 };
-//win.twoDigitFormat = basic.twoDigitFormat;
+//window.twoDigitFormat = basic.twoDigitFormat;
 
-win.storage = {
+window.storage = {
 
     save(key, value) {
         window.localStorage.setItem(key, JSON.stringify(value));
@@ -254,9 +209,9 @@ win.storage = {
     }
 
 };
-//win.storage = basic.storage;
+//window.storage = basic.storage;
 
-win.clock = {
+window.clock = {
 
     get hour() {
         let dt = new Date();
@@ -276,9 +231,9 @@ win.clock = {
     }
 
 };
-//win.clock = basic.clock;
+//window.clock = basic.clock;
 
-win.date = {
+window.date = {
 
     get year() {
         let dt = new Date();
@@ -315,7 +270,7 @@ win.date = {
     }
 
 };
-//win.date = basic.date;
+//window.date = basic.date;
 
 // Common methods and properties of basic objects.
 class Basic_UIComponent {
@@ -352,6 +307,7 @@ class Basic_UIComponent {
         this._displayType = "block";
         this._opacity = 1;
         this._rotate = 0;
+        this._padding = 0;
 
         this._motionString = "none";
         this._clickable = 0;
@@ -421,6 +377,14 @@ class Basic_UIComponent {
     set bottom($value) {
         this.contElement.style.top = "";
         this.contElement.style.bottom = parseFloat($value) + "px";
+    }
+
+    get totalLeft() {
+        return calcSpace(this.contElement, "Left");
+    }
+
+    get totalTop() {
+        return calcSpace(this.contElement, "Top");
     }
     
     get width() {
@@ -528,6 +492,53 @@ class Basic_UIComponent {
     set color($value) {
         this._backgroundColor = $value;
         this.contElement.style.backgroundColor = $value;
+    }
+
+    get padding() {
+        return this._padding || 0;
+    }
+
+    set padding($value) {
+
+        this._padding = $value;
+        let paddingLeft, paddingRight, paddingTop, paddingBottom;
+
+        if (typeof $value === 'number') {
+            paddingLeft = paddingRight = paddingTop = paddingBottom = $value;
+        }
+        
+        else if (Array.isArray($value)) {
+            const len = $value.length;
+
+            if (len === 1) {
+                paddingLeft = paddingRight = paddingTop = paddingBottom = $value[0];
+            }
+            else if (len === 2) {
+                paddingLeft  = paddingRight  = $value[0];
+                paddingTop   = paddingBottom = $value[1];
+            }
+            else if (len === 3) {
+                paddingLeft  = paddingRight  = $value[0];
+                paddingTop   = paddingBottom = $value[1];
+            }
+            else if (len === 4) {
+                paddingLeft   = $value[0];
+                paddingTop    = $value[1];
+                paddingRight  = $value[2];
+                paddingBottom = $value[3];
+            }
+            else {
+                //throw new Error('padding değeri 1–4 elemanlı bir dizi ya da tek sayı olmalıdır.');
+            }
+        }
+        else {
+            //throw new Error('padding değeri ya sayı olmalı ya da 1–4 elemanlı bir dizi olmalıdır.');
+        }
+
+        this.contElement.style.paddingLeft   = paddingLeft  + 'px';
+        this.contElement.style.paddingTop    = paddingTop   + 'px';
+        this.contElement.style.paddingRight  = paddingRight + 'px';
+        this.contElement.style.paddingBottom = paddingBottom+ 'px';
     }
 
     // -- Genel özellikler SONU
@@ -646,12 +657,12 @@ class Basic_UIComponent {
     // Olay eklemek.
     _addEventListener($eventName, $func, $element) {
         let _that = this;
-        var eventFunc = function ($ev) {
+        const eventFunc = function ($ev) {
             $func(_that, $ev);
         }
         $element.addEventListener($eventName, eventFunc);
 
-        var eventDateItem = {}
+        const eventDateItem = {};
         eventDateItem.eventName = $eventName;
         eventDateItem.originalFunc = $func;
         eventDateItem.func = eventFunc;
@@ -660,8 +671,8 @@ class Basic_UIComponent {
     }
 
     _removeEventListener($eventName, $func, $element) {
-        var func = null
-        for (var i = 0; i < this._eventFuncList.length; i++) {
+        let func = null
+        for (let i = 0; i < this._eventFuncList.length; i++) {
             if (this._eventFuncList[i].originalFunc == $func) {
                 func = this._eventFuncList[i].func;
                 this._eventFuncList.splice(i, 1);
@@ -671,6 +682,22 @@ class Basic_UIComponent {
         if (func) {
             $element.removeEventListener($eventName, func);
         }   
+    }
+
+    on($eventName, $func, $useCapture = false) {
+        const _elem = (this._type == "textbox") ? this.inputElement : this.elem;
+        // WHY: Clickable bazen 0 da unutulabilir, otomatik 1 ver. Gerekirse kullanıcı 0 yapar.
+        this.clickable = 1;
+        _elem.addEventListener($eventName, $func, $useCapture);
+        // Olayı kolayca silebilmek için hazır bir fonksiyon gönder.
+        return function removeEvent() {
+            _elem.removeEventListener($eventName, $func);
+        };
+    }
+
+    off($eventName, $func) {
+        const _elem = (this._type == "textbox") ? this.inputElement : this.elem;
+        _elem.removeEventListener($eventName, $func);
     }
 
     onResize($func) {
@@ -687,9 +714,10 @@ class Basic_UIComponent {
         // example motionString: "left 1s, top 1s, width 1s, height 1s, transform 1s, background-color 1s, border-radius 1s, opacity 1s"
         // example motionString: "all 0.3s"
         //this.setMotionNow($motionString);
-        var _that = this;
+        const _that = this;
 
-        setTimeout(function(){
+        if(this._setMotionTimeout) clearTimeout(this._setMotionTimeout);
+        this._setMotionTimeout = setTimeout(function(){
             _that.setMotionNow($motionString);
         }, motionController.DONT_MOTION_TIME);
 
@@ -709,9 +737,10 @@ class Basic_UIComponent {
     // Özellik değişimi, hareket ile olsun.
     withMotion($func) {
 
-        var _that = this;
+        const _that = this;
 
-        setTimeout(function() {
+        if(this._withMotionTimeout) clearTimeout(this._withMotionTimeout);
+        this._withMotionTimeout = setTimeout(function() {
             _that.canMotionNow();
              $func(_that);
          }, motionController.WITH_MOTION_TIME);
@@ -722,9 +751,10 @@ class Basic_UIComponent {
     dontMotion() {
 
         this.contElement.style.transition = "none";
-        var _that = this;
+        const _that = this;
 
-        setTimeout(function(){
+        if(this._dontMotionTimeout) clearTimeout(this._dontMotionTimeout);
+        this._dontMotionTimeout = setTimeout(function(){
             _that.contElement.style.transition = _that._motionString;
         }, motionController.DONT_MOTION_TIME);
 
@@ -787,13 +817,22 @@ class MainBox {
     get width() {
         let _w;
         _w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        return basic.withPageZoom(_w);
+        return withPageZoom(_w);
     }
 
     get height() {
         let _h;
         _h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-        return basic.withPageZoom(_h);
+        return withPageZoom(_h);
+    }
+
+    // .text alternatif kullanım:
+    get html() {
+        return this._box.element.innerHTML;
+    }
+
+    set html($value) {
+        this._box.element.innerHTML = $value;
     }
 
     get zoom() {
@@ -818,9 +857,12 @@ class MainBox {
         this.bodyElement.style.backgroundColor = $value;
     }
 
+    // fit
     fit($value = document.body.clientWidth, $maxValue) {
 
-        page.zoom = 1
+        // WHY: onResize da hesaplama yaparken, zoom değerini hesaba katmasın diye.
+        // mesela page.width zoom değeri hesaba katıldığında farklı oluyor.
+        page.zoom = 1; 
         let _w = page.width;
 
         // ikinci değer yok ise,
@@ -833,12 +875,40 @@ class MainBox {
             page.zoom = _w / $value;
         }
 
-    }
+    };
 
+    // fit
+    autoFit($contentWidth, $contentHeight) {
+
+        // WHY: onResize da hesaplama yaparken, zoom değerini hesaba katmasın diye.
+        // mesela page.width zoom değeri hesaba katıldığında farklı oluyor.
+        page.zoom = 1; 
+
+        const _currentCarpan = page.width / page.height;
+        const _carpan = $contentWidth / $contentHeight;
+
+        let _width = 0;
+
+        // Yeterli genişlik yok ise; Genişliğe sığdır.
+        if (_currentCarpan <= _carpan) {
+            _width = page.width;
+
+        // Yüksekliğe sığdır.
+        } else {
+            _width = page.height * _carpan;
+            
+        }
+
+        page.fit($contentWidth, _width);
+
+    };
+
+    
     refreshSize() {
         page.mainBox.width = page.width;
         page.mainBox.height = page.height;
-    }    
+    }   
+    
 
     onClick($func) {
         this._box._addEventListener("click", $func, window);
@@ -887,7 +957,9 @@ class BBox extends Basic_UIComponent {
         this._textColor = "rgba(0, 0, 0, 0.8)";
         this._textAlign = "left";
 
-        let divElement = document.createElement("DIV");
+        this._clipContent = 1;
+
+        const divElement = document.createElement("DIV");
         divElement.classList.add("basic_box");
 
         divElement.style.left = $left + "px";
@@ -895,7 +967,11 @@ class BBox extends Basic_UIComponent {
 
         this._element = divElement;
         this._containerBox = defaultContainerBox;
-        defaultContainerBox.element.appendChild(this._element);
+        if (defaultContainerBox != null) {
+            defaultContainerBox.element.appendChild(this._element);
+        } else {
+            println("basic.js: The library is not yet ready for use. Put your code in window.onload", "error");
+        }
 
         this.width = $width;
         this.height = $height;
@@ -936,6 +1012,21 @@ class BBox extends Basic_UIComponent {
     set html($value) {
         this.element.innerHTML = $value;
     }
+
+    get clipContent() {
+        return this._clipContent;
+    }
+
+    set clipContent($value) {
+        this._clipContent = $value;
+        if ($value) {
+            this.contElement.style.overflowX = "hidden";
+            this.contElement.style.overflowY = "hidden";
+        } else {
+            this.contElement.style.overflowX = "visible";
+            this.contElement.style.overflowY = "visible";
+        }
+    }
     
     get scrollX() {
         return (this.contElement.style.overflowX == "auto") ? 1 : 0;
@@ -973,34 +1064,34 @@ class BBox extends Basic_UIComponent {
     }
 
     add($obj) {
-        if ($obj.containerBox != this) {
+        //if ($obj.containerBox != this) {
             // Eklenen nesnenin, üst nesnesini değiştir.
             $obj.containerBox = this;
             // İçine başka bir nesne eklendiğinde, artık basılabilir.
             //this.clickable = 1;
             this.element.appendChild($obj.contElement);
-        }
+        //}
     }
 
     // Ağaç şeklinde kod blokları oluştumak için bir teknik. (Deneysel Teknik)
     in($func) {
-        var _selectedBox = getDefaultContainerBox();
+        const _selectedBox = getDefaultContainerBox();
         setDefaultContainerBox(this);
         $func(this);
         setDefaultContainerBox(_selectedBox);
     }
 
 }
-//win.Box = Box;
+//window.Box = Box;
 
 // Alternatif kullanım
-win.createBox = function ($left, $top, $width, $height) {
+window.createBox = function ($left, $top, $width, $height) {
     return new BBox($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
 /*
-win.cbox = function ($left, $top, $width, $height) {
+window.cbox = function ($left, $top, $width, $height) {
     return new BBox($left, $top, $width, $height);
 }
 */
@@ -1027,7 +1118,7 @@ class BButton extends Basic_UIComponent {
 
         this._clickable = 1;
 
-        let buttonElement = document.createElement("BUTTON");
+        const buttonElement = document.createElement("BUTTON");
         buttonElement.innerHTML = "Button";
         buttonElement.classList.add("basic_button");
         buttonElement.setAttribute("type", "button");
@@ -1122,20 +1213,20 @@ class BButton extends Basic_UIComponent {
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the Button object.");
+        println("basic.js: add(): Insertion cannot be made inside the Button object.", "error");
     }
 
 }
-//win.Button = Button;
+//window.Button = Button;
 
 // Alternatif kullanım1
-win.createButton = function ($left, $top, $width, $height) {
+window.createButton = function ($left, $top, $width, $height) {
     return new BButton($left, $top, $width, $height);
 }
 
 // Alternatif kullanım 2
 /*
-win.cbtn = function ($left, $top, $width, $height) {
+window.cbtn = function ($left, $top, $width, $height) {
     return new BButton($left, $top, $width, $height);
 }
 */
@@ -1167,16 +1258,16 @@ class BTextBox extends Basic_UIComponent {
 
         this._clickable = 1;
 
-        let mainElement = document.createElement("DIV");
+        const mainElement = document.createElement("DIV");
         mainElement.classList.add("basic_textbox-main");
         this._mainElement = mainElement;
 
-        let titleElement = document.createElement("DIV");
+        const titleElement = document.createElement("DIV");
         titleElement.classList.add("basic_textbox-title");
         titleElement.innerHTML = "";
         this._titleElement = titleElement;
 
-        let element = document.createElement("INPUT");
+        const element = document.createElement("INPUT");
         element.value = "";
         element.classList.add("basic_textbox");
         element.setAttribute("type", "text");
@@ -1348,32 +1439,32 @@ class BTextBox extends Basic_UIComponent {
     }
 
     onChange($func) {
-        this._addEventListener("change", $func, this.inputElement);
+        this._addEventListener("input", $func, this.inputElement);
     }
 
     remove_onChange($func) {
-        this._removeEventListener("change", $func, this.inputElement);
+        this._removeEventListener("input", $func, this.inputElement);
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the TextBox object.");
+        println("basic.js: add(): Insertion cannot be made inside the TextBox object.", "error");
     }
 
 }
-//win.TextBox = TextBox;
+//window.TextBox = TextBox;
 
 // Alternatif kullanım
-win.createTextBox = function ($left, $top, $width, $height) {
+window.createTextBox = function ($left, $top, $width, $height) {
     return new BTextBox($left, $top, $width, $height);
 }
 
-win.createInput = function ($left, $top, $width, $height) {
+window.createInput = function ($left, $top, $width, $height) {
     return new BTextBox($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
 /*
-win.ctxt = function ($left, $top, $width, $height) {
+window.ctxt = function ($left, $top, $width, $height) {
     return new BTextBox($left, $top, $width, $height);
 }
 */
@@ -1398,9 +1489,9 @@ class BLabel extends Basic_UIComponent {
         this._textColor = "rgba(0, 0, 0, 0.8)";
         this._textAlign = "left";
 
-        let divElement = document.createElement("DIV");
+        const divElement = document.createElement("DIV");
 
-        divElement.innerHTML = "Label Text";
+        //divElement.innerHTML = "";
         divElement.classList.add("basic_label");
 
         divElement.style.left = $left + "px";
@@ -1480,20 +1571,20 @@ class BLabel extends Basic_UIComponent {
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the Label object.");
+        println("basic.js: add(): Insertion cannot be made inside the Label object.", "error");
     }
 
 }
-//win.Label = Label;
+//window.Label = Label;
 
 // Alternatif kullanım
-win.createLabel = function ($left, $top, $width, $height) {
+window.createLabel = function ($left, $top, $width, $height) {
     return new BLabel($left, $top, $width, $height);
 }
 
 // Alternatif kullanım
 /*
-win.clbl = function ($left, $top, $width, $height) {
+window.clbl = function ($left, $top, $width, $height) {
     return new BLabel($left, $top, $width, $height);
 }
 */
@@ -1523,7 +1614,7 @@ class BImage extends Basic_UIComponent {
         this._borderColor = "rgba(0, 0, 0, 0.6)";
         this._round = 0;
 
-        let imageElement = document.createElement("IMG");
+        const imageElement = document.createElement("IMG");
         imageElement.classList.add("basic_image");
 
         imageElement.style.left = $left + "px";
@@ -1536,26 +1627,30 @@ class BImage extends Basic_UIComponent {
         super.width = $width;
         super.height = $height;
 
-        var _that = this;
+        const _that = this;
 
         if ($width || $height) {
             this.autoSize = 0;
         }
 
         // Resim yüklendiğinde, Otomatik boyutlandır.
-        imageElement.addEventListener('load', function () {
+        //if (this.autoSize > 0) {
+            
+            imageElement.addEventListener('load', function () {
 
-            // if auto size
-            if (_that.autoSize > 0) {
-                
-                const _autoSize = _that.autoSize;
+                // if auto size
+                if (_that.autoSize > 0) {
+                    
+                    const _autoSize = _that.autoSize;
 
-                _that.width = parseInt(_that.naturalWidth / _autoSize) + "px";
-                _that.height = parseInt(_that.naturalHeight / _autoSize) + "px";
+                    _that.width = parseInt(_that.naturalWidth / _autoSize) + "px";
+                    _that.height = parseInt(_that.naturalHeight / _autoSize) + "px";
 
-            }
+                }
 
-        });
+            });
+            
+        //}
 
         if (defaultContainerBox.element.style.display == "flex") {
             this.position = "relative";
@@ -1636,8 +1731,8 @@ class BImage extends Basic_UIComponent {
 
         this._space = $value;
         //this.contElement.style.padding = String($value + "%");
-        var spaceX = parseInt((this.width / 100) * $value);
-        var spaceY = parseInt((this.height / 100) * $value);
+        const spaceX = parseInt((this.width / 100) * $value);
+        const spaceY = parseInt((this.height / 100) * $value);
 
         this.contElement.style.paddingLeft = spaceX + "px";
         this.contElement.style.paddingRight = spaceX + "px";
@@ -1666,23 +1761,24 @@ class BImage extends Basic_UIComponent {
 
     load($imagePath) {
         this.imageElement.setAttribute("src", $imagePath);
+        this.imageElement.setAttribute("alt", $imagePath);
     }
 
     add($obj) {
-        console.error("basic.js: add(): Insertion cannot be made inside the BImage object.");
+        println("basic.js: add(): Insertion cannot be made inside the Image object.", "error");
     }
 
 }
-//win.BImage = BImage;
+//window.BImage = BImage;
 
 // Alternatif kullanım
-win.createImage = function ($left, $top, $width, $height) {
+window.createImage = function ($left, $top, $width, $height) {
 
     return new BImage($left, $top, $width, $height);
 
 }
 
-win.createIcon = function ($left, $top, $width, $height) {
+window.createIcon = function ($left, $top, $width, $height) {
 
     return new BImage($left, $top, $width, $height);
 
@@ -1690,12 +1786,12 @@ win.createIcon = function ($left, $top, $width, $height) {
 
 // Alternatif kullanım
 /*
-win.cimg = function ($left, $top, $width, $height) {
+window.cimg = function ($left, $top, $width, $height) {
     return new BImage($left, $top, $width, $height);
 }
 */
 
-class Sound {
+class BSound {
 
     /*
     _element;
@@ -1703,8 +1799,8 @@ class Sound {
 
     constructor() {
 
-        let element = document.createElement("AUDIO");
-        let source = document.createElement("SOURCE");
+        const element = document.createElement("AUDIO");
+        const source = document.createElement("SOURCE");
 
         element.appendChild(source);
 
@@ -1807,6 +1903,25 @@ class Sound {
 
 /* ### FUNCTIONS ### */
 
+// - bir elementin verilen yöne doğru ekran sınırına olan uzaklığını hesaplar.
+// elem: box.elem, lbl.elem
+// dir: "Left", "Top"
+const calcSpace = function(elem, dir) {
+
+    const _firstDiv = elem;
+
+    let _space = 0;
+    let _currentDiv = _firstDiv;
+
+    while (_currentDiv.offsetParent) {
+        _space += _currentDiv["offset" + dir];
+        _currentDiv = _currentDiv.offsetParent;
+    }
+
+    return _space;
+
+};
+
 // Set styles with style object.
 const setProparties = function ($this, $defaultParams = [], $params = [], $props = []) {
 
@@ -1837,13 +1952,13 @@ const setProparties = function ($this, $defaultParams = [], $params = [], $props
 const moveToCenter = function ($this, $position) {
 
     if ($position == "left" || !$position) {
-        let _w = $this.containerBox.width - (($this.containerBox.border || 0) * 2);
+        const _w = $this.containerBox.width - (($this.containerBox.border || 0) * 2);
         $this.left = parseInt((_w - $this.width) / 2);
 
     }
 
     if ($position == "top" || !$position) {
-        let _h = $this.containerBox.height - (($this.containerBox.border || 0) * 2);
+        const _h = $this.containerBox.height - (($this.containerBox.border || 0) * 2);
         $this.top = parseInt((_h - $this.height) / 2);
 
     }
@@ -1857,7 +1972,7 @@ const moveToCenter = function ($this, $position) {
 const moveToCenterBy = function ($this, $obj, $position) {
 
     if ($position == "left" || !$position) {
-        let _w = $obj.width;
+        const _w = $obj.width;
         $this.left = parseInt((_w - $this.width) / 2) + $obj.left;
 
         if ($position) {
@@ -1867,7 +1982,7 @@ const moveToCenterBy = function ($this, $obj, $position) {
     }
 
     if ($position == "top" || !$position) {
-        let _h = $obj.height;
+        const _h = $obj.height;
         $this.top = parseInt((_h - $this.height) / 2) + $obj.top;
 
         if ($position) {
@@ -1973,7 +2088,7 @@ const moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
 
     if ($position == "left" || $position == "right") {
 
-        var _difference = $obj.height - $this.height;
+        const _difference = $obj.height - $this.height;
 
         switch ($secondPosition) {
             case "top":
@@ -2007,7 +2122,7 @@ const moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
 
     } else if ($position == "top" || $position == "bottom") {
 
-        var _difference = $obj.width - $this.width;
+        const _difference = $obj.width - $this.width;
 
         switch ($secondPosition) {
             case "left":
@@ -2043,12 +2158,12 @@ const moveToAline = function ($this, $obj, $position, $space, $secondPosition) {
     
 };
 
-basic.withPageZoom = function ($value) {
+window.withPageZoom = function ($value) {
     return parseFloat($value * (1 / page.zoom));
 };
-win.withPageZoom = basic.withPageZoom;
+//window.withPageZoom = basic.withPageZoom;
 
-basic.setLoopTimer = function ($time) {
+window.setLoopTimer = function ($time) {
     
     if (typeof loop === "function") {
 
@@ -2067,30 +2182,30 @@ basic.setLoopTimer = function ($time) {
     }
 
 };
-win.setLoopTimer = basic.setLoopTimer;
+//window.setLoopTimer = basic.setLoopTimer;
 
 // Yeni eklenen nesneler, seçili box nesnesinin içinde oluşturulur.
-basic.setDefaultContainerBox = function ($box) {
+window.setDefaultContainerBox = function ($box) {
 
     previousDefaultContainerBox = defaultContainerBox || page;
     defaultContainerBox = $box;
 
 };
-win.setDefaultContainerBox = basic.setDefaultContainerBox;
+//window.setDefaultContainerBox = basic.setDefaultContainerBox;
 
-basic.restoreDefaultContainerBox = function() {
+window.restoreDefaultContainerBox = function() {
     defaultContainerBox = previousDefaultContainerBox || page;
 };
-win.restoreDefaultContainerBox = basic.restoreDefaultContainerBox;
+//window.restoreDefaultContainerBox = basic.restoreDefaultContainerBox;
 
 // Nesne hangi kutu nesnesinin içine eklendiği.
-basic.getDefaultContainerBox = function () {
+window.getDefaultContainerBox = function () {
     return defaultContainerBox;
 };
-win.getDefaultContainerBox = basic.getDefaultContainerBox;
+//window.getDefaultContainerBox = basic.getDefaultContainerBox;
 
 // Add your custom object to basic.js ecosystem.
-basic.makeBasicObject = function($newObject) {
+window.makeBasicObject = function($newObject) {
 
     // Object can be called as that.
     previousThat = that;
@@ -2098,11 +2213,11 @@ basic.makeBasicObject = function($newObject) {
     that = $newObject;
 
 };
-win.makeBasicObject = basic.makeBasicObject;
+//window.makeBasicObject = basic.makeBasicObject;
 
 resizeDetection.onResize = function($object, $func) {
 
-    var object = {};
+    const object = {};
     object.obj = $object;
     object.elem = $object.element;
     object.func = $func;
@@ -2114,7 +2229,7 @@ resizeDetection.onResize = function($object, $func) {
 
 resizeDetection.remove_onResize = function($element, $func) {
 
-    for(var j = resizeDetection.objectAndFunctionList.length - 1; j >= 0; j--) {
+    for(let j = resizeDetection.objectAndFunctionList.length - 1; j >= 0; j--) {
 
         if (resizeDetection.objectAndFunctionList[j].elem == $element) {
             if (resizeDetection.objectAndFunctionList[j].func == $func) {
@@ -2133,10 +2248,10 @@ resizeDetection.remove_onResize = function($element, $func) {
 
 resizeDetection.whenDetected = new ResizeObserver(function(entries) {
 
-    var detection = resizeDetection;
+    const detection = resizeDetection;
 
-	for (var i = 0; i < entries.length; i++) {
-        for(var j = 0; j < detection.objectAndFunctionList.length; j++) {
+	for (let i = 0; i < entries.length; i++) {
+        for(let j = 0; j < detection.objectAndFunctionList.length; j++) {
 
             if (entries[i].target == detection.objectAndFunctionList[j].elem) {
                 detection.objectAndFunctionList[j].func(detection.objectAndFunctionList[j].obj);
@@ -2160,13 +2275,13 @@ const checkStartedBox = function() {
         const startedBoxCount = startedBoxList.length - 1;
 
         if (startedBoxCount > 0) {
-            console.warn("basic.js: Some started boxes were not ended. Count: " + startedBoxCount);
+            println("basic.js: Some started boxes were not ended. Count: " + startedBoxCount, "warn");
         }
 
     }, 100);
 
 }
-win.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
+window.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
 
     // - Hiç bir parametre girilmez ise boş obje girilmiş gibi işlem yapar.
 
@@ -2196,22 +2311,221 @@ win.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
         box = createBox(p1, p2, p3, p4);
     }
 
-    if (!props.flexDirection) props.flexDirection = "row"; // row, column
-    if (!props.flexWrap) props.flexWrap = "nowrap"; // wrap, nowrap
-    if (!props.alignContent) props.alignContent = "center"; // flex-start, center, flex-end (column)
-    if (!props.justifyContent) props.justifyContent = "center"; // flex-start, center, flex-end (row)
-    if (!props.alignItems) props.alignItems = "center";
-    if (!props.color) props.color = "transparent";
+    const defaults = {
+        color: "transparent",
+    }
 
-    box.props(props);
+    const defaultFlexStyles = {
+        flexDirection: "row", // row, column
+        flexWrap: "nowrap", // wrap, nowrap
+        alignContent: "center", 
+        justifyContent: "center", // flex-start, center, flex-end (row)
+        alignItems: "center", // flex-start, center, flex-end (column)
+        gap: "0px",
+        flexBasis: "auto", // Öğenin doğal boyutuna göre yer kaplamasını sağlar.
+        flexGrow: 0, // Öğenin büyümesini engeller.
+        flexShrink: 0, // Öğenin küçülmesini engeller.
+    };
+
+    // align; flow a ihtiyaç duyuyor. Eğer align verilmiş ama flow boş geçilmiş ise; default flow is "horizontal".
+    if (props.align) {
+        if (!props.flow) {
+            props.flow = "horizontal";
+        }
+    }
+
+    const getFlexDirection = function(flow) {
+        let flexDirection = defaultFlexStyles.flexDirection;
+        switch(flow) {
+            case "horizontal":
+                flexDirection = "row";
+                break;
+            case "vertical":
+                flexDirection = "column";
+                break;
+        }
+        return flexDirection;
+    };
+
+    // FLOW:
+    if (props.flow) {
+        box._flow = props.flow;
+        props.flexDirection = getFlexDirection(props.flow);
+    }
+
+    const getAlignList = function(align = "center") {
+
+        // NOTE: Bu flexDirection = "row" için, eğer row değil ise justifyContent, alignItems yer değiştir.
+
+        // else: set as default
+        let alignContent = "center";
+        let justifyContent = "center";
+        let alignItems = "center";
+
+        switch(align) {
+            case "top left":
+            case "left top":
+                alignContent = "center";
+                justifyContent = "flex-start";
+                alignItems = "flex-start";
+                break;
+            case "top center":
+            case "center top":
+                alignContent = "center";
+                justifyContent = "center";
+                alignItems = "flex-start";
+                break;
+            case "top right":
+            case "right top":
+                alignContent = "center";
+                justifyContent = "flex-end";
+                alignItems = "flex-start";
+                break;
+            
+            case "center left":
+            case "left center":
+                alignContent = "center";
+                justifyContent = "flex-start";
+                alignItems = "center";
+                break;
+            case "center":
+            case "center center":
+                alignContent = "center";
+                justifyContent = "center";
+                alignItems = "center";
+                break;
+            case "center right":
+            case "right center":
+                alignContent = "center";
+                justifyContent = "flex-end";
+                alignItems = "center";
+                break;
+
+            case "bottom left":
+            case "left bottom":
+                alignContent = "center";
+                justifyContent = "flex-start";
+                alignItems = "flex-end";
+                break;
+            case "bottom center":
+            case "center bottom":
+                alignContent = "center";
+                justifyContent = "center";
+                alignItems = "flex-end";
+                break;
+            case "bottom right":
+            case "right bottom":
+                alignContent = "center";
+                justifyContent = "flex-end";
+                alignItems = "flex-end";
+                break;
+            
+        }
+
+        return [alignContent, justifyContent, alignItems];
+    }
+
+    // ALIGN:
+    if (props.align) {
+
+        box._align = props.align;
+        const alignList = getAlignList(props.align);
+        
+        // else: set as default
+        props.alignContent = alignList[0];
+        if (props.flexDirection == "row") {
+            props.justifyContent = alignList[1];
+            props.alignItems = alignList[2];
+        } else {
+            props.justifyContent = alignList[2];
+            props.alignItems = alignList[1];
+        }
+        
+
+    };
+
+    const checkGap = function(gap) {
+        if (Number.isInteger(gap)) {
+            return gap = gap + "px";
+        } else {
+            return gap;
+        }
+    }
+
+    if (Number.isInteger(props.gap)) {
+        props.gap = checkGap(props.gap);
+    }
+
+    that.element.style.display = "flex";
+    box.props(defaults, defaultFlexStyles, props);
+
+    /*
+    Object.defineProperty(box, 'gap', {
+        get: function() {
+            return this._gap;
+        },
+        set: function(value) {
+            this._gap = value;
+            this.elem.style.gap = value + "px";
+        }
+    });
+    */
 
     //const box = createBox(0, 0, "100%", "100%");
     //that.color = "transparent";
 
-    that.element.style.display = "flex";
-    for (let parameterName in props) {
-        box.element.style[parameterName] = props[parameterName];
+    for (let parameterName in defaultFlexStyles) {
+        box.element.style[parameterName] = box[parameterName];
     }
+
+    // .flow: getter, setter
+    Object.defineProperty(box, 'flow', {
+        get: function() {
+            return this._flow;
+        },
+        set: function(flow) {
+            this._flow = flow;
+            this.elem.style.flexDirection = getFlexDirection(flow);
+            this.align = this.align;
+        }
+    });
+
+    // .align: 
+    Object.defineProperty(box, 'align', {
+        get: function() {
+            return this._align;
+        },
+        set: function(align) {
+            this._align = align;
+            const alignList = getAlignList(align);
+
+            this.elem.style.alignContent = alignList[0];
+            if (box.elem.style.flexDirection == "row") {
+                this.elem.style.justifyContent = alignList[1];
+                this.elem.style.alignItems = alignList[2];
+            } else {
+                this.elem.style.justifyContent = alignList[2];
+                this.elem.style.alignItems = alignList[1];
+            }
+            
+        }
+    });
+
+    // GAP:
+    if (box.gap) {
+        box._gap = box.gap;
+    };
+
+    // .gap: 
+    Object.defineProperty(box, 'gap', {
+        get: function() {
+            return this._gap;
+        },
+        set: function(gap) {
+            this._gap = checkGap(gap);
+            this.elem.style.gap = this._gap;
+        }
+    });
 
     if (startedBoxList.length == 0) {
         startedBoxList.push(getDefaultContainerBox());
@@ -2225,11 +2539,19 @@ win.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
     return box;
 
 };
-//win.startFlexBox = basic.startFlexBox;
+//window.startFlexBox = basic.startFlexBox;
+window.AutoLayout = window.startFlexBox;
 
-win.startBox = function(p1 = {}, p2, p3, p4, p5) {
+window.startBox = function(...args) {
 
-    let props = {};
+    //let props = {};
+    console.log(args.length);
+    const box = Box(...args);
+
+    /*
+
+    params: (p1, p2, p3, p4, p5)
+
     let box = null;
 
     if (typeof p1 == "object") {
@@ -2256,6 +2578,7 @@ win.startBox = function(p1 = {}, p2, p3, p4, p5) {
     }
 
     box.props(props);
+    */
 
     if (startedBoxList.length == 0) {
         startedBoxList.push(getDefaultContainerBox());
@@ -2269,9 +2592,9 @@ win.startBox = function(p1 = {}, p2, p3, p4, p5) {
     return box;
 
 };
-//win.startBox = basic.startBox;
+//window.startBox = basic.startBox;
 
-win.endBox = function() {
+window.endBox = function() {
 
     if (startedBoxList.length > 1) {
         startedBoxList.pop();
@@ -2285,10 +2608,12 @@ win.endBox = function() {
 
 };
 //basic.endFlexBox = basic.endBox;
-//win.endBox = basic.endBox;
-//win.endFlexBox = basic.endBox;
-win.endFlexBox = win.endBox;
+//window.endBox = basic.endBox;
+//window.endFlexBox = basic.endBox;
+window.endFlexBox = window.endBox;
+window.endAutoLayout = window.endBox;
 
+/*
 basic.useImageAsText = function(parameters = {}, editCreatedImage) {
 
     if (!parameters.boxSize) parameters.boxSize = 16;
@@ -2318,35 +2643,49 @@ basic.useImageAsText = function(parameters = {}, editCreatedImage) {
     return htmText.outerHTML;
 
 };
-win.useImageAsText = basic.useImageAsText;
+window.useImageAsText = basic.useImageAsText;
+*/
 
 let savedThat = null;
 let savedExThat = null;
 
-basic.saveCurrentThat = function() {
+window.saveCurrentThat = function() {
 
     savedThat = that;
     savedExThat = previousThat;
 
 };
-win.saveCurrentThat = basic.saveCurrentThat;
+//window.saveCurrentThat = basic.saveCurrentThat;
 
-basic.restoreThatFromSaved = function() {
+window.restoreThatFromSaved = function() {
 
     that = savedThat;
     previousThat = savedExThat;
     prevThat = previousThat;
 
 };
-win.restoreThatFromSaved = basic.restoreThatFromSaved;
+//window.restoreThatFromSaved = basic.restoreThatFromSaved;
 
 // Text, Input, Icon, Box, Button
 // Lbl, Inp, Img, Box, Btn
 // *** Label, Input, Icon, Box, Button
 
-win.Label = function(p1, p2, p3, p4, p5) {
+window.Label = function(...args) {
 
-    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+  let props = {};
+  if (args.length && typeof args[args.length - 1] === "object") {
+    props = args.pop();
+  }
+
+  const label = createLabel(...args);
+  label.props(props);
+
+  return label;
+
+};
+
+/*
+window.Label = function(p1, p2, p3, p4, p5) {
 
     let props = {};
     let obj = null;
@@ -2377,147 +2716,127 @@ win.Label = function(p1, p2, p3, p4, p5) {
     obj.props(props);
     return obj;
 
-}
+};
+*/
 
-win.Input = function(p1, p2, p3, p4, p5) {
-
-    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
-
-    let props = {};
-    let obj = null;
-
-    if (typeof p1 == "object") {
-        obj = createTextBox();
-        props = p1;
-
-    } else if (typeof p2 == "object") {
-        obj = createTextBox(p1);
-        props = p2;
-
-    } else if (typeof p3 == "object") {
-        obj = createTextBox(p1, p2);
-        props = p3;
-        
-    } else if (typeof p4 == "object") {
-        obj = createTextBox(p1, p2, p3);
-        props = p4;
-        
-    } else if (typeof p5 == "object") {
-        obj = createTextBox(p1, p2, p3, p4);
-        props = p5;
-    } else {
-        obj = createTextBox(p1, p2, p3, p4);
-    }
-
-    obj.props(props);
-    return obj;
-
-}
-
-win.Icon = function(p1, p2, p3, p4, p5) {
-
-    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+window.Input = function(...args) {
 
     let props = {};
-    let obj = null;
-
-    if (typeof p1 == "object") {
-        obj = createImage();
-        props = p1;
-
-    } else if (typeof p2 == "object") {
-        obj = createImage(p1);
-        props = p2;
-
-    } else if (typeof p3 == "object") {
-        obj = createImage(p1, p2);
-        props = p3;
-        
-    } else if (typeof p4 == "object") {
-        obj = createImage(p1, p2, p3);
-        props = p4;
-        
-    } else if (typeof p5 == "object") {
-        obj = createImage(p1, p2, p3, p4);
-        props = p5;
-    } else {
-        obj = createImage(p1, p2, p3, p4);
+    if (args.length && typeof args[args.length - 1] === "object") {
+        props = args.pop();
     }
 
+    const obj = createTextBox(...args);
     obj.props(props);
+
     return obj;
 
-}
+};
 
-win.Box = function(p1, p2, p3, p4, p5) {
-
-    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+window.Icon = function(...args) {
 
     let props = {};
-    let obj = null;
-
-    if (typeof p1 == "object") {
-        obj = createBox();
-        props = p1;
-
-    } else if (typeof p2 == "object") {
-        obj = createBox(p1);
-        props = p2;
-
-    } else if (typeof p3 == "object") {
-        obj = createBox(p1, p2);
-        props = p3;
-        
-    } else if (typeof p4 == "object") {
-        obj = createBox(p1, p2, p3);
-        props = p4;
-        
-    } else if (typeof p5 == "object") {
-        obj = createBox(p1, p2, p3, p4);
-        props = p5;
-    } else {
-        obj = createBox(p1, p2, p3, p4);
+    if (args.length && typeof args[args.length - 1] === "object") {
+        props = args.pop();
     }
 
+    const obj = createImage(...args);
     obj.props(props);
+
     return obj;
 
-}
+};
 
-win.Button = function(p1, p2, p3, p4, p5) {
-
-    // Bu kolaylık için, gereksiz bu kadar işlem yapmaya gerek var mı?
+window.Box = function(...args) {
 
     let props = {};
-    let obj = null;
-
-    if (typeof p1 == "object") {
-        obj = createButton();
-        props = p1;
-
-    } else if (typeof p2 == "object") {
-        obj = createButton(p1);
-        props = p2;
-
-    } else if (typeof p3 == "object") {
-        obj = createButton(p1, p2);
-        props = p3;
-        
-    } else if (typeof p4 == "object") {
-        obj = createButton(p1, p2, p3);
-        props = p4;
-        
-    } else if (typeof p5 == "object") {
-        obj = createButton(p1, p2, p3, p4);
-        props = p5;
-    } else {
-        obj = createButton(p1, p2, p3, p4);
+        if (args.length && typeof args[args.length - 1] === "object") {
+        props = args.pop();
     }
 
+    const obj = createBox(...args);
     obj.props(props);
+
     return obj;
 
-}
+};
+
+window.Button = function(...args) {
+
+    let props = {};
+    if (args.length && typeof args[args.length - 1] === "object") {
+        props = args.pop();
+    }
+
+    const obj = createButton(...args);
+    obj.props(props);
+
+    return obj;
+
+};
+
+window.startObject = function(any) {
+
+    if (any) {
+        println("basic.js: startObject(): Use .props(defaults, props) for giving parameters.", "warn");
+    }
+
+    saveCurrentThat();
+    return startBox({
+        color: "transparent", // WHY: Bir UI nesnesinin başlangıç arkaplanının "transparent" olması daha uygun.
+    });
+
+    /*
+    let props = {};
+    if (args.length && typeof args[args.length - 1] === "object") {
+        props = args.pop();
+    }
+
+    const defaults = {
+        color: "transparent", // WHY: Bir UI nesnesinin başlangıç arkaplanının "transparent" olması daha uygun.
+    }
+
+    saveCurrentThat();
+
+    const box =  startBox(...args);
+    box.props(defaults, props);
+
+    return box;
+    */
+
+};
+
+window.endObject = function(box) {
+
+    endBox();
+    restoreThatFromSaved();
+    makeBasicObject(box);
+    return box;
+
+};
+
+/*
+window.BasicObject = function($defaultParams = {}, $params = {}, $props = {}) {
+
+    let obj = {};
+
+    // defaultPrams
+    for (let parameterName in $defaultParams) {
+        obj[parameterName] = $defaultParams[parameterName];
+    }
+    // params
+    for (let parameterName in $params) {
+        obj[parameterName] = $params[parameterName];
+    }
+    // props
+    for (let propName in $props) {
+        obj[propName] = $props[propName];
+    }
+
+    return obj;
+
+};
+*/
 
 // When content is loaded,
 window.addEventListener("load", function () {
