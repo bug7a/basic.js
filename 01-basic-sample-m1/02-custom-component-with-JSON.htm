@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         
         <title>Custom Component, based on JSON data</title>
         
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- , user-scalable=no -->
 
         <!-- LIBRARY FILES -->
-        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
-        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
 
         <script>
 
         const itemDataList = [
-            { id: "1", label: "Broccoli", desc: "Vegetable", icon: "assets/broccoli.png" },
-            { id: "2", label: "Strawberry", desc: "Fruit", icon: "assets/strawberry.png" },
-            { id: "3", label: "Carrot", desc: "Vegetable", icon: "assets/carrot.png" },
-            { id: "4", label: "Blueberries", desc: "Fruit", icon: "assets/blueberries.png" },
+            { id: "1", label: "Broccoli", desc: "Vegetable", icon: "../assets/fruids/brokoli.png" },
+            { id: "2", label: "Strawberry", desc: "Fruit", icon: "../assets/fruids/cilek.png" },
+            { id: "3", label: "Carrot", desc: "Vegetable", icon: "../assets/fruids/havuc.png" },
+            { id: "4", label: "Blueberries", desc: "Fruit", icon: "../assets/fruids/yabanmersini.png" },
         ];
         let itemList = [];
         let containerBox;
@@ -108,11 +108,11 @@
             });
 
             // INIT CODE:
-            box.on("mouseover", function(event) {
+            box.on("mouseover", function(self, event) {
                 box.backgroundBox.color = "rgba(90, 90, 0, 0.09)";
             });
 
-            box.on("mouseout", function(event) {
+            box.on("mouseout", function(self, event) {
                 box.backgroundBox.color = "rgba(0, 0, 0, 0.01)";
             });
 

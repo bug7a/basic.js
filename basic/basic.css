@@ -30,6 +30,13 @@ Licensed under the Apache License, Version 2.0
     
 }
 
+body {
+    margin: 0;
+    padding: 0;
+    font-family: opensans;
+    overflow: hidden;
+}
+
 .basic_box, .basic_label, .basic_button, .basic_textbox-main, .basic_image  {
 
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);

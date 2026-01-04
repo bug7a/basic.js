@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <title>Mobile Fit Skeleton</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- , user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+        </style>
+
+        <script>
+        
+        // VARIABLES            
+        let myString = "";
+        let myInteger = 0;
+        let myFloat = 0.5;
+
+        // First running function.
+        window.onload = function() {
+
+            page.fit(600, 800);
+            // NOTE: Content design width 600px, maximum width 800px
+            // If your screen is small, you will see content smaller. But always fit
+
+            // GROUP: Centered
+            AutoLayout({
+                color: "#141414",
+            });
+                // BOX: Content container
+                startBox({
+                    width: 600,
+                    height: "100%",
+                    color: "white",
+                });
+
+                    // PUT CONTENT
+                    AutoLayout({
+                        flow: "vertical",
+                    });
+
+                        Label(10, 10, {
+                            text: "Mobile Content"
+                        });
+
+                        Label(10, 10, {
+                            textColor: "rgba(0,0,0,0.5)",
+                            fontSize: 16,
+                            text: "(Width: 600px)"
+                        });
+                    
+                    endAutoLayout();
+
+                endBox();
+            endAutoLayout();
+
+            page.onResize(pageResized);
+            
+        };
+
+        const pageResized = function() {
+
+            page.fit(600, 800);
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

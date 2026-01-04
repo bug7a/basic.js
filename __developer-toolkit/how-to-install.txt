@@ -1,0 +1,50 @@
+# How to Install Extensions from .vsix Files in Visual Studio Code
+
+Installing a VS Code extension from a `.vsix` file is useful when you want to install an extension offline or from a local package. Here's how to do it:
+
+---
+
+1. Download the `.vsix` File
+
+---
+
+You should already have the `.vsix` file for the extension. This might be provided by a developer, built from source, or downloaded from a custom location.
+
+2. Using the Command Palette (Recommended)
+
+---
+
+* Open Visual Studio Code
+* Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) to open the Command Palette
+* Type `Extensions: Install from VSIX...` and select it
+* Browse to the `.vsix` file on your computer and click **Open**
+* VS Code will install the extension and prompt you to reload the window if needed
+
+3. Using the Terminal
+
+---
+
+You can also use the command line if you have VS Code's CLI (`code`) set up:
+
+```
+code --install-extension path/to/your-extension.vsix
+```
+
+Replace `path/to/your-extension.vsix` with the actual path to your file.
+
+4. Verifying the Installation
+
+---
+
+* Go to the **Extensions** panel (`Ctrl+Shift+X`)
+* Search for the extension name to confirm it is installed
+* You can uninstall or disable it from the same panel
+
+## Notes
+
+* Some extensions may require reloading VS Code after installation
+* Make sure the `.vsix` file matches your VS Code version and architecture
+* You can uninstall using the command palette: `Extensions: Uninstall Extension`
+
+For more information:
+[https://code.visualstudio.com/docs/editor/extension-marketplace#\_install-from-a-vsix](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix)

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>Profile Card</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <!-- LIBRARY FILES -->
+    <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+    <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+    <script>
+
+        let myCard = null;
+        const primaryColor = "#86BA84";
+
+        window.onload = function () {
+
+            page.color = "#F0F2F5";
+
+            // Center all
+            AutoLayout();
+
+                // Main container
+                myCard = VGroup({
+                    //flow: "vertical",
+                    align: "top center",
+                    width: "auto",
+                    height: "auto",
+                    color: "white",
+                    padding: 30,
+                    gap: 15,
+                    border: 1,
+                    round: 8,
+                    borderColor: "lightgray",
+                });
+
+                    // Profile image container
+                    startBox(0, 0, 100, 100, {
+                        color: "#E1E5EA",
+                        round: 50,
+                        border: 4,
+                        borderColor: "white"
+                    });
+                    // Adding a shadow to the image
+                    that.elem.style.boxShadow = "0 5px 15px rgba(0,0,0,0.1)";
+
+                        // Profile image
+                        myCard.icon = Icon(0, 0, 100, 100);
+                        that.load("assets/olives.png");
+
+                    endBox();
+
+                    // User name
+                    myCard.lblName = Label({
+                        text: "Sarah Connor",
+                        fontSize: 24,
+                        textColor: "#1A1A1A",
+                        textAlign: "center"
+                    });
+                    that.elem.style.fontFamily = "opensans-bold";
+
+                    // job title
+                    myCard.lblJob = Label({
+                        text: "UI/UX Designer",
+                        fontSize: 16,
+                        textColor: "#888888",
+                        textAlign: "center",
+                        top: -10 // Pull up slightly
+                    });
+
+                    // STATS ROW
+                    HGroup({
+                        gap: 30,
+                        padding: [15, 0],
+                        align: "center"
+                    });
+
+                        const createSubInfo = function(info, desc) {
+
+                            const _group = VGroup({ gap: 4, align: "center", width: "auto" });
+
+                                _group.lblInfo = Label({ text: info, fontSize: 18, textColor: "#1A1A1A" });
+                                that.elem.style.fontFamily = "opensans-bold";
+
+                                Label({ text: desc, fontSize: 13, textColor: "#999999" });
+
+                            endGroup();
+
+                            return _group;
+
+                        };
+
+                        // POSTS
+                        myCard.posts = createSubInfo("120", "Posts");
+
+                        // FOLLOWERS
+                        myCard.followers = createSubInfo("5.4k", "Followers");
+
+                        // FOLLOWING
+                        myCard.following = createSubInfo("450", "Following");
+
+                        // To update info:
+                        myCard.posts.lblInfo.text = "121";
+
+                    endGroup();
+
+                    // BUTTONS ROW
+                    HGroup({
+                        gap: 15,
+                        width: "100%",
+                        align: "center"
+                    });
+
+                        // FOLLOW BUTTON
+                        const btnFollow = Button(0, 0, 130, 44, {
+                            text: "Follow",
+                            color: primaryColor,
+                            textColor: "white",
+                            round: 12,
+                            minimal: 1,
+                            border: 0,
+                            fontSize: 16
+                        });
+                        // Add hover effect manually since we are not using a component with built-in effects
+                        btnFollow.on("mouseover", function () {
+                            btnFollow.opacity = 0.9;
+                        });
+                        btnFollow.on("mouseout", function () {
+                            btnFollow.opacity = 1;
+                        });
+
+                        // MESSAGE BUTTON
+                        const btnMessage = Button(0, 0, 130, 44, {
+                            text: "Message",
+                            color: "white",
+                            textColor: primaryColor,
+                            minimal: 1,
+                            round: 12,
+                            border: 2,
+                            borderColor: primaryColor,
+                            fontSize: 16
+                        });
+
+                        btnMessage.on("mouseover", function () {
+                            btnMessage.color = "#F5F9FF";
+                        });
+
+                        btnMessage.on("mouseout", function () {
+                            btnMessage.color = "white";
+                        });
+
+                    endGroup();
+
+                endGroup();
+
+            endAutoLayout();
+
+            //myCard.lblName.text = "John Wick";
+
+        };
+
+    </script>
+
+</head>
+
+<body>
+
+    <!-- HTML content -->
+
+</body>
+
+</html>

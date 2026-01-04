@@ -9,9 +9,9 @@
 
         <!-- LIBRARY FILES -->
         <!-- <link rel="preload" href="image.png" as="image"> -->
-        <link rel="preload" href="basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
-        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
         <!--<script src="basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>-->
 
         <style>
@@ -464,7 +464,7 @@ const Slider = function(params = {}) {
     // *** OBJECT INIT CODE:
 
     // Mouse Events
-    const onMouseDown = (e) => {
+    const onMouseDown = (self, e) => {
         //isDragging = true;
         setIsDragging(true);
         startX = e.clientX || e.touches[0].clientX;
