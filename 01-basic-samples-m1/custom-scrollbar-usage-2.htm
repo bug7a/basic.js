@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <title>Counter</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- , user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- <script src="../comp-m1/_component-template.min.js" type="text/javascript" charset="utf-8"></script> -->
+
+        <!-- ALL COMPONENTS IN ONE FILE -->
+        <!-- <script src="../comp-m1/components.js" type="text/javascript" charset="utf-8"></script> -->
+
+        <script>
+
+        const BUTTON_TEXT_LIST = ["Label1", "Label2", "Label3", "Label4", "Label5", "Label6", "Label7", "Label8"];
+
+        // First running function.
+        window.onload = function() {
+
+            HGroup({
+                align: "center",
+            });
+
+                initScrollableButtonBox();
+
+                // NOTE: if you call a basic object (Button, Box, Label vb.) in a group (HGroup, VGroup) 
+                // will be position: "relative" else will be position: "absolute"
+
+            endGroup();
+
+        };
+
+        const initScrollableButtonBox = function(params = {}) {
+
+            const defaults = {
+                width: 200,
+                height: 280,
+                color: "whitesmoke",
+                border: 1,
+                round: 4,
+                scrollY: 1,
+            };
+
+            // Marge params:
+            mergeIntoIfMissing(params, defaults);
+
+            startBox(params);
+            addCustomScrollBar(that);
+
+                initButtonGroup();
+
+            endBox();
+
+        };
+
+        const addCustomScrollBar = function(scrollableBox) {
+
+            // SCROLL BAR:
+            scrollableBox.scrollBar = ScrollBar({
+                scrollableBox: scrollableBox,
+                bar_border: 0,
+                bar_round: 3,
+                bar_borderColor: "rgba(0, 0, 0, 1)",
+                bar_width: 4,
+                bar_mouseOverWidth: 4, //8
+                bar_mouseOverColor: "#373836",
+                bar_opacity: 0.4,
+                bar_mouseOverOpacity: 0.9,
+                bar_padding: 2,
+                bar_color: "#373836",
+                neverHide: 0,
+                showDots: 1,
+            });
+
+        };
+
+        const initButtonGroup = function() {
+
+            // GROUP: Labels
+            VGroup({
+                height: "auto",
+                width: "100%",
+                align: "left top",
+                gap: 4,
+                padding: [0, 8],
+            });
+
+                BUTTON_TEXT_LIST.forEach(buttonText => {
+                    initButton(buttonText);
+                });
+
+            endGroup(); // END Labels
+
+        };
+
+        const initButton = function(buttonText) {
+
+            // BUTTON:
+            Button({
+                text: buttonText,
+                color: "rgba(255, 255, 255, 0.0)",
+                width: "100%",
+                height: 50,
+                minimal: 1,
+                round: 0,
+                // position: "relative",
+            });
+            //that.setMotion("background-color 0.3s");;
+
+            // NOTE: if you call a basic object (Button, Box, Label vb.) in a group (HGroup, VGroup) 
+            // will be position: "relative" else will be position: "absolute"
+
+            that.on("mouseover", function(self, event) {
+                self.color = "white";
+                self.elem.style.borderTop = "1px solid rgba(0, 0, 0, 0.2)";
+                self.elem.style.borderBottom = "1px solid rgba(0, 0, 0, 0.2)";
+            });
+
+            that.on("mouseout", function(self, event) {
+                self.color = "rgba(255, 255, 255, 0.0)";
+                self.elem.style.borderTop = "0px solid rgba(0, 0, 0, 0.2)";
+                self.elem.style.borderBottom = "0px solid rgba(0, 0, 0, 0.2)";
+            });
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

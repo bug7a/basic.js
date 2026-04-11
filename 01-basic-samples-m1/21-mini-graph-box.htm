@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <title>Mini Graph Box</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="../basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>-->
+
+        <script>
+    
+        window.onload = function() {
+
+            initTinyGraph({
+                color: basic.WARNING_COLOR,
+                title: "Sold Items",
+                desc: "1.3K",
+                iconFile: "assets/carrot.png",
+            });
+            
+        };
+        
+        const initTinyGraph = function(params = {}) {
+
+            const defaults = {
+                color: "orangered",
+                title: "Sold Items",
+                desc: "1.3K",
+                iconFile: "assets/carrot.png",
+                style: { border: 1, width: 200, height: 80, round: 4, },
+            };
+
+            // Marge params:
+            mergeIntoIfMissing(params, defaults);
+
+            startBox({
+                top: 40,
+                left: 40,
+                border: 1,
+                width: 200,
+                height: 80,
+                round: 4,
+            });
+
+                initGraphBars(params.color);
+                initGraphTitles(params.title, params.desc);
+                initGraphIcon(params.iconFile);
+
+            endBox();
+            
+        };
+
+        const initGraphBars = function(color) {
+
+            HGroup({
+                align: "bottom left",
+                padding: [2, 0],
+                gap: 1,
+            });
+
+                for (let i = 0; i < 40; i++) {
+                    Box({
+                        color: color,
+                        width: 3,
+                        height: random(10, 30),
+                        round: 1,
+                    });
+                }
+
+            endGroup();
+
+        }
+
+        const initGraphTitles = function(title, desc) {
+
+            VGroup({
+                align: "top left",
+                padding: [8, 8],
+                gap: 0,
+            });
+
+                Label({
+                    text: title,
+                    fontSize: 12,
+                    textColor: Black(0.5),
+                });
+                that.elem.style.marginBottom = "-6px";
+
+                Label({
+                    text: desc,
+                    fontSize: 20,
+                    textColor: Black(0.75),
+                });
+
+            endGroup();
+
+        }
+        
+        const initGraphIcon = function(iconFile) {
+
+            HGroup({
+                align: "top right",
+                padding: [8, 8],
+                gap: 0,
+            });
+
+                Icon({
+                    width: 24,
+                    height: 24,
+                });
+                that.load(iconFile);
+        
+            endGroup();
+            
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

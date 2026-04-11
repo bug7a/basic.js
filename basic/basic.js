@@ -2,13 +2,13 @@
 
 /*
 
-basic.js (v25.07.17) A lightweight JavaScript library for building web-based applications with simple code. No need to write HTML or CSS — just use basic JavaScript.
+basic.js (v26.03.26) A lightweight JavaScript library for building web-based applications with simple code. No need to write HTML or CSS — just use basic JavaScript.
 - Project Site: https://bug7a.github.io/basic.js/
 
 The Art of Fun Coding — With basic.js
 
 
-Copyright 2020-2025 Bugra Ozden <bugra.ozden@gmail.com>
+Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com>
 - https://github.com/bug7a
 
 Licensed under the Apache License, Version 2.0
@@ -205,6 +205,37 @@ window.twoDigitFormat = function($number) {
 };
 //window.twoDigitFormat = basic.twoDigitFormat;
 
+basic.storage = {
+
+    save(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    },
+
+    has(key) {
+        return localStorage.getItem(key) !== null;
+    },
+
+    load(key) {
+        try {
+            const value = localStorage.getItem(key);
+            return value ? JSON.parse(value) : null;
+        } catch (e) {
+            console.warn("storage parse error:", key);
+            return null;
+        }
+    },
+
+    remove(key) {
+        localStorage.removeItem(key);
+    },
+
+    clear() {
+        localStorage.clear();
+    }
+
+};
+// basic.storage olarak değiştirilebilir.
+/*
 window.storage = {
 
     save(key, value) {
@@ -218,9 +249,11 @@ window.storage = {
     }
 
 };
+*/
 //window.storage = basic.storage;
 
-window.clock = {
+// Zaman bilgisi
+basic.time = {
 
     get hour() {
         let dt = new Date();
@@ -234,7 +267,7 @@ window.clock = {
         let dt = new Date();
         return dt.getSeconds();
     }, 
-    get milisecond() {
+    get millisecond() {
         let dt = new Date();
         return dt.getMilliseconds();
     }
@@ -242,7 +275,8 @@ window.clock = {
 };
 //window.clock = basic.clock;
 
-window.date = {
+// Tarih bilgisi
+basic.date = {
 
     get year() {
         let dt = new Date();
@@ -260,9 +294,9 @@ window.date = {
     get monthName() {
         return basic.months[this.monthNumber - 1];
     },
-    get dayNumber() {
+    get dayOfWeek() {
         let dt = new Date();
-        return dt.getDay();
+        return dt.getDay(); // 0-6
     },
     get gunAdi() {
         return basic.gunler[this.dayNumber];
@@ -270,9 +304,9 @@ window.date = {
     get dayName() {
         return basic.days[this.dayNumber];
     },
-    get today() {
+    get dayOfMonth() {
         let dt = new Date();
-        return dt.getDate();
+        return dt.getDate(); // 1-31
     },
     get now() {
         return Date.now();
@@ -2518,6 +2552,12 @@ window.startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
         flexShrink: 0, // Öğenin küçülmesini engeller.
     };
 
+    // Eğer fit:1 ise, objeyi otomatik olarak sar.
+    if (props.fit) {
+        props.width = "auto";
+        props.height = "auto";
+    };
+
     // align; flow a ihtiyaç duyuyor. Eğer align verilmiş ama flow boş geçilmiş ise; default flow is "horizontal".
     if (props.align) {
         if (!props.flow) {
@@ -2911,6 +2951,7 @@ window.endObject = function(box) {
 
 };
 
+// Başka bir Basic Object ten miras alarak yeni bir Basic Object oluşturma.
 window.startExtendedObject = function(uiComponent, defaults, params) {
 
     const _params = {};
@@ -2946,6 +2987,13 @@ window.White = function(percent = 1) {
     if (percent == 0) return "transparent";
     if (percent == 1) return "white";
     return `rgba(255,255,255,${percent})`;
+};
+
+// Çok fazla arka arkaya çağırılan fonksiyonların daha verimli çalışmasını sağlar. 
+window.waitAndRun = function (timer, callback, delay = 3) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(callback, delay);
+    return timer;
 };
 
 

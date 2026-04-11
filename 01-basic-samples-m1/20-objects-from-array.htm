@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <title>Counter</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- , user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="../basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>-->
+
+        <!-- <script src="../comp-m1/_component-template.min.js" type="text/javascript" charset="utf-8"></script> -->
+
+        <!-- ALL COMPONENTS IN ONE FILE -->
+        <!-- <script src="../comp-m1/components.js" type="text/javascript" charset="utf-8"></script> -->
+
+        <script>
+
+        const ITEM_TEXT_LIST = ["Label1", "Label2", "Label3"];
+
+        // First running function.
+        window.onload = function() {
+
+            // GROUP: Labels
+            HGroup({
+                align: "right center",
+                gap: 4,
+                padding: 20,
+            });
+
+                ITEM_TEXT_LIST.forEach(itemText => {
+
+                    Label({
+                        text: itemText,
+                        color: "lightgray",
+                        round: 6,
+                        padding: [12, 6],
+                    });
+
+                });
+
+            endGroup(); // END Labels
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

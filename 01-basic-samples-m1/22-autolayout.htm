@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <title>Autolayout</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="../basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>-->
+
+        <script>
+
+        // First running function.
+        window.onload = function() {
+
+            HGroup({
+                align: "center",
+                gap: 2,
+            });
+
+                for(let i = 0; i < 10; i++) {
+                    initBox((i === 2 || i === 5) ? "lightgray" : undefined );
+                }
+
+            endGroup();
+            
+        }
+
+        // OTHER FUNCTIONS
+        const initBox = function(color = "orangered") {
+
+            Box({
+                width: 20,
+                height: 20,
+                color: color,
+            });
+            
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

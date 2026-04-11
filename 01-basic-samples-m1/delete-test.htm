@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <title>New Project Name</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="../basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>-->
+
+        <script>
+        
+        // VARIABLES            
+        let myString = "";
+        let myInteger = 0;
+        let myFloat = 0.5;
+   // VARIABLES
+    let lblText;
+    let clickedCount = 0;
+        
+    // First running function.
+    window.onload = function() {
+
+        page.color = "whitesmoke";
+    
+        // GROUP: AutoLayout
+        HGroup({
+            // flow: "horizontal", // "vertical"
+            // align: "center", // "top left", "center right"
+            // gap: 0,
+            // padding: 0, // [0, 0, 0, 0]
+        });
+
+            // LABEL: Clickable label
+            lblText = Label({
+                text: "Click Me",
+                color: "white",
+                padding: [12, 4],
+                round: 4,
+                border: 1,
+                borderColor: "rgba(0, 0, 0, 0.1)",
+            });
+            that.elem.style.cursor = "pointer";
+            that.on("click", increaseOne);
+
+        endGroup();
+
+    };
+    
+    const increaseOne = function() {
+
+        clickedCount++;
+        lblText.text = "Clicked Count: " + clickedCount;
+
+        println(clickedCount);
+
+    };
+
+
+        
+
+        // Okunabilirliği çok yüksek kod yazabilme: Özellikle anlaşılabilen basit kod yazabilmek için geliştiriliyor.
+        // Çok hızlı öğrenilebilme
+        // Çok hafif ve yüksek performanslı çalışma
+        // Her şeyi kod tabanlı hale getirerek, çok esnek bir yazılım geliştirme altyapısı oluşturma.
+        // Solo geliştiriciler için, hızlı prototipleme imkanı sağlama.
+        // Küçük ve orta ölçekli projeler için avantajlı.
+        // Kod yazmayı, eğlenceli bir hobi haline getirme.
+        // Kod yazmayı, lego parçalarını birleştirme basitliğine döndürdüğü benzetmesini de kullanabilirsin.
+
+        // küçük ve orta ölçekli projeler için hızlı ve keyifli geliştirme yapılabilmesi.
+        // Algoritma geliştirmeyi sevenler için çok keyifli kod yazma deneyimi.
+        // Hafif kütüphene.
+        // Kodun çok kolay okunabilmesi, çok basit parçalar ile büyük uygulamalar geliştirebilme.
+        // Önceikle eğlenceli kod yazma, basitlik (kısa sürede, tüm kodları ezberden yazabilecek seviyeye ulaşarak, keyifle akıcı bir şekilde yazılım geliştirme deneyimi.)
+        
+        
+        // Function running every second.
+        const loop = function() {
+                        
+        }
+        
+        // OTHER FUNCTIONS
+        const doSomthing1 = function() {
+            
+        };
+        
+        const doSomething2 = function() {
+            
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>
