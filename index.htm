@@ -1,456 +1,189 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        
-        <title>basic.js - Create interactive user interfaces with basic programming skills.</title>
-        
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
-        <!-- LIBRARY FILES -->
-        <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
-        <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="js/moving-circles.js" type="text/javascript" charset="utf-8"></script>
-        <script src="js/launch-view.js" type="text/javascript" charset="utf-8"></script>
-
-
-        <style>
-
-            body {
-                overflow: hidden;
-            }
-
-            /* width */
-            .basic_box::-webkit-scrollbar {
-                width: 10px;
-            }
-
-            /* Track */
-            .basic_box::-webkit-scrollbar-track {
-                /* background: white; */
-                background: lightgray;
-                border-radius: 3px;
-                border: 1px solid black;
-            }
-            
-            /* Handle */
-            .basic_box::-webkit-scrollbar-thumb {
-                background: rgba(0, 0, 0, 0.7);
-                border-radius: 6px;
-                border: 3px solid rgba(0, 0, 0, 0);
-                background-clip: padding-box;
-            }
-
-            /* Handle on hover */
-            .basic_box::-webkit-scrollbar-thumb:hover {
-                background: rgba(0, 0, 0, 0.7);
-                border-radius: 3px;
-                order: 2px solid rgba(0, 0, 0, 0);
-                background-clip: padding-box;
-            }
-
-            .motion-zoomOnMouseOver-forButton {
-
-                transition: transform .3s, opacity .3s, background-color .3s;
-                cursor: pointer;
-
-            } 
-
-            .motion-zoomOnMouseOver-forButton:hover {
-
-                transform: scale(1.06) !important;
-                background-color: #FFFFFF !important;
-
-            } 
-
-            .motion-zoomOnMouseOver-forButton:active {
-
-                transform: scale(1) !important;
-
-            }
-
-        </style>
-
-        <script>
-            
-        var box
-
-        var start = function() {
-
-            page.fit(1000);
-
-            window.box = createBox(0, 0, page.width, page.height)
-            that.color = "black"
-            that.scrollY = 1
-
-            setDefaultContainerBox(box)
-
-            box.imgUpBackground = createImage(0, 0, page.width, 600)
-            that.load("images/background.png")
-
-            box.boxUpBackground = createBox(0, 0, page.width, 600)
-            that.color = "transparent"
-            movingCircles.create(box.boxUpBackground)
-
-            box.homePage = createBox(0, 0, 1000, 10200)
-            that.color = "transparent"
-            that.center("left")
-
-            box.homePage.header = createBox(0, 0, 1000, 600)
-            box.homePage.add(that)
-            that.color = "transparent"
-            that.element.style.position = "relative"
-
-            box.homePage.header.imgLogo = createImage(380, 10, 535, 310) // 255 x 142 - 170 X 94
-            box.homePage.header.add(that)
-            that.load("images/basic-js-nocolor-4x.png")
-            that.center("left")
-
-            /*
-            box.homePage.header.imgLogo = createImage(380, 125, 255, 142) // 255 x 142 - 170 X 94
-            box.homePage.header.add(that)
-            that.load("images/basicjs-noship-logo.svg")
-            that.center("left")
-
-            box.homePage.header.imgShip = createImage(422, 126, 59, 35) // 255 x 142 - 170 X 94
-            box.homePage.header.add(that)
-            that.load("images/ship.svg")
-            that.setMotion("transform 2s");
-            */
-
-            const moveShip = () => {
-
-                box.homePage.header.imgShip.withMotion(() => {
-                    box.homePage.header.imgShip.rotate = 8;
-                });
-
-                setTimeout(function() {
-
-                    box.homePage.header.imgShip.rotate = -8;
-
-                    setTimeout(function() {
-                        moveShip();
-                    }, 2000);
-
-                }, 2000);
-
-            }
-
-            //moveShip();
-
-            box.homePage.header.lblDescription = createLabel(44, 260, 935, 150)
-            box.homePage.header.add(that)
-            that.text = "A lightweight <b>JavaScript</b> library for building<br><b>web-based applications</b> with <b>simple code</b>.<br><span style='font-size:20px;'>No need to write <b>HTML</b> or <b>CSS</b> — just use basic <b>JavaScript</b>.<span>"
-            that.fontSize = 37
-            that.textAlign = "center"
-            that.center("left")
-
-            box.homePage.header.btnExample = createLabel()
-            box.homePage.header.add(that)
-            that.width = "auto";
-            that.height = "auto";
-            that.text = "Full Project Example"
-            that.color = "rgba(0, 0, 0, 0.05)"
-            that.round = 6
-            that.fontSize = 16
-            that.spaceY = 8
-            that.spaceX = 18
-            //that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
-            //that.element.classList.add("motion-zoomOnMouseOver-forButton")
-            that.clickable = 1
-            that.right = 20
-            that.top = 30
-            that.elem.style.cursor = "pointer";
-            that.onClick(function() {
-                go("https://bug7a.github.io/javascript-mobile-app-template/", "_blank")
-            })
-
-            box.homePage.header.btn3 = createLabel(0, 150, "auto", "auto")
-            box.homePage.header.add(that)
-            that.text = "UI Components"
-            that.color = "rgba(0, 0, 0, 0.05)"
-            that.round = 6
-            that.fontSize = 16
-            that.spaceY = 8
-            that.spaceX = 18
-            //that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
-            //that.element.classList.add("motion-zoomOnMouseOver-forButton")
-            that.clickable = 1
-            that.elem.style.cursor = "pointer";
-            box.homePage.header.btn3.aline(box.homePage.header.btnExample, "bottom", 8);
-            //box.homePage.header.btn3.aline(box.homePage.header.btn1, "right", 8);
-            that.onClick(function() {
-                go("https://bug7a.github.io/basic.js-ui-components/", "_blank")
-            });
-
-
-
-            box.homePage.header.btn1 = createLabel(0, 470, "auto", "auto")
-            box.homePage.header.add(that)
-            that.text = "<b>Handbook</b> v25.06"
-            that.color = "rgba(0, 0, 0, 0.05)"
-            that.round = 6
-            that.fontSize = 24
-            that.spaceY = 8
-            that.spaceX = 18
-            that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
-            that.element.classList.add("motion-zoomOnMouseOver-forButton")
-            that.clickable = 1
-            that.center("left")
-            that.onClick(function() {
-                go("https://bug7a.github.io/basic.js-handbook/", "_blank")
-            })
-
-            box.homePage.header.btn2 = createLabel(0, 150, "auto", "auto")
-            box.homePage.header.add(that)
-            that.text = "<b>Download</b> on GitHub"
-            that.color = "rgba(0, 0, 0, 0.05)"
-            that.round = 6
-            that.fontSize = 24
-            that.spaceY = 8
-            that.spaceX = 18
-            that.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
-            that.element.classList.add("motion-zoomOnMouseOver-forButton")
-            that.clickable = 1
-            //box.homePage.header.btn2.aline(box.homePage.header.btn1, "left", 8);
-            that.onClick(function() {
-                go("https://github.com/bug7a/basic.js", "_blank")
-            })
-
-            /*
-            box.homePage.header.btn1.onResize(function() {
-                box.homePage.header.btn1.center("left");
-                box.homePage.header.btn2.aline(box.homePage.header.btn1, "left", 8);
-                box.homePage.header.btn3.aline(box.homePage.header.btn1, "right", 8);
-            });
-            */
-
-            
-            that.onResize(function(self) {
-                var _width = self.width + box.homePage.header.btn1.width + 20
-                var _left = (1000 - _width) / 2
-                box.homePage.header.btn1.left = _left
-                box.homePage.header.btn2.aline(box.homePage.header.btn1, "right", 20)
-            })
-            
-
-            var exampleHeightList = [650, 1650, 550, 550, 550, 550, 600, 550, 750, 550, 1350];
-            var exampleNameList = [ 
-                "First example:", 
-                "Custom component with JSON data:", 
-                "Button example:", 
-                "Label example:", 
-                "Icon example:", 
-                "Input example:", 
-                "Box example:", 
-                "Motion Example:", 
-                ".center() and .aline() methods:", 
-                "Autolayout group example:",
-                "Alternative usage with HTML template and CSS:",
-            ];
-
-            for (var i = 0; i <= 10; i++) {
-
-                box.homePage["ex" + i] = createBox(0, 0, 1000, exampleHeightList[i])
-                box.homePage.add(that)
-                that.color = "transparent"
-                that.element.style.position = "relative"
-                that.clickable = 1
-                that.html = "<iframe id='ex" + i + "' src='ex" + i + ".htm' width='100%' height='100%' style='border:0px solid lightgray;border-radius:4px;'></iframe>"
-                that.element.style.marginTop = "80px"
-
-                createLabel();
-                box.homePage["ex" + i].add(that);
-                that.width = 1000;
-                that.top = 10;
-                that.left = 500;
-                that.color = "black";
-                that.textColor = "rgba(255, 255, 255, 0.8)";
-                that.text = exampleNameList[i];
-
-                const _i = i;
-
-                window.box.element.addEventListener("scroll", function(event) {
-
-                    if (box.homePage["ex" + _i].timeout) clearTimeout(box.homePage["ex" + _i].timeout);
-
-                    box.homePage["ex" + _i].timeout = setTimeout(function() {
-
-                        const iframeObj = document.getElementById('ex' + _i);
-                        const topSpace = box.homePage["ex" + _i].element.offsetTop;
-                        let top = window.box.element.scrollTop - topSpace + 10;
-                        let height = box.homePage["ex" + _i].height - iframeObj.contentWindow.basicEditor.box.boxPreview.height;
-
-                        if (top < 10) top = 10;
-                        if (top > height) top = height;
-
-                        iframeObj.contentWindow.basicEditor.box.boxPreview.top = top;
-                        iframeObj.contentWindow.basicEditor.box.lblPrint.aline(iframeObj.contentWindow.basicEditor.box.boxPreview, "bottom", 10);
-
-                    }, 25);
-                    
-                });
-
-            }
-
-
-
-            box.homePage.btnLive = createButton();
-            box.homePage.add(that);
-            that.right = 20;
-            that.top = box.homePage.header.height + 20;
-            that.text = "LIVE";
-            // that.color = "orangered";
-            that.color = "rgba(255, 255, 255, 0.15)";
-            that.border = 2;
-            // that.borderColor = "rgba(0, 0, 0, 0.4)";
-            // that.textColor = "rgba(0, 0, 0, 0.6)";
-            that.borderColor = "orangered";
-            that.textColor = "orangered";
-            that.minimal = 1;
-            that.round = 12;
-            that.width = 70;
-            that.height = 30;
-            that.opacity = 0.7;
-            that.fontSize = 18;
-
-            /*
-            box.homePage.header = createBox(0, 0, 1000, 600)
-            box.homePage.add(that)
-            that.color = "white"
-            that.element.style.position = "relative"
-            */
-
-            // BOX: Footer of Home Page.
-            box.homePage.footer = createBox(0, 0, page.width, 400)
-            box.add(that)
-            that.color = "whitesmoke"
-            that.aline(box.homePage, "bottom", -1 * that.height)
-            that.left = 0
-
-            // BOX: Button group box.
-            box.homePage.footer.btnGroup = createBox(0, 80, 1000, 80)
-            box.homePage.footer.add(that)
-            that.color = "transparent"
-            that.element.style.textAlign = "center"
-            that.element.style.whiteSpace = "nowrap"
-            that.element.style.paddingTop = "20px"
-            that.center("left")
-
-            var footerButtonStyle = function(object) {
-
-                // object.color = "rgba(0, 0, 0, 0.05)"
-                object.color = "white"
-                object.round = 6
-                object.fontSize = 18
-                object.spaceY = 8
-                object.spaceX = 18
-                object.border = 1
-                object.borderColor = "rgba(0, 0, 0, 0.2)"
-                // object.element.style.borderBottom = "3px solid rgba(0, 0, 0, 0.2)"
-                object.element.style.position = "relative"
-                object.element.style.display = "inline-block"
-                object.element.style.cursor = "pointer"
-                object.clickable = 1
-
-            }
-            
-            // LABEL: More Examples button.
-            box.homePage.footer.btnGroup.btn1 = createLabel(0, 0, 270, 44) // 186
-            box.homePage.footer.btnGroup.add(that)
-            that.text = "MORE BEGINNER EXAMPLES"
-            footerButtonStyle(that)
-            that.onClick(function() {
-                go("https://bug7a.github.io/basic.js-examples/", "_blank")
-            })
-
-            
-            // LABEL: Project #1 button.
-            box.homePage.footer.btnGroup.btn2 = createLabel(0, 0, 161, 44)
-            box.homePage.footer.btnGroup.add(that)
-            that.text = "FIRST PROJECT"
-            footerButtonStyle(that)
-            that.element.style.marginLeft = "10px"
-            that.onClick(function() {
-                go("https://bug7a.github.io/javascript-single-page-application-example/", "_blank")
-            })
-
-            // LABEL: Project #2 button.
-            box.homePage.footer.btnGroup.btn3 = createLabel(0, 0, 161, 44)
-            box.homePage.footer.btnGroup.add(that)
-            that.text = "FULL PROJECT"
-            footerButtonStyle(that)
-            that.element.style.marginLeft = "10px"
-            that.onClick(function() {
-                go("https://bug7a.github.io/javascript-mobile-app-template/", "_blank")
-            })
-
-            /*
-            // LABEL: ShowCase #1 button.
-            box.homePage.footer.btnGroup.btn4 = createLabel(0, 0, 148, 44)
-            box.homePage.footer.btnGroup.add(that)
-            that.text = "SHOWCASE 1"
-            footerButtonStyle(that)
-            that.element.style.marginLeft = "10px"
-            that.onClick(function() {
-                go("https://play.google.com/store/apps/details?id=com.bugraozden.roboticcodinggame", "_blank")
-            })
-
-            // LABEL: ShowCase #2 button.
-            box.homePage.footer.btnGroup.btn5 = createLabel(0, 0, 148, 44)
-            box.homePage.footer.btnGroup.add(that)
-            that.text = "SHOWCASE 2"
-            footerButtonStyle(that)
-            that.element.style.marginLeft = "10px"
-            that.onClick(function() {
-                go("https://play.google.com/store/apps/details?id=com.bugraozden.mathrace", "_blank")
-            })
-            */
-
-            // LABEL: Info.
-            box.homePage.footer.lblInfo = createLabel(0, 275, 600, 100)
-            box.homePage.footer.add(that)
-            that.text = "Copyright 2020-2025 <b onclick='gotoBugraSite();' style='cursor: pointer;'>Bugra Ozden</b><br>Licensed under <b onclick='gotoLicenses();' style='cursor: pointer;'>the Apache License</b>, Version 2.0"
-            that.fontSize = 12
-            that.opacity = 0.8
-            that.clickable = 1
-            that.textAlign = "center"
-            that.center("left")
-
-            launchView.create({ delayTime: 500 });
-
-            page.onResize(pageResized)
-            
+<html lang="en">
+
+<head>
+
+    <title>basic.js – Build web interfaces with plain JavaScript</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="basic.js is a small, dependency-free JavaScript library that creates the DOM for you. No HTML markup, no CSS files, no build step.">
+    <meta name="keywords" content="basic.js, JavaScript library, vanilla JS, UI library, no HTML, no CSS, no build step, lightweight, open source">
+    <meta name="author" content="Bugra Ozden">
+    <meta name="theme-color" content="#0F1012">
+
+    <meta name="robots" content="index, follow, max-image-preview:large">
+
+    <!-- LANGUAGES: The same page in English (https://bug7a.github.io/basic.js/) and in Turkish (?lang=tr).
+         canonical is added by js/site.js: it is different for each language. -->
+    <link rel="alternate" hreflang="en" href="https://bug7a.github.io/basic.js/">
+    <link rel="alternate" hreflang="tr" href="https://bug7a.github.io/basic.js/?lang=tr">
+    <link rel="alternate" hreflang="x-default" href="https://bug7a.github.io/basic.js/">
+
+    <!-- SEO: The page has two languages at the same address: ?lang=tr / ?lang=en (js/site.js, the default one has no ?lang).
+         The published address is CONFIG.siteURL (js/config.js): js/site.js adds canonical, hreflang and og:url with it.
+         The address is also written below (hreflang, og:url, og:image): link previews do not run JavaScript.
+         The <noscript> part and the JSON-LD are made from js/texts.js: keep them the same when the texts change. -->
+
+    <!-- SOCIAL (link preview) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="basic.js">
+    <meta property="og:title" content="basic.js – Build web interfaces with plain JavaScript">
+    <meta property="og:description" content="basic.js is a small, dependency-free JavaScript library that creates the DOM for you. No HTML markup, no CSS files, no build step.">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="tr_TR">
+    <meta property="og:url" content="https://bug7a.github.io/basic.js/">
+    <meta property="og:image" content="https://bug7a.github.io/basic.js/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="basic.js – Build web interfaces with plain JavaScript">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- STRUCTURED DATA (schema.org) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "basic.js",
+        "url": "https://bug7a.github.io/basic.js/",
+        "description": "basic.js is a small, dependency-free JavaScript library that creates the DOM for you. No HTML markup, no CSS files, no build step.",
+        "codeRepository": "https://github.com/bug7a/js-components",
+        "programmingLanguage": "JavaScript",
+        "runtimePlatform": "Web browser",
+        "license": "https://www.apache.org/licenses/LICENSE-2.0",
+        "isAccessibleForFree": true,
+        "inLanguage": [
+            "en",
+            "tr"
+        ],
+        "keywords": "JavaScript library, UI library, vanilla JS, no build step, DOM",
+        "author": {
+            "@type": "Person",
+            "name": "Buğra Özden",
+            "url": "https://bug7a.github.io/",
+            "sameAs": [
+                "https://github.com/bug7a/",
+                "https://www.linkedin.com/in/bugra-ozden/"
+            ]
         }
-        
-        var pageResized = function() {
+    }
+    </script>
 
-            page.fit(1000);
-                     
-            box.width = page.width
-            box.height = page.height
 
-            box.boxUpBackground.width = page.width
-            box.imgUpBackground.width = page.width
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg"><!-- The paper boat of the logo (assets/basicjs-ui-library.svg) -->
 
-            box.homePage.footer.width = page.width
-            box.homePage.footer.btnGroup.center("left")
-            box.homePage.footer.lblInfo.center("left")
+    <!-- LIBRARY FILES -->
+    <link rel="preload" href="basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+    <link rel="preload" href="basic/font/open-sans/OpenSans-Bold.ttf" as="font" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="basic/basic.min.css">
+    <script src="basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>
 
-            box.homePage.center("left")
-            
+    <!-- COMPONENT FILES -->
+    <script src="comp/web-view.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="comp/tabs.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="comp/toast.min.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- SITE FILES -->
+    <script src="js/config.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/texts.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/samples.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/theme.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/code-highlight.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/live-code.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/header.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- SECTION FILES -->
+    <script src="js/sections/hero.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/sections/why.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/sections/compare.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/sections/concepts.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/sections/playground.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/sections/ecosystem.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/sections/start.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/sections/footer.js" type="text/javascript" charset="utf-8"></script>
+
+    <script src="js/site.js" type="text/javascript" charset="utf-8"></script>
+
+    <!--
+
+    /* Bismillah */
+
+    BASIC.JS WEBSITE
+    - basic.js kütüphanesinin tanıtım sayfası. Canlı kod örnekleri ve bir deneme alanı içerir.
+    - Arayüzün tamamı basic.js ile, saf JavaScript ile çizilir. Framework yoktur.
+    - Metinler: js/texts.js  |  Kod örnekleri: js/samples.js  |  Ayarlar: js/config.js  |  Renkler: js/theme.js
+    - Sayfa akışı: js/site.js -> SiteApp.build()
+
+    -->
+
+    <style>
+
+        /* JavaScript kapalı ise gösterilecek metin */
+        .noscript-box {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            height: 100%;
+            overflow: auto; /* WHY: basic.css turns off the scrolling of <body>. */
+            width: 100%;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            font-family: opensans;
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(0, 0, 0, 0.82);
+            text-align: center;
         }
 
-        const gotoBugraSite = function() {
-            window.open("https://bug7a.github.io/", "_blank");
-        }
+    </style>
 
-        const gotoLicenses = function() {
-            window.open("http://www.apache.org/licenses/LICENSE-2.0", "_blank");
-        }
+</head>
 
-        </script>
+<body>
 
-    </head>
-    <body></body>
+    <noscript>
+        <div class="noscript-box">
+            <div style="max-width: 760px; margin: 0 auto; text-align: left;">
+                <p><a href="?lang=tr" hreflang="tr" lang="tr" style="color: inherit;">Türkçe</a></p>
+                <h1>Build web interfaces with plain JavaScript.</h1>
+                <p>basic.js creates the page objects for you. No HTML markup, no CSS files, no build step: write one function and open the page in a browser.</p>
+                <p>12 KB gzipped · 0 dependencies · No build step · Apache 2.0</p>
+                <h2>Keep simple things simple</h2>
+                <ul>
+                    <li><b>Reads like the screen.</b> The code of a screen follows its layout: a group, a title, a button. You understand it at a glance, months later too.</li>
+                    <li><b>Small and dependency-free.</b> One 12 KB file works directly on the DOM. No framework runtime, no virtual DOM, no node_modules.</li>
+                    <li><b>No build step.</b> Add a script tag, save, refresh. There is nothing to compile, bundle or configure.</li>
+                    <li><b>Full control in one place.</b> Layout, style and behavior live together in JavaScript, so there is no markup and stylesheet to keep in sync.</li>
+                </ul>
+                <h2>The same card, two ways</h2><p>With HTML and CSS a screen is split into markup, styles and scripts that must stay in sync. With basic.js it is one function that reads like the screen.</p>
+                <h2>Everything you need fits on one screen</h2><p>basic.js has a handful of concepts. Learn them once and you can read any page built with it.</p>
+                <ul>
+                    <li><b>Objects.</b> Box, Label, Button, Input and Icon. Settings go in one object; positions (left, top, width, height) can come first.</li>
+                    <li><b>that.</b> The object created last. Style it right after you create it, without a variable.</li>
+                    <li><b>Containers.</b> Objects created between startBox() and endBox() go inside that box. Every start has its end.</li>
+                    <li><b>AutoLayout.</b> HGroup and VGroup place their objects in a row or a column, with gap, padding and alignment.</li>
+                    <li><b>Events.</b> on("click", ...) on any object. The handler gets the object itself and the event.</li>
+                    <li><b>Motion.</b> Tell an object what to animate with setMotion(), then just change its properties.</li>
+                </ul>
+                <h2>Start in three steps</h2>
+                <ol>
+                    <li><b>Get the basic folder.</b> Copy the basic folder (basic.min.js, basic.min.css and the font folder) next to your page.</li>
+                    <li><b>Create a page.</b> Load the two files, then your own script. The body stays empty.</li>
+                    <li><b>Write start().</b> basic.js creates the page and calls start(). Open the file in a browser, or with VS Code Live Server.</li>
+                </ol>
+                <h2>More than a library</h2><p>basic.js comes with a handbook, a component suite and ready app templates, all written with the same few ideas.</p>
+                <ul>
+                    <li><a href="https://bug7a.github.io/basic.js-handbook/" style="color: inherit;">Handbook</a>: 16 chapters, from the first Box to motion and utilities. Every example runs in the page.</li>
+                    <li><a href="https://bug7a.github.io/js-components/" style="color: inherit;">Components</a>: 72 ready components: tabs, tables, date pickers, charts, toasts, modals… each with a live example and its code.</li>
+                    <li><a href="https://github.com/bug7a/js-components/tree/main/04-template-m2/js-admin-panel" style="color: inherit;">App templates</a>: A modular admin panel, an installable PWA shell and forms that post to a service. Start from a working app.</li>
+                    <li><a href="https://github.com/bug7a/js-components/tree/main/__developer-toolkit" style="color: inherit;">VS Code tools</a>: Extensions for basic.js: code completion, an object navigator and a view inspector.</li>
+                </ul>
+                <p><a href="https://github.com/bug7a/js-components" style="color: inherit;">Download from GitHub</a> · basic.js is open source under the Apache 2.0 license.</p>
+            </div>
+        </div>
+    </noscript>
+
+</body>
+
 </html>
