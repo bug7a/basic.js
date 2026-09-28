@@ -224,11 +224,19 @@ SITE.eyebrow = function (text, dark = 0) {
 
 };
 
+// SEO: A heading for search engines and screen readers. (A Label is a <div>: without it the page has no headings.)
+SITE.markHeading = function (label, level) {
+    label.elem.setAttribute("role", "heading");
+    label.elem.setAttribute("aria-level", String(level));
+    return label;
+};
+
 SITE.h1 = function (text, dark = 0, width = "100%") {
 
     Label({ text: text, width: width, fontSize: SITE.L.h1, textColor: dark ? "#FFFFFF" : SITE.INK });
     that.elem.style.fontFamily = SITE.BOLD;
     that.elem.style.lineHeight = "1.05";
+    SITE.markHeading(that, 1);
     that.elem.style.overflow = "visible"; // WHY: Büyük yazının harfleri (Ö, Ş, ğ, g) satır kutusunun dışına taşar; basic.css etiketi keser.
     that.elem.style.letterSpacing = "-1.2px";
 
@@ -241,6 +249,7 @@ SITE.h2 = function (text, dark = 0, centered = 0) {
     Label({ text: text, width: "100%", fontSize: SITE.L.h2, textColor: dark ? "#FFFFFF" : SITE.INK });
     that.elem.style.fontFamily = SITE.BOLD;
     that.elem.style.lineHeight = "1.15";
+    SITE.markHeading(that, 2);
     that.elem.style.overflow = "visible"; // WHY: Büyük yazının harfleri (Ö, Ş, ğ, g) satır kutusunun dışına taşar; basic.css etiketi keser.
     that.elem.style.letterSpacing = "-0.6px";
     if (centered) that.elem.style.textAlign = "center";
@@ -254,6 +263,7 @@ SITE.h3 = function (text, dark = 0, width = "100%") {
     Label({ text: text, width: width, fontSize: SITE.L.h3, textColor: dark ? "#FFFFFF" : SITE.INK });
     that.elem.style.fontFamily = SITE.BOLD;
     that.elem.style.lineHeight = "1.3";
+    SITE.markHeading(that, 3);
     that.elem.style.overflow = "visible"; // WHY: Büyük yazının harfleri (Ö, Ş, ğ, g) satır kutusunun dışına taşar; basic.css etiketi keser.
 
     return that;

@@ -23,7 +23,8 @@
     <!-- SEO: The page has two languages at the same address: ?lang=tr / ?lang=en (js/site.js, the default one has no ?lang).
          The published address is CONFIG.siteURL (js/config.js): js/site.js adds canonical, hreflang and og:url with it.
          The address is also written below (hreflang, og:url, og:image): link previews do not run JavaScript.
-         The <noscript> part and the JSON-LD are made from js/texts.js: keep them the same when the texts change. -->
+         The <noscript> part and the JSON-LD are made from js/texts.js: keep them the same when the texts change.
+         sitemap.xml has both addresses: send it in Google Search Console (property: https://bug7a.github.io/basic.js/). -->
 
     <!-- SOCIAL (link preview) -->
     <meta property="og:type" content="website">
