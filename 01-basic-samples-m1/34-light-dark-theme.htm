@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Light and Dark Theme</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        LIGHT AND DARK THEME
+
+        A basic.js object takes its colors when it is created. To change the theme without a
+        reload, every object says which color NAME it uses, and the theme sets them all again.
+
+            Theme.bind(label, { textColor: "text" });                 // prop -> color name
+            Theme.bind(track, function (t) {                          // or a function, when the
+                return { color: (isOn) ? t.accent : t.soft };         // color depends on a state
+            });
+            Theme.refresh(track);                                     // after the state changes
+
+        - "Light", "Dark" or "System". System follows the setting of the computer or the phone,
+          also when it changes while the page is open. (matchMedia "prefers-color-scheme")
+        - The choice is saved with basic.storage.
+        - The colors change slowly. (setMotion)
+
+        */
+
+        // *** VARIABLES:
+
+        const THEMES = {
+
+            light: {
+                background: "#F2F3F7",
+                surface: "#FFFFFF",
+                soft: "#EEF0F5",
+                text: "rgba(0, 0, 0, 0.82)",
+                textSoft: "rgba(0, 0, 0, 0.5)",
+                border: "rgba(0, 0, 0, 0.1)",
+                accent: "#4C6EF5",
+                onAccent: "#FFFFFF",
+                shadow: "0 4px 14px rgba(0, 0, 0, 0.06)",
+            },
+
+            dark: {
+                background: "#14161B",
+                surface: "#1E2128",
+                soft: "#2A2E37",
+                text: "rgba(255, 255, 255, 0.9)",
+                textSoft: "rgba(255, 255, 255, 0.55)",
+                border: "rgba(255, 255, 255, 0.1)",
+                accent: "#7C95FF",
+                onAccent: "#10131C",
+                shadow: "0 4px 14px rgba(0, 0, 0, 0.35)",
+            },
+
+        };
+
+        const STORAGE_KEY = "basic-samples-theme";
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Theme = {};
+
+        Theme.choice = "system";       // "light", "dark" or "system" (what the user chose)
+        Theme.name = "light";          // "light" or "dark" (what is shown)
+        Theme.colors = THEMES.light;
+        Theme.bindings = [];           // [{ obj, colors }]
+        Theme.systemQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        const Page = {};
+        Page.choiceButtons = {};
+
+        let statusLabel;
+
+        // First running function.
+        const start = function() {
+
+            // WHY: The theme is chosen before the objects are created, so they start with the right colors.
+            Theme.choice = basic.storage.loadOr(STORAGE_KEY, "system");
+            Theme.name = Theme.getName();
+            Theme.colors = THEMES[Theme.name];
+
+            Theme.bind(page, { color: "background" });
+
+            // BOX: The page never scrolls, this box does.
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 16, padding: [16, 36] });
+
+                    Theme.bind(Label({ text: "Light and Dark Theme", fontSize: 28, bold: 1 }), { textColor: "text" });
+                    Theme.bind(Label({ text: "Change the theme, nothing is created again.", fontSize: 15 }),
+                        { textColor: "textSoft" });
+
+                    Page.createThemeCard();
+                    Page.createProfileCard();
+                    Page.createSettingsCard();
+
+                endGroup();
+
+            endBox();
+
+            // SYSTEM: The computer switched to dark (or light) while the page is open.
+            Theme.systemQuery.addEventListener("change", function() {
+                if (Theme.choice === "system") Theme.apply();
+            });
+
+            Theme.apply();
+
+        };
+
+        // *** THEME:
+
+        // "light" or "dark": the choice, or the setting of the system.
+        Theme.getName = function() {
+            if (Theme.choice !== "system") return Theme.choice;
+            return (Theme.systemQuery.matches) ? "dark" : "light";
+        };
+
+        // Remembers which colors an object uses, and sets them now.
+        // colors: { prop: "color name" }  or  function (t) { return { prop: value }; }
+        Theme.bind = function(obj, colors) {
+
+            Theme.bindings.push({ obj: obj, colors: colors });
+
+            // WHY: Only the colors move. (An Input keeps its color on its <input>, it changes at once.)
+            if (obj !== page) obj.setMotion("background-color 0.35s, color 0.35s, border-color 0.35s");
+
+            Theme.refresh(obj);
+            return obj;
+
+        };
+
+        // Sets the colors of one object again. (Also after its state changed.)
+        Theme.refresh = function(obj) {
+            Theme.bindings.forEach(function(binding) {
+                if (binding.obj === obj) Theme.setColors(binding);
+            });
+        };
+
+        Theme.setColors = function(binding) {
+
+            const t = Theme.colors;
+            const props = (typeof binding.colors === "function") ? binding.colors(t) : {};
+
+            if (typeof binding.colors !== "function") {
+                Object.keys(binding.colors).forEach(function(prop) {
+                    props[prop] = t[binding.colors[prop]];
+                });
+            }
+
+            // WHY: One by one, not props(): page (MainBox) has no props().
+            Object.keys(props).forEach(function(prop) { binding.obj[prop] = props[prop]; });
+
+        };
+
+        Theme.apply = function() {
+
+            Theme.name = Theme.getName();
+            Theme.colors = THEMES[Theme.name];
+
+            // WHY: A removed object must not be changed. It is dropped from the list here.
+            Theme.bindings = Theme.bindings.filter(function(binding) { return !binding.obj.isRemoved; });
+            Theme.bindings.forEach(Theme.setColors);
+
+            // The browser draws the scroll bars and the form controls in the same theme.
+            document.documentElement.style.colorScheme = Theme.name;
+
+            statusLabel.text = "Shown: " + Theme.name
+                + ((Theme.choice === "system") ? " (from the system)" : "");
+
+        };
+
+        Theme.choose = function(choice) {
+            Theme.choice = choice;
+            basic.storage.save(STORAGE_KEY, choice);
+            Theme.apply();
+        };
+
+        // *** VIEW:
+
+        // A card: a white (or dark) group with a title.
+        Page.startCard = function(title) {
+
+            const card = VGroup({ width: "100%", height: "auto", gap: 14, padding: 22, align: "left top", round: 16,
+                border: 1, css: { maxWidth: "560px" } });
+            Theme.bind(card, { color: "surface", borderColor: "border", boxShadow: "shadow" });
+
+            Theme.bind(Label({ text: title, fontSize: 17, bold: 1 }), { textColor: "text" });
+
+            return card;
+
+        };
+
+        Page.createThemeCard = function() {
+
+            Page.startCard("Theme");
+
+                // GROUP: Light / Dark / System
+                const segments = HGroup({ hug: 1, gap: 4, padding: 4, round: 12 });
+                Theme.bind(segments, { color: "soft" });
+
+                    [["light", "Light"], ["dark", "Dark"], ["system", "System"]].forEach(function(item) {
+
+                        const button = Button({ text: item[1], width: 96, height: 36, round: 9, minimal: 1, fontSize: 14 });
+                        Page.choiceButtons[item[0]] = button;
+
+                        // The selected one looks different: the colors depend on a state -> a function.
+                        Theme.bind(button, function(t) {
+                            const isSelected = (Theme.choice === item[0]);
+                            return {
+                                color: (isSelected) ? t.surface : "transparent",
+                                textColor: (isSelected) ? t.text : t.textSoft,
+                                boxShadow: (isSelected) ? t.shadow : "none",
+                            };
+                        });
+
+                        button.on("click", function() { Theme.choose(item[0]); });
+
+                    });
+
+                endGroup();
+
+                statusLabel = Theme.bind(Label({ text: "", fontSize: 14 }), { textColor: "textSoft" });
+
+            endGroup();
+
+        };
+
+        Page.createProfileCard = function() {
+
+            Page.startCard("Profile");
+
+                HGroup({ hug: 1, gap: 14, align: "left center" });
+
+                    Theme.bind(Label({ text: "AO", width: 52, height: 52, round: 26, fontSize: 18, bold: 1,
+                        css: { display: "flex", alignItems: "center", justifyContent: "center" } }),
+                        { color: "accent", textColor: "onAccent" });
+
+                    VGroup({ hug: 1, gap: 2, align: "left center" });
+                        Theme.bind(Label({ text: "Ada Ocak", fontSize: 17, bold: 1 }), { textColor: "text" });
+                        Theme.bind(Label({ text: "ada@example.com", fontSize: 14 }), { textColor: "textSoft" });
+                    endGroup();
+
+                endGroup();
+
+                Theme.bind(Input({ width: "100%", height: 44, fontSize: 15, round: 10, minimal: 1, border: 1,
+                    placeholder: "Write a status..." }), { color: "soft", textColor: "text", borderColor: "border" });
+
+                HGroup({ hug: 1, gap: 10, clipContent: 0 });
+
+                    Theme.bind(Button({ text: "Save", width: "auto", height: 40, padding: [20, 0], round: 10, minimal: 1,
+                        fontSize: 15 }), { color: "accent", textColor: "onAccent" });
+
+                    Theme.bind(Button({ text: "Cancel", width: "auto", height: 40, padding: [20, 0], round: 10, minimal: 1,
+                        fontSize: 15 }), { color: "soft", textColor: "text" });
+
+                endGroup();
+
+            endGroup();
+
+        };
+
+        Page.createSettingsCard = function() {
+
+            Page.startCard("Notifications");
+
+                [["E-mail", 1], ["Push notifications", 0], ["Weekly summary", 1]].forEach(function(item) {
+                    Page.createSwitchRow(item[0], item[1]);
+                });
+
+            endGroup();
+
+        };
+
+        // A row with a switch. The track color depends on the state.
+        Page.createSwitchRow = function(text, isOn) {
+
+            HGroup({ width: "100%", height: 40, align: "left center", justify: "space-between" });
+
+                Theme.bind(Label({ text: text, fontSize: 15 }), { textColor: "text" });
+
+                const track = startBox({ width: 46, height: 26, round: 13, clickable: 1, cursor: "pointer" });
+                    const knob = Box(3, 3, 20, 20, { round: 10, color: "white", boxShadow: "0 1px 3px rgba(0,0,0,0.3)" });
+                    knob.setMotion("left 0.2s");
+                endBox();
+
+                Theme.bind(track, function(t) {
+                    return { color: (isOn) ? t.accent : t.border };
+                });
+
+                const refresh = function() {
+                    knob.left = (isOn) ? 23 : 3;
+                    Theme.refresh(track);   // WHY: The state changed, so its colors change too.
+                };
+
+                track.on("click", function() {
+                    isOn = (isOn) ? 0 : 1;
+                    refresh();
+                });
+
+                refresh();
+
+            endGroup();
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>

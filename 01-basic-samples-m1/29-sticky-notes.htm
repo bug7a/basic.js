@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Sticky Notes</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        STICKY NOTES
+
+        A board of notes. Move a note by its top, write in it, and they are still there
+        after the page is reloaded.
+
+        - Drag with pointer events              -> Works with the mouse, a finger and a pen.
+          pointerdown on the note, then page.on("pointermove" / "pointerup") until the drag ends.
+          page.on() returns a remover function, the drag removes its own events.
+        - note.bringToFront()                  -> The touched note is on top of the others.
+        - basic.clamp()                        -> A note never leaves the board.
+        - basic.objectOf(event.target)         -> Which basic.js object is under the pointer?
+        - A raw <textarea> inside a Box        -> Needs pointer-events: auto and user-select: text.
+        - waitAndRun()                         -> Saves 400 ms after the last key, not on every key.
+        - basic.storage.save() / loadOr()      -> The notes are kept in localStorage.
+
+        Double-click the empty board to add a note where you clicked.
+
+        */
+
+        // *** VARIABLES:
+
+        const STORAGE_KEY = "basic-samples-sticky-notes";
+
+        const NOTE_WIDTH = 200;
+        const NOTE_HEIGHT = 180;
+        const HEADER_HEIGHT = 32;
+
+        const NOTE_COLORS = ["#FFE98A", "#FFC7C2", "#BDE6C8", "#BFD9FF", "#E3CCFF"];
+
+        const NOTE_SHADOW = "0 4px 10px rgba(0, 0, 0, 0.12)";
+        const DRAG_SHADOW = "0 14px 28px rgba(0, 0, 0, 0.22)";
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Board = {};
+
+        Board.notes = [];              // The note boxes. note.data is its saved data.
+        Board.newColor = NOTE_COLORS[0];
+        Board.swatches = [];
+        Board.saveTimer = null;
+
+        let board;
+
+        // First running function.
+        const start = function() {
+
+            page.color = "#EFE9DD";
+
+            // BOX: The board. Notes are created in it.
+            // WHY: zIndex: 0 keeps the z-index of the notes inside the board, so a note that is
+            //      brought to the front many times still stays under the toolbar.
+            board = Box(0, 0, "100%", "100%", {
+                color: "transparent",
+                zIndex: 0,
+                clickable: 1,
+                css: {
+                    backgroundImage: "radial-gradient(" + Black(0.12) + " 1px, transparent 1px)",
+                    backgroundSize: "22px 22px",
+                },
+            });
+
+            board.on("dblclick", function(self, event) {
+                // WHY: Only the empty board. A double-click in a note selects a word.
+                if (basic.objectOf(event.target) !== board) return;
+                const rect = board.elem.getBoundingClientRect();
+                Board.addNote(event.clientX - rect.left - NOTE_WIDTH / 2, event.clientY - rect.top - HEADER_HEIGHT / 2);
+            });
+
+            Board.createToolbar();
+
+            // GROUP: The hint at the bottom center. (A group is not clickable, the board still gets the clicks.)
+            VGroup({ align: "center bottom", padding: 16, zIndex: 1 });
+                Label({ text: "Double-click the board to add a note. Move a note by its top.",
+                    fontSize: 13, textColor: Black(0.4) });
+            endGroup();
+
+            // The saved notes. The first time, two example notes.
+            const saved = basic.storage.loadOr(STORAGE_KEY, [
+                { x: 60, y: 110, color: NOTE_COLORS[0], text: "Move me by my top." },
+                { x: 300, y: 170, color: NOTE_COLORS[3], text: "Click here and write something.\nIt is saved." },
+            ]);
+            createIn(board, function() {
+                saved.forEach(function(data) { Board.createNote(data); });
+            });
+
+            // The notes come back inside the board when the window gets smaller.
+            page.onResize(function() { Board.notes.forEach(Board.keepInBoard); });
+
+        };
+
+        // *** VIEW:
+
+        Board.createToolbar = function() {
+
+            // GROUP: Toolbar (on the page, over the board)
+            HGroup({ hug: 1, gap: 8, padding: [10, 8], align: "left center", color: "white", round: 12,
+                boxShadow: NOTE_SHADOW, zIndex: 1, clipContent: 0 });
+            that.left = 16;
+            that.top = 16;
+
+                Button({ text: "+ New note", width: "auto", height: 36, padding: [14, 0], round: 8, minimal: 1,
+                    color: "#2F2F2F", textColor: "white", fontSize: 15 });
+                that.on("click", function() {
+                    // A little to the side of the last note, so they do not cover each other.
+                    const count = Board.notes.length % 8;
+                    Board.addNote(60 + count * 28, 110 + count * 28);
+                });
+
+                // One round button for every color. The selected one has a border.
+                NOTE_COLORS.forEach(function(color) {
+
+                    const swatch = Button({ text: "", width: 26, height: 26, round: 13, minimal: 1,
+                        color: color, border: 2, borderColor: "transparent" });
+                    swatch.noteColor = color;
+                    swatch.on("click", Board.selectColor);
+                    Board.swatches.push(swatch);
+
+                });
+
+                Button({ text: "Clear", width: "auto", height: 36, padding: [12, 0], round: 8, minimal: 1,
+                    color: "transparent", textColor: Black(0.55), fontSize: 15 });
+                that.on("click", Board.clearAll);
+
+            endGroup();
+
+            Board.selectColor(Board.swatches[0]);
+
+        };
+
+        // One note: a header to move it, a ✕ button and a textarea.
+        Board.createNote = function(data) {
+
+            const note = startBox(data.x, data.y, NOTE_WIDTH, NOTE_HEIGHT, {
+                color: data.color,
+                round: 6,
+                boxShadow: NOTE_SHADOW,
+            });
+
+                // BOX: Header. The note moves only from here, so the textarea can still select text.
+                note.header = Box(0, 0, "100%", HEADER_HEIGHT, {
+                    color: Black(0.05),
+                    clickable: 1,
+                    cursor: "grab",
+                    css: { touchAction: "none" },   // WHY: A finger moves the note, not the page.
+                });
+
+                note.deleteButton = Button({ text: "✕", width: 28, height: 28, round: 14, minimal: 1,
+                    color: "transparent", textColor: Black(0.4), fontSize: 13 });
+                that.props({ right: 2, top: 2 });
+                that.on("click", function() { Board.deleteNote(note); });
+
+                // BOX: The textarea is in it.
+                note.body = Box(0, HEADER_HEIGHT, "100%", NOTE_HEIGHT - HEADER_HEIGHT, { color: "transparent" });
+
+            endBox();
+
+            // TEXTAREA: basic.js has no multi-line input, so a raw HTML element is added.
+            // WHY: basic.css gives every box pointer-events: none and user-select: none.
+            //      Without the two lines below, the textarea can not be clicked or written in.
+            const textarea = document.createElement("textarea");
+            textarea.value = data.text;
+            textarea.placeholder = "Write here...";
+            textarea.spellcheck = false;
+            textarea.style.cssText = "position: absolute; left: 0; top: 0; width: 100%; height: 100%;"
+                + "box-sizing: border-box; padding: 10px 12px; border: none; outline: none; resize: none;"
+                + "background: transparent; font-family: opensans; font-size: 15px; line-height: 1.4;"
+                + "color: rgba(0, 0, 0, 0.75); pointer-events: auto; user-select: text;";
+            note.body.elem.appendChild(textarea);
+            note.textarea = textarea;
+
+            textarea.addEventListener("input", function() {
+                note.data.text = textarea.value;
+                Board.saveLater();
+            });
+
+            // WHY: A click in the text brings the note to the front, too.
+            textarea.addEventListener("pointerdown", function() { note.bringToFront(); });
+
+            note.data = data;
+            note.header.on("pointerdown", function(self, event) { Board.startDrag(note, event); });
+
+            Board.keepInBoard(note);
+            Board.notes.push(note);
+
+            return note;
+
+        };
+
+        // *** DRAG:
+
+        Board.startDrag = function(note, event) {
+
+            // WHY: The ✕ button is on the header. A press on it must not start a drag.
+            if (basic.objectOf(event.target) !== note.header) return;
+
+            event.preventDefault();
+            note.bringToFront();
+
+            // Where the pointer is on the note, so the note does not jump to the pointer.
+            const offsetX = event.clientX - note.left;
+            const offsetY = event.clientY - note.top;
+
+            note.header.cursor = "grabbing";
+            note.boxShadow = DRAG_SHADOW;
+            note.css.transform = "scale(1.03)";
+
+            const onMove = function(self, moveEvent) {
+                note.left = moveEvent.clientX - offsetX;
+                note.top = moveEvent.clientY - offsetY;
+                Board.keepInBoard(note);
+            };
+
+            const onEnd = function() {
+
+                removeMove();
+                removeUp();
+                removeCancel();
+
+                note.header.cursor = "grab";
+                note.boxShadow = NOTE_SHADOW;
+                note.css.transform = "none";
+
+                note.data.x = note.left;
+                note.data.y = note.top;
+                Board.save();
+
+            };
+
+            // WHY: On the page, not on the note: a fast pointer can leave the note while it moves.
+            const removeMove = page.on("pointermove", onMove);
+            const removeUp = page.on("pointerup", onEnd);
+            const removeCancel = page.on("pointercancel", onEnd);
+
+        };
+
+        // The note stays inside the board. (Also after the window gets smaller.)
+        Board.keepInBoard = function(note) {
+            const maxX = Math.max(0, board.elem.clientWidth - NOTE_WIDTH);
+            const maxY = Math.max(0, board.elem.clientHeight - NOTE_HEIGHT);
+            note.left = basic.clamp(note.left, 0, maxX);
+            note.top = basic.clamp(note.top, 0, maxY);
+        };
+
+        // *** NOTES:
+
+        Board.addNote = function(x, y) {
+
+            let note;
+            createIn(board, function() {
+                note = Board.createNote({ x: x, y: y, color: Board.newColor, text: "" });
+            });
+
+            note.bringToFront();
+            note.opacity = 0;
+            note.animate({ opacity: 1 }, 200);
+            note.textarea.focus();
+
+            Board.save();
+
+        };
+
+        Board.deleteNote = async function(note) {
+
+            if (note.isRemoved) return;
+
+            Board.notes = Board.notes.filter(function(other) { return other !== note; });
+            Board.save();
+
+            await note.animate({ opacity: 0 }, 200);
+            note.remove();   // The textarea goes with it, it is inside the note.
+
+        };
+
+        Board.clearAll = function() {
+            if (Board.notes.length === 0) return;
+            if (!confirm("Delete all notes?")) return;
+            Board.notes.slice().forEach(Board.deleteNote);
+        };
+
+        Board.selectColor = function(swatch) {
+            Board.newColor = swatch.noteColor;
+            Board.swatches.forEach(function(other) {
+                other.borderColor = (other === swatch) ? Black(0.6) : "transparent";
+            });
+        };
+
+        // *** SAVE:
+
+        Board.save = function() {
+            basic.storage.save(STORAGE_KEY, Board.notes.map(function(note) { return note.data; }));
+        };
+
+        // WHY: Writing to localStorage on every key is not needed. It saves when the user stops.
+        Board.saveLater = function() {
+            Board.saveTimer = waitAndRun(Board.saveTimer, Board.save, 400);
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>

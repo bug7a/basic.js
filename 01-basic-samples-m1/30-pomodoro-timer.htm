@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Pomodoro Timer</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        POMODORO TIMER
+
+        25 minutes of focus, then a short break. After 4 focus sessions, a long break.
+
+        - loop() + setLoopTimer(ms)          -> basic.js calls the global loop() again and again.
+        - The time comes from Date.now()     -> A timer never counts the loop calls. (See loop().)
+        - page.on("keydown")                 -> Space: start / pause, R: reset, S: skip, 1 2 3: mode
+        - page.title                         -> The time is in the browser tab while it runs.
+        - setMotion("background-color ...")  -> The color changes slowly with the mode.
+        - basic.storage                      -> The focus sessions of today are counted.
+        - A short beep with the Web Audio API when the time is up. (No sound file.)
+
+        */
+
+        // *** VARIABLES:
+
+        const STORAGE_KEY = "basic-samples-pomodoro";
+
+        const MODES = {
+            focus: { name: "Focus", minutes: 25, color: "#C0533F" },
+            short: { name: "Short break", minutes: 5, color: "#3C8B7C" },
+            long: { name: "Long break", minutes: 15, color: "#3E6A8E" },
+        };
+
+        const SESSIONS_PER_SET = 4;    // Focus sessions before a long break.
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Timer = {};
+
+        Timer.mode = "focus";
+        Timer.running = 0;
+        Timer.remaining = 0;           // Milliseconds left. (Used while the timer waits.)
+        Timer.endTime = 0;             // Date.now() at the end. (Used while the timer runs.)
+        Timer.doneInSet = 0;           // Focus sessions done since the last long break.
+        Timer.today = { date: "", count: 0 };
+        Timer.tabs = {};
+        Timer.dots = [];
+
+        let background, timeLabel, modeLabel, progressFill, startButton, todayLabel;
+
+        // First running function.
+        const start = function() {
+
+            Timer.loadToday();
+
+            // BOX: The background. It scrolls if the screen is too short. (page never scrolls)
+            background = startBox(0, 0, "100%", "100%", { color: MODES.focus.color, scrollY: 1 });
+            background.setMotion("background-color 0.6s");
+
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 28, padding: [16, 48],
+                    css: { minHeight: "100%" }, justify: "center" });
+
+                    Timer.createTabs();
+                    Timer.createClock();
+                    Timer.createControls();
+                    Timer.createFooter();
+
+                endGroup();
+
+            endBox();
+
+            Timer.setMode("focus");
+
+            page.on("keydown", Timer.onKey);
+
+            // WHY: loop() runs every 1000 ms by default. 250 ms shows the new second sooner.
+            setLoopTimer(250);
+
+        };
+
+        // basic.js calls it every 250 ms. (setLoopTimer(250) in start().)
+        const loop = function() {
+
+            if (!Timer.running) return;
+
+            // WHY: A timer (setInterval) is late sometimes, more when the tab is in the background.
+            //      Counting "250 ms more" every call would be wrong after a while. The time left is
+            //      always the end time minus now.
+            Timer.remaining = Math.max(0, Timer.endTime - Date.now());
+            Timer.refresh();
+
+            if (Timer.remaining === 0) Timer.finish();
+
+        };
+
+        // *** VIEW:
+
+        Timer.createTabs = function() {
+
+            // GROUP: Mode tabs
+            HGroup({ hug: 1, gap: 4, padding: 4, color: Black(0.15), round: 22 });
+
+                Object.keys(MODES).forEach(function(key) {
+                    const tab = Button({ text: MODES[key].name, width: "auto", height: 36, padding: [16, 0], round: 18,
+                        minimal: 1, color: "transparent", textColor: "white", fontSize: 14 });
+                    tab.on("click", function() { Timer.setMode(key); });
+                    Timer.tabs[key] = tab;
+                });
+
+            endGroup();
+
+        };
+
+        Timer.createClock = function() {
+
+            // GROUP: Mode name, time and the progress bar
+            VGroup({ hug: 1, gap: 6, align: "center top" });
+
+                modeLabel = Label({ text: "", fontSize: 16, textColor: White(0.75) });
+
+                timeLabel = Label({ text: "25:00", fontSize: 96, bold: 1, textColor: "white",
+                    css: { fontVariantNumeric: "tabular-nums" } });   // WHY: The digits do not move when they change.
+
+                // BOX: Progress bar
+                startBox({ width: 260, height: 6, color: White(0.25), round: 3 });
+                    progressFill = Box(0, 0, "0%", "100%", { color: "white", round: 3 });
+                endBox();
+
+            endGroup();
+
+        };
+
+        Timer.createControls = function() {
+
+            // GROUP: Buttons
+            HGroup({ hug: 1, gap: 12, align: "center", clipContent: 0 });
+
+                const smallButton = { width: "auto", height: 44, padding: [18, 0], round: 22, minimal: 1,
+                    color: White(0.15), textColor: "white", fontSize: 15 };
+
+                Button({ text: "Reset", ...smallButton });
+                that.on("click", Timer.reset);
+
+                startButton = Button({ text: "Start", width: 160, height: 56, round: 28, minimal: 1,
+                    color: "white", fontSize: 20, bold: 1, boxShadow: "0 6px 16px rgba(0, 0, 0, 0.18)" });
+                startButton.on("click", Timer.toggle);
+
+                Button({ text: "Skip", ...smallButton });
+                that.on("click", Timer.skip);
+
+            endGroup();
+
+        };
+
+        Timer.createFooter = function() {
+
+            // GROUP: One dot for every focus session of the set
+            HGroup({ hug: 1, gap: 8 });
+                for (let i = 0; i < SESSIONS_PER_SET; i++) {
+                    Timer.dots.push(Box({ width: 10, height: 10, round: 5, color: White(0.3) }));
+                }
+            endGroup();
+
+            todayLabel = Label({ text: "", fontSize: 15, textColor: White(0.8) });
+
+            Label({ text: "Space: start / pause · R: reset · S: skip · 1 2 3: mode", fontSize: 12,
+                textColor: White(0.55), css: { textAlign: "center" } });
+
+        };
+
+        // *** TIMER:
+
+        Timer.setMode = function(key) {
+
+            Timer.mode = key;
+            Timer.running = 0;
+            Timer.remaining = MODES[key].minutes * 60 * 1000;
+
+            background.color = MODES[key].color;
+            startButton.textColor = MODES[key].color;
+
+            Object.keys(Timer.tabs).forEach(function(other) {
+                Timer.tabs[other].color = (other === key) ? White(0.25) : "transparent";
+            });
+
+            Timer.refresh();
+
+        };
+
+        Timer.toggle = function() {
+
+            Beep.unlock();
+
+            if (Timer.running) {
+                Timer.remaining = Math.max(0, Timer.endTime - Date.now());
+                Timer.running = 0;
+            } else {
+                Timer.endTime = Date.now() + Timer.remaining;
+                Timer.running = 1;
+            }
+
+            Timer.refresh();
+
+        };
+
+        Timer.reset = function() {
+            Timer.setMode(Timer.mode);
+        };
+
+        // Ends the current mode now, as if the time was up. (No beep.)
+        Timer.skip = function() {
+            Timer.goNext(0);
+        };
+
+        Timer.finish = function() {
+            Beep.play();
+            Timer.goNext(1);
+        };
+
+        // Focus -> short break (or a long break after 4). A break -> focus.
+        Timer.goNext = function(isCompleted) {
+
+            if (Timer.mode === "focus") {
+
+                if (isCompleted) {
+                    Timer.today.count++;
+                    basic.storage.save(STORAGE_KEY, Timer.today);
+                }
+                Timer.doneInSet++;
+                Timer.setMode((Timer.doneInSet >= SESSIONS_PER_SET) ? "long" : "short");
+
+            } else {
+
+                if (Timer.mode === "long") Timer.doneInSet = 0;
+                Timer.setMode("focus");
+
+            }
+
+        };
+
+        // Time, progress, button text, tab title, dots.
+        Timer.refresh = function() {
+
+            const total = MODES[Timer.mode].minutes * 60 * 1000;
+            const seconds = Math.ceil(Timer.remaining / 1000);
+            const text = twoDigitFormat(Math.floor(seconds / 60)) + ":" + twoDigitFormat(seconds % 60);
+
+            // WHY: loop() calls this 4 times a second. Only a changed text is written to the page.
+            if (timeLabel.text !== text) timeLabel.text = text;
+
+            progressFill.width = ((1 - Timer.remaining / total) * 100) + "%";
+            modeLabel.text = MODES[Timer.mode].name;
+
+            const isFresh = (Timer.remaining === total);
+            startButton.text = (Timer.running) ? "Pause" : (isFresh) ? "Start" : "Resume";
+
+            page.title = (Timer.running) ? text + " · " + MODES[Timer.mode].name : "Pomodoro Timer";
+
+            Timer.dots.forEach(function(dot, index) {
+                dot.color = (index < Timer.doneInSet) ? "white" : White(0.3);
+            });
+
+            todayLabel.text = "Today: " + Timer.today.count + " focus session" + ((Timer.today.count === 1) ? "" : "s");
+
+        };
+
+        // The count of today. A new day starts from 0.
+        Timer.loadToday = function() {
+            const date = new Date().toDateString();
+            const saved = basic.storage.loadOr(STORAGE_KEY, { date: date, count: 0 });
+            Timer.today = (saved.date === date) ? saved : { date: date, count: 0 };
+        };
+
+        Timer.onKey = function(self, event) {
+
+            if (event.repeat) return;   // WHY: A key that is held down sends keydown again and again.
+
+            switch (event.code) {
+                case "Space":
+                    event.preventDefault();   // WHY: Space also "clicks" the focused button. Once is enough.
+                    Timer.toggle();
+                    break;
+                case "KeyR": Timer.reset(); break;
+                case "KeyS": Timer.skip(); break;
+                case "Digit1": Timer.setMode("focus"); break;
+                case "Digit2": Timer.setMode("short"); break;
+                case "Digit3": Timer.setMode("long"); break;
+            }
+
+        };
+
+        // *** SOUND:
+
+        const Beep = {};
+        Beep.context = null;
+
+        // WHY: Browsers let a page play sound only after the user did something (a click, a key).
+        //      The audio context is made on the first Start, so the beep can play later.
+        Beep.unlock = function() {
+            if (Beep.context) return;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) Beep.context = new AudioContext();
+        };
+
+        // Three short tones.
+        Beep.play = function() {
+
+            if (!Beep.context) return;
+
+            for (let i = 0; i < 3; i++) {
+
+                const time = Beep.context.currentTime + i * 0.3;
+
+                const oscillator = Beep.context.createOscillator();
+                const gain = Beep.context.createGain();
+
+                oscillator.frequency.value = 880;
+                gain.gain.setValueAtTime(0.2, time);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+
+                oscillator.connect(gain);
+                gain.connect(Beep.context.destination);
+                oscillator.start(time);
+                oscillator.stop(time + 0.2);
+
+            }
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>

@@ -2,6 +2,11 @@
 
 basic.js kütüphanesinde `Box()` nesnesi, ekranda dikdörtgen veya kare şeklinde temel görünümler oluşturmak için kullanılır. Genellikle arka plan, yapısal kapsayıcı (container) veya diğer nesneleri gruplamak için işlev görür. 
 
+> **Sadece Box nesnesi başka nesneleri içinde tutabilir.** `startBox()`, `createIn()` ve gruplar
+> (`AutoLayout`, `HGroup`, `VGroup` — bunlar da Box nesnesidir) hep bir Box ile çalışır. `Button`,
+> `Label`, `Input` veya `Icon` içine nesne **alamaz**. Bir butonun üzerine bir şey koymak için, onu
+> butonla aynı kutuda kardeş olarak oluşturun ve `position: "absolute"` ile yerleştirin.
+
 ---
 
 ## Box Oluşturma
@@ -80,6 +85,20 @@ startBox({ left: 0, top: 40, width: "100%", height: 100 });
     Label({ left: 10, top: 10, text: "Bu başlık kutu içindedir" });
 
 endBox();
+```
+
+### createIn() ile Var Olan Bir Kutunun İçinde Nesne Oluşturma
+`createIn(container, func)`, `func` fonksiyonunu `container` varsayılan kap olacak şekilde çalıştırır ve ardından önceki kabı geri yükler (`func` hata fırlatsa bile). Zaten var olan bir kutuya nesne eklemek için kullanılır; örneğin bir bileşen oluşturulduktan sonra onun liste kutusuna satır eklemek için. Tek başına `setDefaultContainerBox()` çağrısından farklı olarak elle geri alma gerekmez.
+
+```javascript
+const card = Box({ left: 0, top: 40, width: 300, height: 200 });
+
+// ... daha sonra, kodun herhangi bir yerinde:
+createIn(card, function (box) {           // box === card
+    Label({ left: 10, top: 10, text: "Sonradan, kartın içinde oluşturuldu" });
+    Button({ left: 10, top: 50, text: "Tamam" });
+});
+// Varsayılan kap, bu çağrıdan önceki ile aynıdır.
 ```
 
 ---

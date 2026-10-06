@@ -2,6 +2,11 @@
 
 basic.js kütüphanesinde `Button()` nesnesi, kullanıcı ile etkileşime girmek ve tıklamaları algılamak için kullanılır.
 
+> **Button nesnesi içine başka nesne alamaz.** Bunu sadece Box yapabilir. Butonun içinde oluşturulan
+> bir nesne fare olaylarını butona da iletir, yani fare o nesnenin üzerindeyken buton da renklenir.
+> Butonun üzerine ikon, rozet veya bir kapak koymak için, onu butonla aynı kutuda kardeş olarak
+> oluşturun ve `position: "absolute"` ile yerleştirin.
+
 ---
 
 ## Button Oluşturma

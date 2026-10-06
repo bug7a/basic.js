@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Scroll Bar</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SCROLL BAR (basic/scroll-bar.js)
+
+        basic.css hides the scroll bar of the browser (Chrome, Safari, Edge). A box with
+        scrollY: 1 still scrolls with the wheel or a finger, but the user can not see where it is.
+        ScrollBar draws a thin bar over the box:
+
+            const box = Box({ width: 300, height: 200, scrollY: 1 });   // the box that scrolls
+            ScrollBar({ scrollableBox: box });                           // after the box
+
+        - The bar is not inside the box. It is put on the parent of the box, over it, so it
+          does not scroll with the content.
+        - It follows the size of the box and its content by itself (also rows added later).
+        - Drag the bar with the mouse to scroll.
+        - scrollBar.remove() takes it away and cleans all its events.
+        - Firefox shows its own bar: css: { scrollbarWidth: "none" } hides it. (See Demo.scrollBox.)
+
+        Every panel below shows one setting. The page itself has a ScrollBar too.
+
+        */
+
+        // *** VARIABLES:
+
+        const ACCENT = "#E76F51";
+        const PANEL_WIDTH = 280;
+        const LIST_HEIGHT = 220;
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Demo = {};
+
+        const SMALL_BUTTON = { width: "auto", height: 34, padding: [12, 0], round: 8, minimal: 1,
+            color: "#ECEDF1", textColor: Black(0.75), fontSize: 13 };
+
+        // First running function.
+        const start = function() {
+
+            page.color = "#E4E6EC";
+
+            // BOX: The page scrolls in this box. (page never scrolls)
+            const pageBox = Demo.scrollBox({ left: 0, top: 0, width: "100%", height: "100%", color: "transparent" });
+
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 20, padding: [16, 32] });
+
+                    Label({ text: "Scroll Bar", fontSize: 28, bold: 1, textColor: Black(0.8) });
+                    Label({ text: "Scroll the panels with the wheel, a finger, or drag their bar.", fontSize: 15,
+                        textColor: Black(0.5), css: { textAlign: "center" } });
+
+                    // GROUP: The panels. (wrap: on a narrow screen they go under each other)
+                    HGroup({ width: "100%", height: "auto", gap: 20, wrap: 1, justify: "center", align: "left top",
+                        clipContent: 0, css: { maxWidth: "940px" } });
+
+                        Demo.defaultPanel();
+                        Demo.autoHidePanel();
+                        Demo.stylePanel();
+                        Demo.twoWayPanel();
+                        Demo.darkPanel();
+                        Demo.changingPanel();
+                        Demo.removePanel();
+
+                    endGroup();
+
+                endGroup();
+
+            endBox();
+
+            // The bar of the whole page. It hides when the page does not move.
+            ScrollBar({ scrollableBox: pageBox, neverHide: 0, bar_width: 5, bar_mouseOverWidth: 8 });
+
+        };
+
+        // *** HELPERS:
+
+        // A box that scrolls. (startBox: its content is created after it, then endBox().)
+        Demo.scrollBox = function(props) {
+            return startBox({
+                scrollY: 1,
+                ...props,
+                // WHY: Firefox does not read ::-webkit-scrollbar of basic.css and draws its own bar
+                //      next to ours. scrollbarWidth: "none" hides it there.
+                css: { scrollbarWidth: "none" },
+            });
+        };
+
+        // A card with a title, a note, and a list box. build(box) adds the ScrollBar and the buttons.
+        Demo.panel = function(title, note, options, build) {
+
+            const dark = options.dark;
+
+            VGroup({ width: PANEL_WIDTH, height: "auto", gap: 10, padding: 16, align: "left top", round: 14,
+                color: (dark) ? "#22252E" : "white", clipContent: 0 });
+
+                Label({ text: title, fontSize: 16, bold: 1, textColor: (dark) ? "white" : Black(0.8) });
+                Label({ text: note, width: "100%", fontSize: 13, textColor: (dark) ? White(0.55) : Black(0.5) });
+
+                const box = Demo.scrollBox({ width: "100%", height: LIST_HEIGHT, round: 10, scrollX: options.scrollX || 0,
+                    color: (dark) ? "#2D313C" : "#F4F5F8" });
+
+                    if (options.content) {
+                        options.content();
+                    } else {
+                        box.list = VGroup({ width: "100%", height: "auto", gap: 2, padding: 6, align: "left top" });
+                            for (let i = 1; i <= (options.rows || 20); i++) Demo.row(i, dark);
+                        endGroup();
+                    }
+
+                endBox();
+
+                build(box);
+
+            endGroup();
+
+        };
+
+        Demo.row = function(number, dark) {
+            Label({ text: "Row " + number, width: "100%", height: 36, fontSize: 14, round: 6,
+                textColor: (dark) ? White(0.8) : Black(0.7), color: (dark) ? White(0.04) : "white",
+                css: { display: "flex", alignItems: "center", paddingLeft: "12px", boxSizing: "border-box" } });
+        };
+
+        Demo.buttons = function(list) {
+            HGroup({ hug: 1, gap: 6, wrap: 1, clipContent: 0 });
+                list.forEach(function(item) {
+                    Button({ text: item[0], ...SMALL_BUTTON });
+                    that.on("click", item[1]);
+                });
+            endGroup();
+        };
+
+        // *** PANELS:
+
+        Demo.defaultPanel = function() {
+            Demo.panel("Default", "ScrollBar({ scrollableBox: box })<br>The bar is always visible.", {}, function(box) {
+                ScrollBar({ scrollableBox: box });
+            });
+        };
+
+        Demo.autoHidePanel = function() {
+            Demo.panel("Auto hide", "neverHide: 0 -> The bar hides 2 seconds after the scrolling stops, "
+                + "and comes back with the mouse.", {}, function(box) {
+                ScrollBar({ scrollableBox: box, neverHide: 0 });
+            });
+        };
+
+        Demo.stylePanel = function() {
+            Demo.panel("Custom style", "bar_width, bar_mouseOverWidth, bar_color, bar_opacity, showDots: 0. "
+                + "Move the mouse on the bar.", {}, function(box) {
+                ScrollBar({
+                    scrollableBox: box,
+                    bar_width: 6,
+                    bar_mouseOverWidth: 10,
+                    bar_round: 5,
+                    bar_color: ACCENT,
+                    bar_mouseOverColor: ACCENT,
+                    bar_opacity: 0.45,
+                    bar_mouseOverOpacity: 1,
+                    bar_padding: 3,
+                    showDots: 0,
+                });
+            });
+        };
+
+        Demo.twoWayPanel = function() {
+
+            // A big content: wider and taller than the box.
+            const content = function() {
+                Box(0, 0, 640, 480, { color: "transparent",
+                    css: { backgroundImage: "linear-gradient(" + Black(0.06) + " 1px, transparent 1px),"
+                        + "linear-gradient(90deg, " + Black(0.06) + " 1px, transparent 1px)",
+                        backgroundSize: "40px 40px" } });
+                [[20, 20, "Top left"], [520, 20, "Top right"], [20, 440, "Bottom left"], [500, 440, "Bottom right"],
+                    [270, 225, "Middle"]].forEach(function(item) {
+                    Label({ text: item[2], left: item[0], top: item[1], fontSize: 13, textColor: Black(0.6) });
+                });
+            };
+
+            Demo.panel("Two directions", "scrollX: 1 and scrollY: 1 -> two bars. The dots mark the ends "
+                + "of the bars.", { scrollX: 1, content: content }, function(box) {
+                ScrollBar({ scrollableBox: box });
+            });
+
+        };
+
+        Demo.darkPanel = function() {
+            Demo.panel("On a dark box", "bar_color and bar_mouseOverColor: white.", { dark: 1 }, function(box) {
+                ScrollBar({ scrollableBox: box, bar_color: "white", bar_mouseOverColor: "white",
+                    bar_opacity: 0.3, bar_mouseOverOpacity: 0.8 });
+            });
+        };
+
+        Demo.changingPanel = function() {
+
+            let count = 3;
+
+            Demo.panel("Changing content", "Add rows: the bar gets shorter by itself. "
+                + "(A MutationObserver in ScrollBar)", { rows: 3 }, function(box) {
+
+                ScrollBar({ scrollableBox: box });
+
+                Demo.buttons([
+                    ["Add 5 rows", function() {
+                        createIn(box.list, function() {
+                            for (let i = 0; i < 5; i++) Demo.row(++count);
+                        });
+                    }],
+                    ["Clear", function() {
+                        box.list.children.forEach(function(row) { row.remove(); });
+                        count = 0;
+                    }],
+                    ["To the end", function() {
+                        box.elem.scrollTo({ top: box.elem.scrollHeight, behavior: "smooth" });
+                    }],
+                ]);
+
+            });
+
+        };
+
+        Demo.removePanel = function() {
+
+            let scrollBar = null;
+
+            Demo.panel("remove()", "scrollBar.remove() takes the bar away and cleans its events. "
+                + "The box still scrolls, without a bar.", {}, function(box) {
+
+                const add = function() {
+                    scrollBar = ScrollBar({ scrollableBox: box });
+                };
+
+                add();
+
+                Demo.buttons([
+                    ["Remove the bar", function(self) {
+                        if (scrollBar) {
+                            scrollBar.remove();
+                            scrollBar = null;
+                            self.text = "Add it again";
+                        } else {
+                            add();
+                            self.text = "Remove the bar";
+                        }
+                    }],
+                ]);
+
+            });
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>

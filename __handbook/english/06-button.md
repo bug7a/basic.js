@@ -2,6 +2,11 @@
 
 In the `basic.js` library, the `Button()` object is used to interact with the user and detect clicks.
 
+> **A Button can not hold other objects.** Only a Box can. An object created inside a button also
+> sends its mouse events up to the button, so the button lights up when the mouse is over that
+> object. To put an icon, a badge or a cover over a button, create it in the same box as a brother
+> of the button and place it with `position: "absolute"`.
+
 ---
 
 ## Creating a Button

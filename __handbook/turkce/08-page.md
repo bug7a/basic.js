@@ -4,6 +4,23 @@
 
 > **Not:** Ekranın sadece görünebilir alanını temsil eder ve Scrollbar (kaydırma çubuğu) desteklemez. Sayfanın uzamasını ve kaydırılmasını istiyorsanız, boyutları esnek olan bir alt `Box` nesnesi oluşturmalısınız.
 
+### Kural: Kaydırılan İçerik Bir Box İçinde Olmalı
+- `page` nesnesi kaydırılmaz (`basic.css` içinde `body { overflow: hidden }` tanımlıdır).
+- İçerik ekrana sığmayabilecekse, tam ekran bir `Box` oluşturun ve bu Box'ın `scrollY` (yatay için `scrollX`) özelliğini açın.
+- İçerideki yerleşim grubuna `height: "auto"` verin; böylece içerik Box'tan uzun olabilir ve kaydırılabilir.
+
+```javascript
+// BOX: Tam ekran, kaydırılabilir kapsayıcı
+startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+    // GROUP: Sayfa yerleşimi
+    VGroup({ width: "100%", height: "auto", align: "center top", gap: 20, padding: 40 });
+        // ... sayfa içeriği
+    endGroup();
+
+endBox();
+```
+
 ---
 
 ## HTML Bağlantısı

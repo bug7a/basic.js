@@ -59,7 +59,7 @@ endGroup();
 
 > **Note:** After every `HGroup()` or `VGroup()` call, it **must be closed with `endGroup()`**. The same `endGroup()` function is used for both.
 
-> **Default Size:** HGroup and VGroup objects are created with the values `left: 0`, `top: 0`, `width: "100%"`, `height: "100%"` by default. Meaning, if no parameters are given, it completely fills its container. If the `fit: 1` parameter is given, the group object strictly wraps the objects inside it (`width: "auto"`, `height: "auto"`).
+> **Default Size:** HGroup and VGroup objects are created with the values `left: 0`, `top: 0`, `width: "100%"`, `height: "100%"` by default. Meaning, if no parameters are given, it completely fills its container. If the `hug: 1` parameter is given, the group object strictly wraps the objects inside it (`width: "auto"`, `height: "auto"`).
 
 ---
 
@@ -72,7 +72,8 @@ The `HGroup()` and `VGroup()` functions take a parameter object. Available param
 - `align` (string, default: `"center"`) — Alignment direction of contents.
 - `gap` (number / string, default: `"0px"`) — Spacing between objects (pixels).
 - `padding` (number / array) — Inner margin. A single value or an array like `[horizontal, vertical]`.
-- `fit` (boolean) — If `true`, the size is automatically adjusted according to the content (`width/height: "auto"`).
+- `hug` (boolean) — If `true`, the size is automatically adjusted according to the content (`width/height: "auto"`), so the group wraps what is inside it.
+- `fit` (boolean) — The older name of `hug`; both do exactly the same thing and both can be read afterwards (`group.hug`, `group.fit`). Prefer `hug` in new code.
 - `flow` (string) — Flow direction. HGroup: `"horizontal"`, VGroup: `"vertical"`. Set automatically.
 
 ### align Values
@@ -187,7 +188,7 @@ window.onload = function() {
         Label({ text: "Title", fontSize: 24 });
 
         // Buttons side by side
-        HGroup({ gap: 10, fit: 1 });
+        HGroup({ gap: 10, hug: 1 }); // "fit: 1" is the same
 
             Button(0, 0, 100, 40, { text: "Yes", color: "dodgerblue", textColor: "white" });
             Button(0, 0, 100, 40, { text: "No", color: "lightgray" });

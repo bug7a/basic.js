@@ -28,6 +28,16 @@ Mevcut durumda yaratılan nesnelerin eklendiği ebeveyn nesneyi (`Box` veya `Mai
 **`restoreDefaultContainerBox()`**
 Varsayılan listesinde / hiyerarşisinde belirlenmiş olan bir önceki konteyner kutusuna pratik bir şekilde geri dönmeyi sağlar.
 
+**`createIn(container, func)`** (v26.09.18)
+`func(container)` fonksiyonunu `container` varsayılan kap olacak şekilde çalıştırır ve ardından önceki kabı geri yükler; `func` hata fırlatsa bile. `setDefaultContainerBox(container)` ... `setDefaultContainerBox(previous)` ikilisinin güvenli hâlidir: zaten var olan bir kutunun içinde nesne oluşturmak için kullanın (örneğin bir bileşen oluşturulduktan sonra onun liste kutusuna satır eklemek için).
+
+```javascript
+createIn(box.list, function () {
+    Label({ text: "Yeni satır" });
+});
+// Varsayılan kap, çağrıdan önceki ile aynıdır.
+```
+
 ---
 
 ## 3. Yakınlaştırma Hesaplaması (Page Zoom)

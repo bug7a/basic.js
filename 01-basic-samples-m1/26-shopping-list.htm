@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Shopping List</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SHOPPING LIST
+
+        A list that the user changes, and that is still there after the page is reloaded.
+
+        - Input: placeholder, onEnter()      -> Enter adds the item.
+        - createIn(box, fn)                  -> Adds rows to a list that already exists.
+        - obj.remove()                       -> Deletes a row. (Its children and events go with it.)
+        - obj.animate({...}, ms)             -> Fades a row in and out. (A Promise.)
+        - basic.storage.save() / loadOr()    -> Keeps the list in localStorage.
+        - Label: plainText, ellipsis, grow   -> Shows user text safely, on one line, in the free space.
+        - A scrolling Box                    -> The list can be longer than the card.
+
+        */
+
+        // *** VARIABLES:
+
+        const STORAGE_KEY = "basic-samples-shopping-list";
+        const CARD_WIDTH = 420;
+
+        const COLOR_ACCENT = "#4F9A84";
+
+        // The data: [{ text: "Milk", done: 0 }, ...]. The rows only show it.
+        let items = [];
+
+        let card, input, listBox, list, emptyLabel, countLabel;
+
+        // First running function.
+        const start = function() {
+
+            page.color = "#E9ECEB";
+            page.title = "Shopping List";
+
+            // WHY: The first time there is nothing saved, so the list starts with a few items.
+            items = basic.storage.loadOr(STORAGE_KEY, [
+                { text: "Bread", done: 0 },
+                { text: "Milk", done: 1 },
+                { text: "Tomatoes (1 kg)", done: 0 },
+            ]);
+
+            // BOX: The page never scrolls, this box does. (The card can be taller than the screen.)
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                VGroup({ width: "100%", height: "auto", align: "center top", padding: [16, 40] });
+
+                    createCard();
+
+                endGroup();
+
+            endBox();
+
+            // Creates one row for every saved item.
+            items.forEach(function(item) { addRow(item, 0); });
+            refresh();
+
+            fitCard();
+            page.onResize(fitCard);
+
+            input.focus();
+
+        };
+
+        // *** VIEW:
+
+        const createCard = function() {
+
+            // GROUP: The card
+            card = VGroup({
+                width: CARD_WIDTH,
+                height: "auto",
+                align: "left top",
+                gap: 16,
+                padding: 24,
+                color: "white",
+                round: 16,
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+            });
+
+                Label({ text: "Shopping List", fontSize: 24, bold: 1, textColor: Black(0.75) });
+
+                // GROUP: New item
+                HGroup({ width: "100%", height: 44, gap: 8 });
+
+                    input = Input({
+                        width: 10,
+                        height: 44,
+                        grow: 1,                        // WHY: Takes the space the button leaves.
+                        placeholder: "Add an item...",
+                        maxLength: 60,
+                        fontSize: 16,
+                    });
+                    input.onEnter(addFromInput);
+
+                    Button({ text: "Add", width: 80, height: 44, color: COLOR_ACCENT, textColor: "white", round: 8, minimal: 1 });
+                    that.on("click", addFromInput);
+
+                endGroup();
+
+                // BOX: The list. It scrolls when there are more rows than its height.
+                listBox = Box({ width: "100%", height: 320, color: "#F5F7F6", round: 10, scrollY: 1 });
+
+                    // GROUP: The rows. (height: "auto" so it can be taller than listBox.)
+                    // WHY: listBox is a Box(), not startBox(), so createIn() puts the objects in it.
+                    //      The rows are added later with createIn(list, ...) too.
+                    createIn(listBox, function() {
+
+                        list = VGroup({ width: "100%", height: "auto", align: "left top", gap: 4, padding: 8 });
+                        endGroup();
+
+                        emptyLabel = Label({ text: "The list is empty.", fontSize: 15, textColor: Black(0.35) });
+
+                    });
+
+                // GROUP: Footer
+                HGroup({ width: "100%", height: 36, align: "center", justify: "space-between" });
+
+                    countLabel = Label({ text: "", fontSize: 14, textColor: Black(0.45) });
+
+                    Button({ text: "Clear done", width: "auto", height: 36, padding: [14, 0], round: 8,
+                        color: "transparent", textColor: COLOR_ACCENT, border: 1, borderColor: COLOR_ACCENT, minimal: 1 });
+                    that.on("click", clearDone);
+
+                endGroup();
+
+            endGroup();
+
+        };
+
+        // One row: [check] text [x]
+        const addRow = function(item, withAnimation = 1) {
+
+            let row;
+
+            createIn(list, function() {
+
+                // GROUP: A row. A click anywhere on it checks the item.
+                row = HGroup({
+                    width: "100%",
+                    height: 48,
+                    align: "left center",
+                    gap: 12,
+                    padding: [12, 0],
+                    color: "white",
+                    round: 8,
+                    clickable: 1,
+                    cursor: "pointer",
+                });
+
+                    row.check = Label({
+                        text: "",
+                        width: 22,
+                        height: 22,
+                        round: 6,
+                        border: 2,
+                        fontSize: 14,
+                        bold: 1,
+                        css: { display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+                    });
+
+                    row.textLabel = Label({ width: 10, grow: 1, ellipsis: 1, fontSize: 16 });
+                    // WHY: The text comes from the user. .text is innerHTML, .plainText shows "<b>" as it is.
+                    row.textLabel.plainText = item.text;
+
+                    row.deleteButton = Button({ text: "✕", width: 32, height: 32, round: 16,
+                        color: "transparent", textColor: Black(0.35), fontSize: 14, minimal: 1 });
+
+                endGroup();
+
+            });
+
+            row.item = item;
+            setRowDone(row, item.done);
+
+            row.on("mouseenter", function(self) { self.color = "#EEF5F2"; });
+            row.on("mouseleave", function(self) { self.color = "white"; });
+
+            row.on("click", function(self) {
+                self.item.done = (self.item.done) ? 0 : 1;
+                setRowDone(self, self.item.done);
+                save();
+            });
+
+            row.deleteButton.on("click", function(self, event) {
+                event.stopPropagation();   // WHY: The button is in the row. Without this the row checks the item too.
+                deleteRow(row);
+            });
+
+            if (withAnimation) {
+                row.opacity = 0;
+                row.animate({ opacity: 1 }, 250);
+            }
+
+            return row;
+
+        };
+
+        const setRowDone = function(row, done) {
+
+            row.check.text = (done) ? "✓" : "";
+            row.check.color = (done) ? COLOR_ACCENT : "white";
+            row.check.textColor = "white";
+            row.check.borderColor = (done) ? COLOR_ACCENT : Black(0.25);
+
+            row.textLabel.textColor = (done) ? Black(0.35) : Black(0.75);
+            row.textLabel.css.textDecoration = (done) ? "line-through" : "none";
+
+        };
+
+        // *** DATA:
+
+        const addFromInput = async function() {
+
+            const text = input.value.trim();
+
+            if (text === "") {
+                input.focus();
+                return;
+            }
+
+            const item = { text: text, done: 0 };
+            items.push(item);
+            addRow(item);
+
+            input.value = "";
+            input.focus();
+
+            save();
+            refresh();
+
+            // Shows the new row at the bottom of the list.
+            await basic.nextFrame();
+            listBox.elem.scrollTop = listBox.elem.scrollHeight;
+
+        };
+
+        const deleteRow = async function(row) {
+
+            if (row.isRemoved) return;
+            row.clickable = 0;                       // WHY: No second click while it fades out.
+
+            items = items.filter(function(item) { return item !== row.item; });
+            save();
+
+            await row.animate({ opacity: 0 }, 200);
+            row.remove();                            // Removes its check, label and button too.
+
+            refresh();
+
+        };
+
+        const clearDone = function() {
+            list.children.forEach(function(row) {
+                if (row.item.done) deleteRow(row);
+            });
+        };
+
+        const save = function() {
+            basic.storage.save(STORAGE_KEY, items);
+        };
+
+        // Counter and empty text.
+        const refresh = function() {
+
+            const doneCount = items.filter(function(item) { return item.done; }).length;
+            countLabel.text = items.length + ((items.length === 1) ? " item, " : " items, ") + doneCount + " done";
+
+            // WHY: Deleted rows are still fading out here, so the data decides, not list.children.
+            if (items.length === 0) emptyLabel.show(); else emptyLabel.hide();
+
+        };
+
+        // *** OTHER FUNCTIONS:
+
+        // The card is narrower on a phone.
+        const fitCard = function() {
+            card.width = Math.min(CARD_WIDTH, window.innerWidth - 32);
+            emptyLabel.center();
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>

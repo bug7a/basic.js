@@ -28,6 +28,16 @@ Returns / reads the parent object (`Box` or `MainBox`) where currently created o
 **`restoreDefaultContainerBox()`**
 Provides a practical way to return to the previous container box defined in the default list/hierarchy.
 
+**`createIn(container, func)`** (v26.09.18)
+Runs `func(container)` with `container` as the default container and then puts the previous container back, also when `func` throws. This is the safe form of `setDefaultContainerBox(container)` ... `setDefaultContainerBox(previous)`: use it to create objects inside a box that already exists (for example a component's list box after the component is created).
+
+```javascript
+createIn(box.list, function () {
+    Label({ text: "New row" });
+});
+// The default container is the same as before the call.
+```
+
 ---
 
 ## 3. Zoom Calculation (Page Zoom)

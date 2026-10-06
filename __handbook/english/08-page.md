@@ -4,6 +4,23 @@ The `page` object is the core object that provides the management of the applica
 
 > **Note:** It only represents the visible area of the screen and does not support Scrollbars. If you want the page to expand and scroll, you should create a child `Box` object with flexible dimensions.
 
+### Rule: Scrollable Content Must Be Inside a Box
+- The `page` object never scrolls (`basic.css` sets `body { overflow: hidden }`).
+- If the content may not fit on the screen, create a full-screen `Box` and turn on its `scrollY` property (`scrollX` for horizontal).
+- Give the inner layout group `height: "auto"` so the content can be taller than the Box and scroll.
+
+```javascript
+// BOX: Full screen scrollable container
+startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+    // GROUP: Page layout
+    VGroup({ width: "100%", height: "auto", align: "center top", gap: 20, padding: 40 });
+        // ... page content
+    endGroup();
+
+endBox();
+```
+
 ---
 
 ## HTML Connection

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Drawing Canvas</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        DRAWING CANVAS
+
+        Draw with the mouse, a finger or a pen. basic.js has no canvas object, so a raw <canvas>
+        element is put in a Box.
+
+        - Pointer events + setPointerCapture()  -> The line goes on, also outside the canvas.
+        - devicePixelRatio                      -> Sharp lines on a retina / phone screen.
+        - box.onResize()                        -> The canvas follows the size of its box.
+        - The drawing is a list of strokes, not pixels. So:
+            Undo / Redo (Ctrl+Z, Ctrl+Shift+Z) -> remove or put back a stroke and draw the list again.
+            Clear is a stroke too              -> it can be undone.
+            Resize                             -> the list is drawn again at the new size.
+            basic.storage                      -> the list is saved, the drawing comes back after a reload.
+        - Eraser: globalCompositeOperation "destination-out"
+        - Save PNG: toDataURL() and a download link.
+
+        */
+
+        // *** VARIABLES:
+
+        const STORAGE_KEY = "basic-samples-drawing";
+
+        const COLORS = ["#2B2D42", "#E63946", "#F4A261", "#2A9D8F", "#457B9D", "#9B5DE5"];
+        const SIZES = [3, 8, 18];
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Drawing = {};
+
+        Drawing.strokes = [];          // { color, size, erase, points: [[x, y], ...] }  or  { clear: 1 }
+        Drawing.redoList = [];         // The undone strokes. A new stroke empties it.
+        Drawing.current = null;        // The stroke that is drawn now.
+        Drawing.color = COLORS[0];
+        Drawing.size = SIZES[1];
+        Drawing.erase = 0;
+        Drawing.saveTimer = null;
+
+        const Tools = {};
+        Tools.swatches = [];
+        Tools.sizeButtons = [];
+
+        let area, canvas, context, undoButton, redoButton, eraserButton;
+
+        // First running function.
+        const start = function() {
+
+            page.color = "#ECEDF1";
+
+            Drawing.strokes = basic.storage.loadOr(STORAGE_KEY, []);
+
+            // GROUP: Toolbar and the drawing area
+            VGroup({ width: "100%", height: "100%", gap: 12, padding: 12, align: "left top" });
+
+                Tools.create();
+
+                // BOX: The canvas is in it. grow: 1 -> the rest of the height.
+                area = Box({ width: "100%", height: 10, grow: 1, color: "white", round: 12, clipContent: 1,
+                    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)" });
+
+            endGroup();
+
+            Drawing.createCanvas();
+
+            // KEYS: Ctrl+Z (Cmd+Z on a Mac) undo, Ctrl+Shift+Z or Ctrl+Y redo.
+            page.on("keydown", function(self, event) {
+                if (!(event.ctrlKey || event.metaKey)) return;
+                const key = event.key.toLowerCase();
+                if (key === "z" && !event.shiftKey) { event.preventDefault(); Drawing.undo(); }
+                else if ((key === "z" && event.shiftKey) || key === "y") { event.preventDefault(); Drawing.redo(); }
+            });
+
+        };
+
+        // *** CANVAS:
+
+        Drawing.createCanvas = function() {
+
+            canvas = document.createElement("canvas");
+
+            // WHY: basic.css gives every box pointer-events: none. The canvas must get the pointer.
+            //      touch-action: none -> a finger draws, it does not scroll or zoom the page.
+            canvas.style.cssText = "position: absolute; left: 0; top: 0; width: 100%; height: 100%;"
+                + "pointer-events: auto; touch-action: none; cursor: crosshair;";
+
+            area.elem.appendChild(canvas);
+            context = canvas.getContext("2d");
+
+            canvas.addEventListener("pointerdown", Drawing.onDown);
+            canvas.addEventListener("pointermove", Drawing.onMove);
+            canvas.addEventListener("pointerup", Drawing.onUp);
+            canvas.addEventListener("pointercancel", Drawing.onUp);
+
+            // The box changes its size (window, phone rotation) -> the canvas too.
+            area.onResize(Drawing.resize);
+            Drawing.resize();
+
+        };
+
+        // WHY: A canvas has its own pixel size (width / height) and a CSS size. On a screen with
+        //      devicePixelRatio 2, a canvas as big as its CSS size looks blurry. It gets 2x pixels,
+        //      and scale(2, 2) lets the code keep using CSS pixels.
+        //      Changing canvas.width clears it, so the strokes are drawn again.
+        Drawing.resize = function() {
+
+            const ratio = window.devicePixelRatio || 1;
+            const width = area.elem.clientWidth;
+            const height = area.elem.clientHeight;
+
+            canvas.width = Math.round(width * ratio);
+            canvas.height = Math.round(height * ratio);
+            context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+            Drawing.redraw();
+
+        };
+
+        Drawing.getPoint = function(event) {
+            // Whole numbers: enough for a drawing, and a smaller saved list.
+            return [Math.round(event.offsetX), Math.round(event.offsetY)];
+        };
+
+        Drawing.onDown = function(event) {
+
+            if (event.button !== 0 && event.pointerType === "mouse") return;   // Only the left mouse button.
+
+            // WHY: The line goes on when the pointer leaves the canvas while the button is down.
+            canvas.setPointerCapture(event.pointerId);
+
+            Drawing.current = {
+                color: Drawing.color,
+                size: Drawing.size,
+                erase: Drawing.erase,
+                points: [Drawing.getPoint(event)],
+            };
+
+            Drawing.drawStroke(Drawing.current);   // A dot, if the pointer does not move.
+
+        };
+
+        Drawing.onMove = function(event) {
+
+            const stroke = Drawing.current;
+            if (!stroke) return;
+
+            const point = Drawing.getPoint(event);
+            const last = stroke.points[stroke.points.length - 1];
+            if (point[0] === last[0] && point[1] === last[1]) return;
+
+            stroke.points.push(point);
+
+            // Only the new piece is drawn, not the whole stroke again.
+            Drawing.drawSegment(stroke, last, point);
+
+        };
+
+        Drawing.onUp = function() {
+
+            if (!Drawing.current) return;
+
+            Drawing.strokes.push(Drawing.current);
+            Drawing.current = null;
+            Drawing.redoList = [];
+
+            Drawing.changed();
+
+        };
+
+        // *** DRAW:
+
+        Drawing.setStyle = function(stroke) {
+            context.globalCompositeOperation = (stroke.erase) ? "destination-out" : "source-over";
+            context.strokeStyle = stroke.color;
+            context.fillStyle = stroke.color;
+            context.lineWidth = stroke.size;
+            context.lineCap = "round";
+            context.lineJoin = "round";
+        };
+
+        Drawing.drawSegment = function(stroke, from, to) {
+            Drawing.setStyle(stroke);
+            context.beginPath();
+            context.moveTo(from[0], from[1]);
+            context.lineTo(to[0], to[1]);
+            context.stroke();
+        };
+
+        Drawing.drawStroke = function(stroke) {
+
+            Drawing.setStyle(stroke);
+            const points = stroke.points;
+
+            if (points.length === 1) {
+                context.beginPath();
+                context.arc(points[0][0], points[0][1], stroke.size / 2, 0, Math.PI * 2);
+                context.fill();
+                return;
+            }
+
+            context.beginPath();
+            context.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) context.lineTo(points[i][0], points[i][1]);
+            context.stroke();
+
+        };
+
+        // The whole list again. A "clear" in the list clears what is before it.
+        Drawing.redraw = function() {
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            Drawing.strokes.forEach(function(stroke) {
+                if (stroke.clear) context.clearRect(0, 0, canvas.width, canvas.height);
+                else Drawing.drawStroke(stroke);
+            });
+
+        };
+
+        // *** COMMANDS:
+
+        Drawing.undo = function() {
+            if (Drawing.strokes.length === 0) return;
+            Drawing.redoList.push(Drawing.strokes.pop());
+            Drawing.redraw();
+            Drawing.changed();
+        };
+
+        Drawing.redo = function() {
+            if (Drawing.redoList.length === 0) return;
+            Drawing.strokes.push(Drawing.redoList.pop());
+            Drawing.redraw();
+            Drawing.changed();
+        };
+
+        Drawing.clear = function() {
+            const last = Drawing.strokes[Drawing.strokes.length - 1];
+            if (!last || last.clear) return;   // Nothing to clear.
+            Drawing.strokes.push({ clear: 1 });
+            Drawing.redoList = [];
+            Drawing.redraw();
+            Drawing.changed();
+        };
+
+        // A PNG file with a white background. (The canvas is transparent where nothing is drawn.)
+        Drawing.savePng = function() {
+
+            const copy = document.createElement("canvas");
+            copy.width = canvas.width;
+            copy.height = canvas.height;
+
+            const copyContext = copy.getContext("2d");
+            copyContext.fillStyle = "white";
+            copyContext.fillRect(0, 0, copy.width, copy.height);
+            copyContext.drawImage(canvas, 0, 0);
+
+            const link = document.createElement("a");
+            link.download = "drawing.png";
+            link.href = copy.toDataURL("image/png");
+            link.click();
+
+        };
+
+        // After every change: buttons and a save a moment later.
+        Drawing.changed = function() {
+
+            undoButton.enabled = (Drawing.strokes.length > 0) ? 1 : 0;
+            redoButton.enabled = (Drawing.redoList.length > 0) ? 1 : 0;
+
+            // WHY: A long drawing is a big list. It is written once, after the changes stop.
+            Drawing.saveTimer = waitAndRun(Drawing.saveTimer, function() {
+                try {
+                    basic.storage.save(STORAGE_KEY, Drawing.strokes);
+                } catch (error) {
+                    println("The drawing is too big to save in localStorage.", "warn");
+                }
+            }, 500);
+
+        };
+
+        // *** TOOLBAR:
+
+        Tools.create = function() {
+
+            const button = { width: "auto", height: 36, padding: [14, 0], round: 8, minimal: 1,
+                color: "white", textColor: Black(0.75), fontSize: 14 };
+
+            // GROUP: Toolbar. (wrap: on a phone it continues on the next line.)
+            HGroup({ width: "100%", height: "auto", gap: 8, wrap: 1, align: "left center", clipContent: 0 });
+
+                COLORS.forEach(function(color) {
+                    const swatch = Button({ text: "", width: 32, height: 32, round: 16, minimal: 1, color: color,
+                        border: 3, borderColor: "transparent" });
+                    swatch.drawColor = color;
+                    swatch.on("click", Tools.selectColor);
+                    Tools.swatches.push(swatch);
+                });
+
+                Tools.separator();
+
+                SIZES.forEach(function(size) {
+                    const sizeButton = startBox({ width: 36, height: 36, round: 8, color: "white", clickable: 1,
+                        cursor: "pointer" });
+                        Box({ width: size, height: size, round: size / 2, color: Black(0.75) });
+                        that.center();
+                    endBox();
+                    sizeButton.drawSize = size;
+                    sizeButton.on("click", Tools.selectSize);
+                    Tools.sizeButtons.push(sizeButton);
+                });
+
+                Tools.separator();
+
+                eraserButton = Button({ text: "Eraser", ...button });
+                eraserButton.on("click", function() {
+                    Drawing.erase = (Drawing.erase) ? 0 : 1;
+                    Tools.refresh();
+                });
+
+                undoButton = Button({ text: "Undo", ...button });
+                undoButton.on("click", Drawing.undo);
+
+                redoButton = Button({ text: "Redo", ...button });
+                redoButton.on("click", Drawing.redo);
+
+                Button({ text: "Clear", ...button });
+                that.on("click", Drawing.clear);
+
+                Button({ text: "Save PNG", ...button, color: "#2B2D42", textColor: "white" });
+                that.on("click", Drawing.savePng);
+
+            endGroup();
+
+            Tools.refresh();
+            Drawing.changed();
+
+        };
+
+        Tools.separator = function() {
+            Box({ width: 1, height: 24, color: Black(0.12) });
+        };
+
+        Tools.selectColor = function(swatch) {
+            Drawing.color = swatch.drawColor;
+            Drawing.erase = 0;   // WHY: Choosing a color means: draw again.
+            Tools.refresh();
+        };
+
+        Tools.selectSize = function(sizeButton) {
+            Drawing.size = sizeButton.drawSize;
+            Tools.refresh();
+        };
+
+        // Shows the selected color, size and the eraser.
+        Tools.refresh = function() {
+
+            Tools.swatches.forEach(function(swatch) {
+                const isSelected = (!Drawing.erase && swatch.drawColor === Drawing.color);
+                swatch.borderColor = (isSelected) ? Black(0.55) : "transparent";
+            });
+
+            Tools.sizeButtons.forEach(function(sizeButton) {
+                sizeButton.color = (sizeButton.drawSize === Drawing.size) ? "#D9DBE4" : "white";
+            });
+
+            eraserButton.color = (Drawing.erase) ? "#2B2D42" : "white";
+            eraserButton.textColor = (Drawing.erase) ? "white" : Black(0.75);
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>

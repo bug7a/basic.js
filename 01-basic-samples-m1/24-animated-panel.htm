@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <title>Animated Panel</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="../basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>-->
+
+        <script>
+
+        /*
+
+        ANIMATED PANEL
+
+        A panel that slides in from a side of the screen. It is written with the
+        startObject() / endObject() pattern, so one function makes as many panels as
+        you want and every value comes from its params.
+
+        - side: "right", "left" or "bottom"
+        - ESC or a click on the dark backdrop closes the open panel.
+        - Only one panel is open at a time.
+
+        */
+        
+        // *** VARIABLES:
+
+        let rightPanel, leftPanel, bottomPanel;
+        let backdrop;                  // The dark layer behind the open panel.
+        let currentPanel = null;       // The panel that is open now. (Only one.)
+
+        const BACKDROP_DURATION = 300;
+
+        const buttonStyle = {
+            textColor: Black(0.5),
+            border: 1,
+            borderColor: Black(0.2),
+            minimal: 1,
+            width: "auto",
+            padding: [20, 0],
+        };
+
+        // First running function.
+        window.onload = function() {
+
+            page.color = "lightgray";
+
+            createBackdrop();
+
+            // GROUP: The page
+            VGroup({ align: "center center", gap: 16 });
+
+                Label({ text: "Animated Panel", fontSize: 24, bold: 1, textColor: Black(0.7) });
+
+                // GROUP: One button for every panel
+                // WHY: A group is exactly as tall as its buttons and clips what goes outside it.
+                //      The hover effect lifts a button and draws a shadow around it, so this group
+                //      must not clip. (clipContent: 0 -> overflow: visible)
+                HGroup({ hug: 1, gap: 12, clipContent: 0 });
+                    createOpenButton("Open Right", "#8FC7B9", function() { openPanel(rightPanel); });
+                    createOpenButton("Open Left", "#8FB9C7", function() { openPanel(leftPanel); });
+                    createOpenButton("Open Bottom", "#C7B98F", function() { openPanel(bottomPanel); });
+                endGroup();
+
+                Label({ text: "ESC or a click outside closes the panel.", fontSize: 14, textColor: Black(0.4) });
+
+            endGroup();
+
+            // PANELS: The same function, three different params.
+            rightPanel = Panel({
+                side: "right",
+                titleText: "Right Panel",
+                bodyText: "side: \"right\"\n\nThis panel slides in from the right edge and is as tall as the screen.",
+            });
+
+            leftPanel = Panel({
+                side: "left",
+                panelSize: 340,
+                titleText: "Left Panel",
+                bodyText: "side: \"left\"\n\nThe same function, a narrower panel on the other side.",
+            });
+
+            bottomPanel = Panel({
+                side: "bottom",
+                panelSize: 280,
+                panelColor: "#2E3A38",
+                textColor: White(0.9),
+                titleText: "Bottom Panel",
+                bodyText: "side: \"bottom\"\n\nA sheet that slides up from the bottom edge.",
+            });
+
+            // KEY: ESC closes the open panel.
+            page.on("keydown", function(self, event) {
+                if (event.code === "Escape") closePanel();
+            });
+
+        };
+        
+        // *** PANEL:
+
+        const PanelDefaults = {
+
+            side: "right",              // "right", "left" or "bottom"
+            panelSize: 420,             // Width of a side panel, height of a bottom panel.
+            duration: 300,              // Length of the animation, in milliseconds.
+            panelColor: "white",        // WHY: "color" is the background of the box itself, so the name is free.
+            textColor: Black(0.75),
+            titleText: "Panel",
+            bodyText: "",
+            onOpen: function(self) {},
+            onClose: function(self) {},
+
+        };
+
+        const Panel = function(params = {}) {
+
+            mergeIntoIfMissing(params, PanelDefaults);
+
+            // The box that slides is the object itself, so everything created below is inside it.
+            const box = startObject(params);
+
+            // *** PRIVATE VARIABLES:
+
+            let size = params.panelSize;      // The size that is really used. (See layout().)
+
+            // *** PRIVATE FUNCTIONS:
+
+            // Puts the panel on its side and keeps it inside the screen.
+            const layout = function() {
+
+                const isBottom = (box.side === "bottom");
+                const screen = (isBottom) ? window.innerHeight : window.innerWidth;
+
+                // WHY: A 420 px panel does not fit on a phone. It never covers the whole screen.
+                size = Math.min(box.panelSize, screen - 60);
+
+                if (isBottom) box.props({ left: 0, bottom: 0, width: "100%", height: size });
+                else if (box.side === "left") box.props({ left: 0, top: 0, width: size, height: "100%" });
+                else box.props({ right: 0, top: 0, width: size, height: "100%" });
+
+                // The panel waits outside the screen while it is closed.
+                if (box.isOpened === 0) box.elem.style.transform = getHiddenTransform();
+
+            };
+
+            // Where the panel waits while it is closed: one size out of the screen.
+            const getHiddenTransform = function() {
+                if (box.side === "bottom") return "translateY(" + size + "px)";
+                if (box.side === "left") return "translateX(" + -size + "px)";
+                return "translateX(" + size + "px)";
+            };
+
+            // *** PUBLIC VARIABLES / FUNCTIONS:
+
+            box.isOpened = 0;
+
+            box.open = function() {
+
+                if (box.isOpened === 1) return;
+                box.isOpened = 1;
+
+                box.visible = 1;
+                box.elem.style.transform = getHiddenTransform();   // Start from outside...
+
+                // WHY: The browser has to see the closed state before the open one, or there is
+                //      no transition between them. One frame is enough.
+                basic.nextFrame().then(function() {
+                    box.elem.style.transform = "translate(0px, 0px)";
+                    box.opacity = 1;
+                });
+
+                box.onOpen(box);
+
+            };
+
+            box.close = async function() {
+
+                if (box.isOpened === 0) return;
+                box.isOpened = 0;
+
+                box.elem.style.transform = getHiddenTransform();
+                box.opacity = 0;
+
+                // WHY: The panel is hidden only after the animation, and the wait is the duration
+                //      of that animation, not a number written twice.
+                await basic.sleep(box.duration);
+                if (box.isOpened === 0) box.visible = 0;
+
+                box.onClose(box);
+
+            };
+
+            box.toggle = function() {
+                if (box.isOpened === 1) box.close(); else box.open();
+            };
+
+            // *** OBJECT VIEW:
+
+            // GROUP: The content of the panel
+            VGroup({ align: "left top", gap: 14, padding: 30 });
+
+                Label({ text: box.titleText, fontSize: 20, bold: 1, textColor: box.textColor });
+
+                Label({ text: box.bodyText, width: "100%", fontSize: 15, textColor: box.textColor });
+                that.elem.style.whiteSpace = "pre-line";   // WHY: keeps the line breaks of bodyText.
+                that.opacity = 0.75;
+
+                Button({ text: "Close Panel", color: "#D57056", ...buttonStyle });
+                that.on("click", closePanel);
+
+            endGroup();
+
+            // *** OBJECT INIT CODE:
+
+            box.props({
+                color: box.panelColor,
+                border: 1,
+                borderColor: Black(0.2),
+                opacity: 0,
+                zIndex: 10,
+            });
+            box.setMotion("transform " + box.duration + "ms, opacity " + box.duration + "ms");
+
+            layout();
+            page.onResize(layout);
+
+            // WHY: The children above are created first. A group that is created inside a hidden
+            //      box is not laid out as a flex group, so the panel is hidden only now.
+            box.visible = 0;
+
+            return endObject(box);
+
+        };
+
+        // *** OTHER FUNCTIONS:
+
+        // BOX: The dark layer. A click on it closes the panel.
+        const createBackdrop = function() {
+
+            backdrop = Box(0, 0, "100%", "100%", {
+                color: Black(0.35),
+                opacity: 0,
+                visible: 0,
+                clickable: 1,
+                zIndex: 5,
+            });
+            backdrop.setMotion("opacity " + BACKDROP_DURATION + "ms");
+            backdrop.on("click", closePanel);
+
+        };
+
+        // Opens one panel and closes the one that is already open.
+        const openPanel = function(panel) {
+
+            if (currentPanel === panel) return;
+            if (currentPanel) currentPanel.close();
+
+            currentPanel = panel;
+
+            backdrop.visible = 1;
+            basic.nextFrame().then(function() { backdrop.opacity = 1; });
+
+            panel.open();
+
+        };
+
+        const closePanel = async function() {
+
+            if (!currentPanel) return;
+
+            currentPanel.close();
+            currentPanel = null;
+
+            backdrop.opacity = 0;
+            await basic.sleep(BACKDROP_DURATION);
+            if (!currentPanel) backdrop.visible = 0;
+
+        };
+
+        // A button that lifts a little under the mouse.
+        const createOpenButton = function(text, color, onClick) {
+
+            const button = Button({ text: text, color: color, ...buttonStyle });
+
+            button.setMotion("transform 0.15s, box-shadow 0.15s");
+
+            button.on("mouseenter", function(self) {
+                self.elem.style.transform = "translateY(-2px)";
+                self.boxShadow = "0 6px 14px rgba(0,0,0,0.18)";
+            });
+
+            button.on("mouseleave", function(self) {
+                self.elem.style.transform = "translateY(0px)";
+                self.boxShadow = "none";
+            });
+
+            button.on("mousedown", function(self) {
+                self.elem.style.transform = "translateY(1px) scale(0.98)";
+            });
+
+            button.on("mouseup", function(self) {
+                self.elem.style.transform = "translateY(-2px)";
+            });
+
+            button.on("click", onClick);
+
+            return button;
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

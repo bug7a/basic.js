@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+        <title>Animated Panel</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="../basic/scroll-bar.min.js" type="text/javascript" charset="utf-8"></script>-->
+
+        <script>
+        
+        // VARIABLES
+        let box;
+
+        const buttonStyle = {
+            textColor: Black(0.5),
+            border: 1,
+            borderColor: Black(0.2),
+            minimal: 1,
+            width: "auto",
+            padding: [20, 0],
+        };
+
+        // First running function.
+        window.onload = function() {
+
+            page.color = "lightgray";
+
+            HGroup();
+
+                Button({
+                    text: "Open Panel",
+                    color: "#8FC7B9",
+                    ...buttonStyle,
+                });
+                that.on("click", showPanel);
+
+            endGroup();
+
+            initPanel();
+            
+        };
+        
+        // OTHER FUNCTIONS
+        const initPanel = function() {
+
+            box = Box({
+                right: 0,
+                top: 0,
+                width: 500,
+                height: "100%",
+                color: "white",
+                border: 1,
+                borderColor: Black(0.2),
+                opacity: 0,
+            });
+            box.elem.style.transformOrigin = "50% 50%"; // Tam ortadan büyür
+            box.setMotion("transform 0.3s, opacity 0.3s");
+
+            HGroup();
+            box.add(that);
+
+                box.btnClose = Button({
+                    text: "Close Panel",
+                    color: "#D57056",
+                    ...buttonStyle,
+                });
+                that.on("click", hidePanel);
+
+            endGroup();
+
+            box.setState = function(state) {
+                switch(state) {
+
+                    case "show":
+                        box.opacity = 1;
+                        box.elem.style.transform = "scale(1) translateX(0px)";
+                        box.btnClose.clickable = 1;
+                        break;
+
+                    case "hide":
+                        box.opacity = 0;
+                        box.elem.style.transform = "scale(0.8) translateX(250px)";
+                        box.btnClose.clickable = 0;
+                        break;
+                }
+            }
+
+            box.setState("hide");
+
+        };
+
+        const showPanel = function() {
+
+            //if (box.opacity === 1) return; // Dont open when opened
+            
+            box.dontMotion();
+            box.setState("hide");
+
+            box.withMotion(function(self) {
+                box.setState("show");
+            });
+            
+        };
+        
+        const hidePanel = function() {
+
+            box.withMotion(function(self) {
+                box.setState("hide");
+            });
+            
+        };
+
+        </script>
+
+    </head>
+    <body>
+        
+        <!-- HTML content -->
+        
+    </body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Screens and Routing</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SCREENS AND ROUTING
+
+        An app with more than one screen, in one page. The screen comes from the address:
+
+            #/              -> Home (the list)
+            #/item/carrot   -> The details of one item
+            #/about         -> About
+            #/anything-else -> "Page not found"
+
+        - The Back and Forward buttons of the browser work, and an address can be shared or reloaded.
+        - A link only changes location.hash. The "hashchange" event shows the screen.
+        - A deeper screen slides in from the right, going back slides it from the left.
+        - Every screen is created when it opens and removed when it closes.
+          A screen that starts a timer stops it in its remove(). (See the About screen.)
+
+        */
+
+        // *** VARIABLES:
+
+        const ACCENT = "#3C8B7C";
+        const TOP_BAR_HEIGHT = 56;
+
+        const ITEMS = [
+            { key: "strawberry", name: "Strawberry", image: "assets/strawberry.png", color: "#FBE4E2", kcal: 32,
+                text: "A sweet red fruit. The seeds are on the outside." },
+            { key: "blueberries", name: "Blueberries", image: "assets/blueberries.png", color: "#E3E8F8", kcal: 57,
+                text: "Small blue berries that grow in bunches." },
+            { key: "broccoli", name: "Broccoli", image: "assets/broccoli.png", color: "#E2F2E0", kcal: 34,
+                text: "A green vegetable. The part we eat is the flower." },
+            { key: "carrot", name: "Carrot", image: "assets/carrot.png", color: "#FCEBDB", kcal: 41,
+                text: "An orange root vegetable, crunchy when it is raw." },
+            { key: "olives", name: "Olives", image: "assets/olives.png", color: "#ECEEDD", kcal: 115,
+                text: "The small fruit of the olive tree. Olive oil is made from it." },
+        ];
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Router = {};
+
+        Router.current = null;         // The screen that is shown now.
+        Router.currentDepth = 0;
+
+        let screenArea, backButton, titleLabel, navButtons = {};
+
+        // *** SCREENS: name -> depth (for the slide direction), title and the function that builds it.
+
+        const SCREENS = {
+
+            home: { depth: 0, title: "Fruits and Vegetables", create: function() { return Screens.home(); } },
+
+            item: {
+                depth: 1,
+                title: function(key) { const item = findItem(key); return (item) ? item.name : "Not found"; },
+                create: function(key) { return (findItem(key)) ? Screens.item(findItem(key)) : Screens.notFound(); },
+            },
+
+            about: { depth: 0, title: "About", create: function() { return Screens.about(); } },
+
+            notFound: { depth: 1, title: "Not found", create: function() { return Screens.notFound(); } },
+
+        };
+
+        // First running function.
+        const start = function() {
+
+            page.color = "#F3F2EE";
+
+            // GROUP: Top bar and the screen area
+            VGroup({ width: "100%", height: "100%", gap: 0, align: "left top" });
+
+                Router.createTopBar();
+
+                // BOX: The screens are created in it. clipContent: a sliding screen is not seen outside.
+                screenArea = Box({ width: "100%", height: 10, grow: 1, color: "transparent", clipContent: 1 });
+
+            endGroup();
+
+            // The screen follows the address: links, Back, Forward, or a changed address.
+            page.on("hashchange", Router.show);
+
+            Router.show();
+
+        };
+
+        // *** ROUTER:
+
+        // "#/item/carrot" -> { name: "item", param: "carrot" }
+        Router.parse = function() {
+
+            const parts = location.hash.replace(/^#\/?/, "").split("/");
+            const name = parts[0] || "home";
+
+            return {
+                name: (SCREENS[name]) ? name : "notFound",
+                param: decodeURIComponent(parts[1] || ""),
+            };
+
+        };
+
+        // A link: only the address changes. "hashchange" does the rest.
+        Router.go = function(path) {
+            location.hash = "#/" + path;
+        };
+
+        // The ‹ Back button of the top bar goes up, to Home. (The Back button of the browser goes
+        // through the history, it already works.)
+        // WHY: Not history.back(): when the app was opened with a shared link, there is nothing
+        //      before it in the app, and history.back() would leave the app.
+        Router.back = function() {
+            Router.go("");
+        };
+
+        Router.show = function() {
+
+            const route = Router.parse();
+            const screenInfo = SCREENS[route.name];
+
+            // 1: deeper (slides from the right), -1: back (from the left), 0: same level (fades).
+            const direction = Math.sign(screenInfo.depth - Router.currentDepth);
+
+            const oldScreen = Router.current;
+
+            let screen;
+            createIn(screenArea, function() {
+                screen = screenInfo.create(route.param);
+            });
+
+            Router.current = screen;
+            Router.currentDepth = screenInfo.depth;
+
+            // TOP BAR:
+            const title = (typeof screenInfo.title === "function") ? screenInfo.title(route.param) : screenInfo.title;
+            titleLabel.text = title;
+            page.title = title + " · Screens and Routing";
+            if (screenInfo.depth > 0) backButton.show(); else backButton.hide();
+            Object.keys(navButtons).forEach(function(name) {
+                navButtons[name].textColor = (name === route.name) ? ACCENT : Black(0.5);
+            });
+
+            if (!oldScreen) return;   // The first screen does not slide.
+
+            // SLIDE: the new one comes in, the old one goes out and is removed.
+            const width = screenArea.width;
+
+            screen.left = direction * width;
+            screen.opacity = (direction === 0) ? 0 : 1;
+            screen.animate({ left: 0, opacity: 1 }, 300, "ease-out");
+
+            oldScreen.animate({ left: -direction * width * 0.3, opacity: 0 }, 300, "ease-out").then(function() {
+                // WHY: remove() also removes everything in the screen and runs the remove() of the screen.
+                oldScreen.remove();
+            });
+
+        };
+
+        Router.createTopBar = function() {
+
+            // GROUP: Top bar
+            HGroup({ width: "100%", height: TOP_BAR_HEIGHT, gap: 8, padding: [12, 0], align: "left center",
+                color: "white", zIndex: 1, boxShadow: "0 1px 0 " + Black(0.08) });
+
+                backButton = Button({ text: "‹ Back", width: "auto", height: 36, padding: [12, 0], round: 8,
+                    minimal: 1, color: "transparent", textColor: ACCENT, fontSize: 16 });
+                backButton.on("click", Router.back);
+
+                titleLabel = Label({ text: "", width: 10, grow: 1, ellipsis: 1, fontSize: 18, bold: 1,
+                    textColor: Black(0.8), css: { paddingLeft: "4px" } });
+
+                [["home", "Home", ""], ["about", "About", "about"]].forEach(function(item) {
+                    navButtons[item[0]] = Button({ text: item[1], width: "auto", height: 36, padding: [12, 0],
+                        round: 8, minimal: 1, color: "transparent", textColor: Black(0.5), fontSize: 15 });
+                    that.on("click", function() { Router.go(item[2]); });
+                });
+
+            endGroup();
+
+        };
+
+        // *** SCREENS:
+
+        const Screens = {};
+
+        // Every screen is a full size box that scrolls. build() creates its content.
+        Screens.create = function(build) {
+
+            const screen = startBox(0, 0, "100%", "100%", { color: "#F3F2EE", scrollY: 1 });
+
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 16, padding: [16, 24] });
+                    build(screen);
+                endGroup();
+
+            endBox();
+
+            return screen;
+
+        };
+
+        Screens.home = function() {
+
+            return Screens.create(function() {
+
+                Label({ text: "Choose one to see its details.", fontSize: 15, textColor: Black(0.5) });
+
+                // GROUP: The cards. wrap: they continue on the next line.
+                HGroup({ width: "100%", height: "auto", gap: 16, wrap: 1, justify: "center", clipContent: 0,
+                    css: { maxWidth: "720px" } });
+
+                    ITEMS.forEach(function(item) {
+
+                        const card = VGroup({ width: 150, height: 170, gap: 8, padding: 12, color: "white", round: 14,
+                            clickable: 1, cursor: "pointer", boxShadow: "0 2px 6px " + Black(0.06) });
+
+                            startBox({ width: "100%", height: 100, color: item.color, round: 10 });
+                                Icon(0, 0, "100%", "100%", { imageFit: "contain", alt: item.name });
+                                that.load(item.image);
+                                that.css.padding = "14px";
+                                that.css.boxSizing = "border-box";
+                            endBox();
+
+                            Label({ text: item.name, fontSize: 15, bold: 1, textColor: Black(0.75) });
+
+                        endGroup();
+
+                        card.setMotion("transform 0.15s");
+                        card.on("mouseenter", function(self) { self.css.transform = "translateY(-3px)"; });
+                        card.on("mouseleave", function(self) { self.css.transform = "none"; });
+                        card.on("click", function() { Router.go("item/" + item.key); });
+
+                    });
+
+                endGroup();
+
+            });
+
+        };
+
+        Screens.item = function(item) {
+
+            const index = ITEMS.indexOf(item);
+            const prev = ITEMS[(index - 1 + ITEMS.length) % ITEMS.length];
+            const next = ITEMS[(index + 1) % ITEMS.length];
+
+            return Screens.create(function() {
+
+                // GROUP: Content
+                VGroup({ width: "100%", height: "auto", gap: 16, padding: 24, align: "left top", color: "white",
+                    round: 16, css: { maxWidth: "560px" } });
+
+                    startBox({ width: "100%", height: 220, color: item.color, round: 12 });
+                        Icon(0, 0, "100%", "100%", { imageFit: "contain", alt: item.name });
+                        that.load(item.image);
+                        that.css.padding = "30px";
+                        that.css.boxSizing = "border-box";
+                    endBox();
+
+                    Label({ text: item.name, fontSize: 26, bold: 1, textColor: Black(0.8) });
+                    Label({ text: item.text, width: "100%", fontSize: 16, lineHeight: "1.5", textColor: Black(0.65) });
+                    Label({ text: item.kcal + " kcal in 100 g", fontSize: 14, textColor: ACCENT, bold: 1 });
+
+                    Label({ text: "Address: #/item/" + item.key, fontSize: 13, textColor: Black(0.4),
+                        fontFamily: "monospace", selectable: 1 });
+
+                    // GROUP: Previous / Next
+                    // WHY: The same screen with another item. It is a new address, so Back returns to this one.
+                    HGroup({ width: "100%", height: 40, justify: "space-between", clipContent: 0 });
+
+                        Button({ text: "‹ " + prev.name, width: "auto", height: 40, padding: [14, 0], round: 8,
+                            minimal: 1, color: Black(0.05), textColor: Black(0.7), fontSize: 14 });
+                        that.on("click", function() { Router.go("item/" + prev.key); });
+
+                        Button({ text: next.name + " ›", width: "auto", height: 40, padding: [14, 0], round: 8,
+                            minimal: 1, color: Black(0.05), textColor: Black(0.7), fontSize: 14 });
+                        that.on("click", function() { Router.go("item/" + next.key); });
+
+                    endGroup();
+
+                endGroup();
+
+            });
+
+        };
+
+        Screens.about = function() {
+
+            let clock;
+
+            const screen = Screens.create(function() {
+
+                VGroup({ width: "100%", height: "auto", gap: 12, padding: 24, align: "left top", color: "white",
+                    round: 16, css: { maxWidth: "560px" } });
+
+                    Label({ text: "About this sample", fontSize: 22, bold: 1, textColor: Black(0.8) });
+
+                    Label({ width: "100%", fontSize: 15, lineHeight: "1.5", textColor: Black(0.65),
+                        text: "Every screen is a box that is created when it opens and removed when it closes. "
+                            + "This screen runs a clock with setInterval(). Its remove() stops the timer, "
+                            + "so no timer is left running after you leave." });
+
+                    clock = Label({ text: "", fontSize: 32, bold: 1, textColor: ACCENT,
+                        css: { fontVariantNumeric: "tabular-nums" } });
+
+                    Label({ text: "Try an address that does not exist:", fontSize: 14, textColor: Black(0.5) });
+
+                    Button({ text: "Open #/no-such-page", width: "auto", height: 40, padding: [14, 0], round: 8,
+                        minimal: 1, color: Black(0.05), textColor: Black(0.7), fontSize: 14 });
+                    that.on("click", function() { Router.go("no-such-page"); });
+
+                endGroup();
+
+            });
+
+            const tick = function() { clock.text = new Date().toLocaleTimeString(); };
+            tick();
+            const timer = setInterval(tick, 1000);
+
+            // REMOVE: The timer is not inside the box, remove() can not reach it. The screen stops it here.
+            const superRemove = screen.remove;
+            screen.remove = function() {
+                clearInterval(timer);
+                superRemove.call(screen);
+            };
+
+            return screen;
+
+        };
+
+        Screens.notFound = function() {
+
+            return Screens.create(function() {
+
+                Label({ text: "404", fontSize: 64, bold: 1, textColor: Black(0.15) });
+                Label({ fontSize: 17, textColor: Black(0.6), css: { textAlign: "center" } });
+                that.plainText = "There is no screen at \"" + location.hash + "\".";   // WHY: The address is user input.
+
+                Button({ text: "Go home", width: "auto", height: 40, padding: [18, 0], round: 8, minimal: 1,
+                    color: ACCENT, textColor: "white", fontSize: 15 });
+                that.on("click", function() { Router.go(""); });
+
+            });
+
+        };
+
+        // *** OTHER FUNCTIONS:
+
+        const findItem = function(key) {
+            return ITEMS.find(function(item) { return item.key === key; });
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>

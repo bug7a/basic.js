@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Sign Up Form</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SIGN UP FORM
+
+        A form that checks what the user writes and shows what is wrong, under the field.
+
+        - Input: inputType, placeholder, maxLength, onEnter(), focus()
+        - input.on("input" / "focus" / "blur")     -> Checks the field while the user writes.
+        - A field shows its error only after the user leaves it (blur) or presses the button.
+        - Enter goes to the next field. On the last field it sends the form.
+        - "Show" button                           -> inputType "password" <-> "text"
+        - Password strength bar                   -> setMotion() + width in "%"
+        - button.enabled = 0                      -> No second click while the form is sent.
+        - show() / hide()                         -> The form and the "Welcome" card.
+
+        Nothing is sent to a server: basic.sleep() waits a moment instead.
+
+        */
+
+        // *** VARIABLES:
+
+        const CARD_WIDTH = 400;
+
+        const COLOR_ACCENT = "#5B6CD9";
+        const COLOR_ERROR = "#D0473A";
+        const COLOR_BORDER = Black(0.2);
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const SignUp = {};
+
+        SignUp.fields = [];     // [nameField, emailField, passwordField, repeatField]
+
+        let formCard, successCard, welcomeLabel, sendButton;
+        let nameField, emailField, passwordField, repeatField;
+        let strengthFill, strengthLabel;
+
+        // First running function.
+        const start = function() {
+
+            page.color = "#ECEEF6";
+
+            // BOX: The page never scrolls, this box does. (The form is taller than a phone screen.)
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                VGroup({ width: "100%", height: "auto", align: "center top", padding: [16, 40] });
+
+                    SignUp.createFormCard();
+                    SignUp.createSuccessCard();
+
+                endGroup();
+
+            endBox();
+
+            SignUp.fitCards();
+            page.onResize(SignUp.fitCards);
+
+            nameField.input.focus();
+
+        };
+
+        // *** CHECKS: Every check returns "" (OK) or the error text.
+
+        SignUp.checkName = function(value) {
+            if (value.trim().length < 2) return "Write your name. (At least 2 letters.)";
+            return "";
+        };
+
+        SignUp.checkEmail = function(value) {
+            if (value.trim() === "") return "Write your e-mail address.";
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) return "This is not an e-mail address.";
+            return "";
+        };
+
+        SignUp.checkPassword = function(value) {
+            if (value.length < 8) return "At least 8 characters.";
+            if (!/[0-9]/.test(value)) return "Add at least one number.";
+            return "";
+        };
+
+        SignUp.checkRepeat = function(value) {
+            if (value === "") return "Write the password again.";
+            if (value !== passwordField.input.value) return "The passwords are not the same.";
+            return "";
+        };
+
+        // *** VIEW:
+
+        SignUp.createFormCard = function() {
+
+            // GROUP: The form
+            formCard = VGroup({
+                width: CARD_WIDTH,
+                height: "auto",
+                align: "left top",
+                gap: 18,
+                padding: 28,
+                color: "white",
+                round: 16,
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+            });
+
+                Label({ text: "Create an account", fontSize: 24, bold: 1, textColor: Black(0.8) });
+                Label({ text: "It takes less than a minute.", fontSize: 15, textColor: Black(0.45) });
+
+                nameField = SignUp.createField({
+                    titleText: "Name",
+                    placeholder: "Your name",
+                    maxLength: 40,
+                    check: SignUp.checkName,
+                });
+
+                emailField = SignUp.createField({
+                    titleText: "E-mail",
+                    placeholder: "name@example.com",
+                    inputType: "email",
+                    maxLength: 80,
+                    check: SignUp.checkEmail,
+                });
+
+                passwordField = SignUp.createField({
+                    titleText: "Password",
+                    placeholder: "8+ characters, 1 number",
+                    inputType: "password",
+                    maxLength: 64,
+                    check: SignUp.checkPassword,
+                    withStrength: 1,
+                });
+
+                repeatField = SignUp.createField({
+                    titleText: "Password again",
+                    placeholder: "The same password",
+                    inputType: "password",
+                    maxLength: 64,
+                    check: SignUp.checkRepeat,
+                });
+
+                // BUTTON: Send
+                sendButton = Button({
+                    text: "Create account",
+                    width: "100%",
+                    height: 48,
+                    color: COLOR_ACCENT,
+                    textColor: "white",
+                    round: 10,
+                    fontSize: 17,
+                    minimal: 1,
+                });
+                sendButton.on("click", SignUp.send);
+
+            endGroup();
+
+            // WHY: When the password changes, "Password again" may be right or wrong now.
+            passwordField.input.on("input", function() {
+                if (repeatField.touched) SignUp.validate(repeatField);
+            });
+
+            // KEY: Enter goes to the next field, and sends the form on the last one.
+            SignUp.fields.forEach(function(field, index) {
+                field.input.onEnter(function() {
+                    const next = SignUp.fields[index + 1];
+                    if (next) next.input.focus(); else SignUp.send();
+                });
+            });
+
+        };
+
+        // One field: title, input and the error text under it.
+        SignUp.createField = function(params) {
+
+            const field = {
+                check: params.check,
+                touched: 0,     // 1 after the user leaves the field. Errors are shown only then.
+                valid: 0,
+                focused: 0,
+            };
+
+            // GROUP: Field
+            VGroup({ width: "100%", height: "auto", align: "left top", gap: 6 });
+
+                Label({ text: params.titleText, fontSize: 14, bold: 1, textColor: Black(0.6) });
+
+                const inputProps = {
+                    width: "100%",
+                    height: 46,
+                    fontSize: 16,
+                    round: 8,
+                    borderColor: COLOR_BORDER,
+                    placeholder: params.placeholder,
+                    inputType: params.inputType || "text",
+                    maxLength: params.maxLength,
+                };
+
+                if (params.inputType === "password") {
+
+                    // GROUP: Password and the "Show" button
+                    HGroup({ width: "100%", height: 46, gap: 8 });
+
+                        field.input = Input({ ...inputProps, width: 10, grow: 1 });
+
+                        field.showButton = Button({ text: "Show", width: 70, height: 46, round: 8, minimal: 1,
+                            color: Black(0.05), textColor: Black(0.6), fontSize: 14 });
+                        field.showButton.on("click", function(self) {
+                            const isHidden = (field.input.inputType === "password");
+                            field.input.inputType = (isHidden) ? "text" : "password";
+                            self.text = (isHidden) ? "Hide" : "Show";
+                            field.input.focus();
+                        });
+
+                    endGroup();
+
+                } else {
+
+                    field.input = Input(inputProps);
+
+                }
+
+                if (params.withStrength) SignUp.createStrengthBar();
+
+                field.error = Label({ text: "", fontSize: 13, textColor: COLOR_ERROR });
+                field.error.hide();
+
+            endGroup();
+
+            // EVENTS: The <input> element of the Input gets them.
+            field.input.on("focus", function() {
+                field.focused = 1;
+                SignUp.refreshBorder(field);
+            });
+
+            field.input.on("blur", function() {
+                field.focused = 0;
+                // WHY: An empty field that the user only passed through is not an error yet.
+                if (field.input.value !== "") field.touched = 1;
+                SignUp.validate(field);
+            });
+
+            field.input.on("input", function() {
+                if (params.withStrength) SignUp.refreshStrength(field.input.value);
+                SignUp.validate(field);
+            });
+
+            SignUp.fields.push(field);
+            return field;
+
+        };
+
+        // BOX: The bar under the password. Its fill is wider when the password is stronger.
+        SignUp.createStrengthBar = function() {
+
+            HGroup({ width: "100%", height: 16, gap: 10, align: "left center" });
+
+                startBox({ width: 10, height: 6, grow: 1, color: Black(0.08), round: 3 });
+                    strengthFill = Box(0, 0, "0%", "100%", { color: COLOR_ERROR, round: 3 });
+                    strengthFill.setMotion("width 0.25s, background-color 0.25s");
+                endBox();
+
+                strengthLabel = Label({ text: "", width: 56, fontSize: 12, textColor: Black(0.45) });
+
+            endGroup();
+
+        };
+
+        SignUp.createSuccessCard = function() {
+
+            // GROUP: Shown after the form is sent
+            successCard = VGroup({
+                width: CARD_WIDTH,
+                height: "auto",
+                align: "center top",
+                gap: 14,
+                padding: 32,
+                color: "white",
+                round: 16,
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+            });
+
+                Label({ text: "✓", width: 64, height: 64, round: 32, color: "#E4F4EA", textColor: "#2E8B57",
+                    fontSize: 30, bold: 1, css: { display: "flex", alignItems: "center", justifyContent: "center" } });
+
+                welcomeLabel = Label({ text: "", fontSize: 22, bold: 1, textColor: Black(0.8) });
+
+                Label({ text: "Your account is ready.", fontSize: 15, textColor: Black(0.5) });
+
+                Button({ text: "Start again", width: "auto", height: 40, padding: [18, 0], round: 8, minimal: 1,
+                    color: "transparent", textColor: COLOR_ACCENT, border: 1, borderColor: COLOR_ACCENT });
+                that.on("click", SignUp.reset);
+
+            endGroup();
+
+            // WHY: The children are created first, the group is hidden only now.
+            successCard.hide();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Checks one field. Shows the error only when the field is touched.
+        SignUp.validate = function(field) {
+
+            const message = field.check(field.input.value);
+            field.valid = (message === "") ? 1 : 0;
+
+            if (field.touched && !field.valid) {
+                field.error.text = message;
+                field.error.show();
+            } else {
+                field.error.hide();
+            }
+
+            SignUp.refreshBorder(field);
+            return field.valid;
+
+        };
+
+        // WHY: An inline borderColor wins over the :focus style of basic.css, so the focus color is set here too.
+        SignUp.refreshBorder = function(field) {
+
+            if (field.touched && !field.valid) field.input.borderColor = COLOR_ERROR;
+            else if (field.focused) field.input.borderColor = COLOR_ACCENT;
+            else field.input.borderColor = COLOR_BORDER;
+
+        };
+
+        // 0-4 points: length, number, upper and lower case, symbol.
+        SignUp.refreshStrength = function(password) {
+
+            let score = 0;
+            if (password.length >= 8) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+            if (/[^a-zA-Z0-9]/.test(password)) score++;
+
+            const names = ["", "Weak", "Fair", "Good", "Strong"];
+            const colors = [COLOR_ERROR, COLOR_ERROR, "#E0A030", "#6BAF5B", "#2E8B57"];
+
+            if (password === "") score = 0;
+
+            strengthFill.width = (score * 25) + "%";
+            strengthFill.color = colors[score];
+            strengthLabel.text = names[score];
+
+        };
+
+        SignUp.send = async function() {
+
+            if (sendButton.enabled === 0) return;
+
+            // Every field shows its error now, also the ones the user did not visit.
+            let firstWrong = null;
+            SignUp.fields.forEach(function(field) {
+                field.touched = 1;
+                if (!SignUp.validate(field) && !firstWrong) firstWrong = field;
+            });
+
+            if (firstWrong) {
+                firstWrong.input.focus();
+                return;
+            }
+
+            sendButton.enabled = 0;
+            sendButton.text = "Creating account...";
+            SignUp.fields.forEach(function(field) { field.input.enabled = 0; });
+
+            await basic.sleep(1200);   // A real form would send the data to a server here.
+
+            // WHY: The name comes from the user. plainText shows it as text, never as HTML.
+            welcomeLabel.plainText = "Welcome, " + nameField.input.value.trim() + "!";
+
+            formCard.hide();
+            successCard.show();
+
+        };
+
+        SignUp.reset = function() {
+
+            SignUp.fields.forEach(function(field) {
+                field.input.value = "";
+                field.input.enabled = 1;
+                field.touched = 0;
+                field.valid = 0;
+                field.error.hide();
+                SignUp.refreshBorder(field);
+                if (field.showButton) {
+                    field.input.inputType = "password";
+                    field.showButton.text = "Show";
+                }
+            });
+
+            SignUp.refreshStrength("");
+
+            sendButton.text = "Create account";
+            sendButton.enabled = 1;
+
+            successCard.hide();
+            formCard.show();
+
+            nameField.input.focus();
+
+        };
+
+        // The cards are narrower on a phone.
+        SignUp.fitCards = function() {
+            const width = Math.min(CARD_WIDTH, window.innerWidth - 32);
+            formCard.width = width;
+            successCard.width = width;
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>

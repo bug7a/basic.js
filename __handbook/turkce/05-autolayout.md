@@ -59,7 +59,7 @@ endGroup();
 
 > **Not:** Her `HGroup()` veya `VGroup()` çağrısından sonra **mutlaka `endGroup()` ile kapatılmalıdır.** Her ikisi için de aynı `endGroup()` fonksiyonu kullanılır.
 
-> **Varsayılan Boyut:** HGroup ve VGroup nesneleri varsayılan olarak `left: 0`, `top: 0`, `width: "100%"`, `height: "100%"` değerleriyle oluşturulur. Yani parametre verilmezse bulunduğu kapsayıcıyı tamamen kaplar. Eğer `fit: 1` parametresi verilirse, grup nesnesi içindeki nesneleri tam olarak sarar (`width: "auto"`, `height: "auto"`).
+> **Varsayılan Boyut:** HGroup ve VGroup nesneleri varsayılan olarak `left: 0`, `top: 0`, `width: "100%"`, `height: "100%"` değerleriyle oluşturulur. Yani parametre verilmezse bulunduğu kapsayıcıyı tamamen kaplar. Eğer `hug: 1` parametresi verilirse, grup nesnesi içindeki nesneleri tam olarak sarar (`width: "auto"`, `height: "auto"`).
 
 ---
 
@@ -72,7 +72,8 @@ endGroup();
 - `align` (string, varsayılan: `"center"`) — İçeriklerin hizalanma yönü.
 - `gap` (number / string, varsayılan: `"0px"`) — Nesneler arası boşluk (piksel).
 - `padding` (number / array) — İç kenar boşluğu. Tek değer veya `[yatay, dikey]` şeklinde dizi.
-- `fit` (boolean) — `true` ise boyut içeriğe göre otomatik ayarlanır (`width/height: "auto"`).
+- `hug` (boolean) — `true` ise boyut içeriğe göre otomatik ayarlanır (`width/height: "auto"`); grup, içindeki nesneleri sarar.
+- `fit` (boolean) — `hug` parametresinin eski adı; ikisi de birebir aynı işi yapar ve sonradan ikisi de okunabilir (`group.hug`, `group.fit`). Yeni kodda `hug` tercih edin.
 - `flow` (string) — Akış yönü. HGroup: `"horizontal"`, VGroup: `"vertical"`. Otomatik ayarlanır.
 
 ### align Değerleri
@@ -187,7 +188,7 @@ window.onload = function() {
         Label({ text: "Başlık", fontSize: 24 });
 
         // Butonlar yan yana
-        HGroup({ gap: 10, fit: 1 });
+        HGroup({ gap: 10, hug: 1 }); // "fit: 1" ile aynıdır
 
             Button(0, 0, 100, 40, { text: "Evet", color: "dodgerblue", textColor: "white" });
             Button(0, 0, 100, 40, { text: "Hayır", color: "lightgray" });

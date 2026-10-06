@@ -40,6 +40,7 @@ body {
 .basic_box, .basic_label, .basic_button, .basic_textbox-main, .basic_image  {
 
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    touch-action: manipulation; /* WHY: Çift dokunarak yakınlaştırma kapanır, dokunuşta click gecikmesi olmaz. Kaydırma ve iki parmakla yakınlaştırma çalışır. */
 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale; 
@@ -105,7 +106,8 @@ body {
     box-sizing: border-box;
     border-radius: 4px;
     background-color: #689BD2;
-    background-image: url("img/button-background.png");
+    /* WHY: A soft shade made with CSS (it was img/button-background.png): no picture to load or copy. */
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.02) 60%, rgba(0, 0, 0, 0.055));
     background-position: left top;
     background-repeat: no-repeat;
     background-size:100% 100%;
@@ -159,7 +161,8 @@ body {
     margin: 0px;
     box-sizing: border-box;
     border-radius: 4px;
-    background-image: url("img/textbox-background.png");
+    /* WHY: A soft shade made with CSS (it was img/textbox-background.png): no picture to load or copy. */
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.02) 60%, rgba(0, 0, 0, 0.055));
     background-position: left top;
     background-repeat: no-repeat;
     background-size:100% 100%;

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>New Features</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- user-scalable=no -->
+
+        <!-- LIBRARY FILES -->
+        <!-- <link rel="preload" href="image.png" as="image"> -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.min.css">
+        <script src="../basic/basic.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        NEW FEATURES (basic.js v26.09.18)
+
+        One card for every new feature: its code, and a small live demo under it.
+        The full list is in basic/basic-v26.09.18.md.
+
+        Demo.card(title, code, build) makes a card. build() creates the demo objects,
+        they go inside the card.
+
+        */
+
+        // *** VARIABLES:
+
+        const ACCENT = "#5B6CD9";
+        const SOFT = "#F3F4F8";
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Demo = {};
+
+        // Common styles.
+        const TEXT = { fontSize: 15, textColor: Black(0.75) };
+        const SMALL_BUTTON = { width: "auto", height: 36, padding: [14, 0], round: 8, minimal: 1,
+            color: "#E8EAF3", textColor: Black(0.75), fontSize: 14 };
+
+        // First running function.
+        const start = function() {
+
+            page.color = "#E9EBF2";
+            page.title = "New in basic.js " + basic.version;
+
+            // BOX: The page never scrolls, this box does.
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 16, padding: [16, 32] });
+
+                    Label({ text: "New in basic.js " + basic.version, fontSize: 28, bold: 1, textColor: Black(0.8) });
+                    Label({ text: "Every card: the code, then a live demo.", ...TEXT, textColor: Black(0.5) });
+
+                    Demo.textCard();
+                    Demo.plainTextCard();
+                    Demo.sizeCard();
+                    Demo.showHideCard();
+                    Demo.animateCard();
+                    Demo.inputCard();
+                    Demo.groupCard();
+                    Demo.growCard();
+                    Demo.createInCard();
+                    Demo.frontCard();
+                    Demo.iconCard();
+                    Demo.pageCard();
+                    Demo.basicCard();
+
+                endGroup();
+
+            endBox();
+
+        };
+
+        // *** HELPERS:
+
+        // A card: title, code and a demo area. The objects that build() creates go into the demo area.
+        Demo.card = function(title, code, build) {
+
+            VGroup({ width: "100%", height: "auto", gap: 12, padding: 20, align: "left top", color: "white",
+                round: 14, css: { maxWidth: "760px" } });
+
+                Label({ text: title, fontSize: 18, bold: 1, textColor: Black(0.8) });
+
+                // LABEL: The code. selectable: 1 -> it can be copied.
+                Label({ width: "100%", fontSize: 13, textColor: "#3A3F58", color: SOFT, round: 8, selectable: 1,
+                    fontFamily: "monospace", lineHeight: "1.5",
+                    css: { padding: "10px 12px", whiteSpace: "pre", overflowX: "auto", boxSizing: "border-box" } });
+                that.plainText = code;
+
+                // GROUP: Demo area
+                VGroup({ width: "100%", height: "auto", gap: 10, align: "left top", clipContent: 0 });
+                    build();
+                endGroup();
+
+            endGroup();
+
+        };
+
+        // A line of result text. Returns the label, so the demo can change it.
+        Demo.output = function(text = "") {
+            return Label({ text: text, ...TEXT, textColor: ACCENT, fontFamily: "monospace", fontSize: 14 });
+        };
+
+        Demo.buttons = function(list) {
+            HGroup({ hug: 1, gap: 8, wrap: 1, clipContent: 0 });
+                list.forEach(function(item) {
+                    Button({ text: item[0], ...SMALL_BUTTON });
+                    that.on("click", item[1]);
+                });
+            endGroup();
+        };
+
+        // *** CARDS:
+
+        Demo.textCard = function() {
+
+            Demo.card("Text properties",
+                'Label({ text: "Title", bold: 1, italic: 1, lineHeight: 28, ellipsis: 1,\n' +
+                '        selectable: 1, cursor: "pointer", css: { letterSpacing: "2px" } });\n' +
+                'Label().props({ text: "props() returns the object" }).props({ bold: 1 });',
+                function() {
+
+                    Label({ text: "bold: 1", bold: 1, ...TEXT });
+                    Label({ text: "italic: 1", italic: 1, ...TEXT });
+                    Label({ text: "ellipsis: 1 -> This line is longer than its 260 px width, so it ends with dots.",
+                        width: 260, ellipsis: 1, ...TEXT });
+                    Label({ text: "lineHeight: 28 -> The lines of this text<br>have more space between them.",
+                        lineHeight: 28, ...TEXT });
+                    Label({ text: "css: { letterSpacing, textTransform }", ...TEXT,
+                        css: { letterSpacing: "2px", textTransform: "uppercase" } });
+                    Label({ text: "selectable: 1 -> Select and copy this text. (basic.css turns it off.)",
+                        selectable: 1, ...TEXT });
+                    Label().props({ text: "props() returns the object, so props() can follow it.", ...TEXT })
+                        .props({ textColor: ACCENT, bold: 1 });
+
+                });
+
+        };
+
+        Demo.plainTextCard = function() {
+
+            const userText = "<b>Hello</b> <i>world</i>";
+
+            Demo.card("plainText and basic.escapeHtml()",
+                'const userText = "<b>Hello</b> <i>world</i>";\n' +
+                'label.text = userText;                    // innerHTML: the tags work\n' +
+                'label.plainText = userText;               // textContent: the tags are shown\n' +
+                'label.text = basic.escapeHtml(userText);  // the same, with .text',
+                function() {
+
+                    Label({ ...TEXT });
+                    that.text = "text: " + userText;
+
+                    Label({ ...TEXT });
+                    that.plainText = "plainText: " + userText;
+
+                    Label({ ...TEXT });
+                    that.text = "escapeHtml: " + basic.escapeHtml(userText);
+
+                    Label({ text: "Use plainText for everything that comes from a user or a server.",
+                        ...TEXT, fontSize: 13, textColor: Black(0.5) });
+
+                });
+
+        };
+
+        Demo.sizeCard = function() {
+
+            Demo.card("Sizes and positions as strings",
+                'Box({ width: 120 });                  // number -> 120 px (as before)\n' +
+                'Box({ width: "120" });                // string number -> 120 px (was ignored)\n' +
+                'Box({ width: "50%" });                // percent (was 50 px)\n' +
+                'Box({ width: "calc(100% - 80px)" });  // any CSS length',
+                function() {
+
+                    [[120, "120"], ["120", "\"120\""], ["50%", "\"50%\""], ["calc(100% - 80px)", "\"calc(100% - 80px)\""]]
+                        .forEach(function(item) {
+                            startBox({ width: item[0], height: 30, color: ACCENT, round: 6 });
+                                Label({ text: item[1], left: 10, top: 5, fontSize: 13, textColor: "white" });
+                            endBox();
+                        });
+
+                });
+
+        };
+
+        Demo.showHideCard = function() {
+
+            let target, onceOutput, count = 0;
+
+            // once(): the function runs one time, then the event is removed.
+            const arm = function() {
+                onceOutput.text = "Waiting for one click...";
+                target.once("click", function() {
+                    count++;
+                    onceOutput.text = "once() ran " + count + " time(s). Click again: nothing.";
+                });
+            };
+
+            Demo.card("show(), hide(), toggle(), once()",
+                'box.show();  box.hide();  box.toggle();   // they return the object\n' +
+                'box.once("click", function (self, event) { ... });   // runs one time',
+                function() {
+
+                    HGroup({ hug: 1, gap: 16, align: "left center", clipContent: 0 });
+
+                        target = Box({ width: 60, height: 60, round: 12, color: ACCENT, cursor: "pointer" });
+
+                        Demo.buttons([
+                            ["hide()", function() { target.hide(); }],
+                            ["show()", function() { target.show(); }],
+                            ["toggle()", function() { target.toggle(); }],
+                            ["once() again", arm],
+                        ]);
+
+                    endGroup();
+
+                    onceOutput = Demo.output();
+                    arm();
+
+                });
+
+        };
+
+        Demo.animateCard = function() {
+
+            let track, ball, playButton;
+
+            Demo.card("animate(), setSize(), setPosition()",
+                'await ball.animate({ left: 300 }, 600, "ease-in-out");   // a Promise\n' +
+                'await ball.animate({ opacity: 0.3 }, 300);\n' +
+                'ball.setSize(30, 30).setPosition(10, 15);                // chaining',
+                function() {
+
+                    track = startBox({ width: "100%", height: 60, color: SOFT, round: 30 });
+                        ball = Box(8, 8, 44, 44, { round: 22, color: ACCENT });
+                    endBox();
+
+                    HGroup({ hug: 1, gap: 8, clipContent: 0 });
+
+                        playButton = Button({ text: "Play animate()", ...SMALL_BUTTON });
+                        playButton.on("click", async function() {
+
+                            playButton.enabled = 0;
+                            ball.setSize(44, 44).setPosition(8, 8);
+
+                            // WHY: Every animate() waits for the one before it. No setTimeout chain.
+                            await ball.animate({ left: track.width - 52 }, 700, "ease-in-out");
+                            await ball.animate({ opacity: 0.25 }, 300);
+                            await ball.animate({ left: 8, opacity: 1 }, 700, "ease-in-out");
+
+                            playButton.enabled = 1;
+
+                        });
+
+                        Button({ text: "setSize() + setPosition()", ...SMALL_BUTTON });
+                        that.on("click", function() {
+                            const size = random(20, 44);
+                            ball.setSize(size, size).setPosition(random(8, track.width - 52), (60 - size) / 2);
+                            ball.round = size / 2;
+                        });
+
+                    endGroup();
+
+                });
+
+        };
+
+        Demo.inputCard = function() {
+
+            let input, output;
+
+            Demo.card("Input: placeholder, inputType, maxLength, onEnter()",
+                'const input = Input({ placeholder: "Write here", inputType: "password", maxLength: 20 });\n' +
+                'input.onEnter(function (self) { println(self.value); self.select(); });',
+                function() {
+
+                    HGroup({ width: "100%", height: 42, gap: 8 });
+
+                        input = Input({ width: 10, height: 42, grow: 1, fontSize: 15, round: 8, borderColor: Black(0.15),
+                            placeholder: "Write something and press Enter", maxLength: 20 });
+
+                        Button({ text: "inputType: text", ...SMALL_BUTTON, height: 42 });
+                        that.on("click", function(self) {
+                            input.inputType = (input.inputType === "text") ? "password" : "text";
+                            self.text = "inputType: " + input.inputType;
+                            input.focus();
+                        });
+
+                    endGroup();
+
+                    output = Demo.output("maxLength: 20 -> no more than 20 characters.");
+
+                    input.onEnter(function(self) {
+                        output.plainText = "onEnter(): \"" + self.value + "\"";
+                        self.select();
+                    });
+
+                });
+
+        };
+
+        Demo.groupCard = function() {
+
+            const JUSTIFY = ["left", "center", "right", "space-between", "space-evenly"];
+            let chips, output, justifyIndex = 0;
+
+            Demo.card("Groups: hug, wrap, justify",
+                'HGroup({ hug: 1 });                   // "hug" is the new name of "fit"\n' +
+                'HGroup({ wrap: 1, justify: "space-between" });\n' +
+                'group.wrap = 0;  group.justify = "center";   // setters',
+                function() {
+
+                    chips = HGroup({ width: "100%", height: "auto", gap: 8, wrap: 1, justify: "left", padding: 10,
+                        color: SOFT, round: 10 });
+
+                        ["Apple", "Banana", "Cherry", "Grape", "Lemon", "Mango", "Orange", "Peach", "Plum", "Kiwi", "Melon", "Pear", "Fig"]
+                            .forEach(function(name) {
+                                Label({ text: name, fontSize: 14, textColor: "white", color: ACCENT, round: 14,
+                                    css: { padding: "4px 12px" } });
+                            });
+
+                    endGroup();
+
+                    Demo.buttons([
+                        ["Next justify", function() {
+                            justifyIndex = (justifyIndex + 1) % JUSTIFY.length;
+                            chips.justify = JUSTIFY[justifyIndex];
+                            output.text = "justify: \"" + chips.justify + "\"  wrap: " + chips.wrap;
+                        }],
+                        ["Toggle wrap", function() {
+                            chips.wrap = (chips.wrap) ? 0 : 1;
+                            output.text = "justify: \"" + chips.justify + "\"  wrap: " + chips.wrap;
+                        }],
+                    ]);
+
+                    output = Demo.output("justify: \"left\"  wrap: 1");
+
+                });
+
+        };
+
+        Demo.growCard = function() {
+
+            const cell = { height: "100%", round: 8, fontSize: 13, textColor: "white",
+                css: { display: "flex", alignItems: "center", justifyContent: "center" } };
+
+            Demo.card("grow and shrink",
+                'HGroup({ gap: 8 });\n' +
+                '    Label({ width: 80 });              // fixed\n' +
+                '    Label({ width: 10, grow: 1 });     // 1 part of the free space\n' +
+                '    Label({ width: 10, grow: 2 });     // 2 parts\n' +
+                'endGroup();',
+                function() {
+
+                    HGroup({ width: "100%", height: 44, gap: 8 });
+                        Label({ text: "80 px", width: 80, color: "#9AA3C7", ...cell });
+                        Label({ text: "grow: 1", width: 10, grow: 1, color: ACCENT, ...cell });
+                        Label({ text: "grow: 2", width: 10, grow: 2, color: "#3E4A9E", ...cell });
+                    endGroup();
+
+                    Label({ text: "Make the window narrower: the fixed one keeps its width.",
+                        ...TEXT, fontSize: 13, textColor: Black(0.5) });
+
+                });
+
+        };
+
+        Demo.createInCard = function() {
+
+            let list, output, number = 0;
+
+            const refresh = function(extra = "") {
+                output.text = "list.children.length = " + list.children.length + extra;
+            };
+
+            Demo.card("createIn(), children, isRemoved",
+                'createIn(list, function () { Label({ text: "New" }); });   // into an existing box\n' +
+                'list.children;          // the basic.js objects in it\n' +
+                'last.remove();  last.isRemoved;   // 1',
+                function() {
+
+                    list = HGroup({ width: "100%", height: "auto", gap: 8, wrap: 1, padding: 10, color: SOFT, round: 10,
+                        css: { minHeight: "52px" } });
+                    endGroup();
+
+                    Demo.buttons([
+                        ["Add with createIn()", function() {
+                            number++;
+                            createIn(list, function() {
+                                Label({ text: "#" + number, fontSize: 14, textColor: "white", color: ACCENT, round: 14,
+                                    css: { padding: "4px 12px" } });
+                            });
+                            refresh();
+                        }],
+                        ["Remove last", function() {
+                            const children = list.children;
+                            if (children.length === 0) return;
+                            const last = children[children.length - 1];
+                            last.remove();
+                            refresh(",  last.isRemoved = " + last.isRemoved);
+                        }],
+                    ]);
+
+                    output = Demo.output();
+                    refresh();
+
+                });
+
+        };
+
+        Demo.frontCard = function() {
+
+            let area, output;
+
+            Demo.card("bringToFront(), contains(), basic.objectOf()",
+                'area.on("click", function (self, event) {\n' +
+                '    const card = basic.objectOf(event.target);   // the basic.js object under the mouse\n' +
+                '    if (card !== area) card.bringToFront();\n' +
+                '});',
+                function() {
+
+                    area = startBox({ width: "100%", height: 160, color: SOFT, round: 10, clickable: 1 });
+
+                        ["#9AA3C7", ACCENT, "#3E4A9E"].forEach(function(color, index) {
+                            startBox(20 + index * 60, 20 + index * 25, 150, 80,
+                                { color: color, round: 10, clickable: 1, cursor: "pointer", boxShadow: "0 4px 10px rgba(0,0,0,0.15)" });
+                                Label({ text: "Card " + (index + 1), left: 12, top: 10, fontSize: 14, textColor: "white" });
+                            endBox();
+                        });
+
+                    endBox();
+
+                    output = Demo.output("Click a card.");
+
+                    area.on("click", function(self, event) {
+                        const card = basic.objectOf(event.target);
+                        if (card === area) {
+                            output.text = "objectOf() -> the area itself";
+                            return;
+                        }
+                        card.bringToFront();
+                        output.text = "zIndex = " + card.zIndex + ",  area.contains(card) = " + area.contains(card);
+                    });
+
+                });
+
+        };
+
+        Demo.iconCard = function() {
+
+            Demo.card("Icon: imageFit, alt",
+                'Icon(0, 0, 120, 70, { imageFit: "cover", alt: "Strawberry" });\n' +
+                'that.load("assets/strawberry.png");',
+                function() {
+
+                    HGroup({ hug: 1, gap: 12, wrap: 1 });
+
+                        ["cover", "contain", "fill"].forEach(function(fit) {
+                            VGroup({ hug: 1, gap: 4 });
+                                Icon(0, 0, 120, 70, { imageFit: fit, alt: "Strawberry", color: SOFT, round: 8 });
+                                that.load("assets/strawberry.png");
+                                Label({ text: "\"" + fit + "\"", ...TEXT, fontSize: 13 });
+                            endGroup();
+                        });
+
+                    endGroup();
+
+                });
+
+        };
+
+        Demo.pageCard = function() {
+
+            let output, listenButton, removeListener = null;
+
+            const listen = function() {
+                // page.on() returns a function that removes the event.
+                removeListener = page.on("keydown", function(self, event) {
+                    output.text = "keydown: " + event.code;
+                });
+                output.text = "Press a key...";
+                listenButton.text = "Stop listening";
+            };
+
+            Demo.card("page.on(), page.title",
+                'const remove = page.on("keydown", function (self, event) { ... });   // window events\n' +
+                'remove();                 // or page.off("keydown", fn)\n' +
+                'page.title = "My App";    // document.title',
+                function() {
+
+                    output = Demo.output();
+
+                    HGroup({ hug: 1, gap: 8, clipContent: 0 });
+
+                        listenButton = Button({ text: "", ...SMALL_BUTTON });
+                        listenButton.on("click", function() {
+                            if (removeListener) {
+                                removeListener();
+                                removeListener = null;
+                                output.text = "Not listening.";
+                                listenButton.text = "Listen again";
+                            } else {
+                                listen();
+                            }
+                        });
+
+                        Button({ text: "Change page.title", ...SMALL_BUTTON });
+                        that.on("click", function() {
+                            page.title = "Title " + random(100, 999);
+                            output.text = "page.title = \"" + page.title + "\"";
+                        });
+
+                    endGroup();
+
+                    listen();
+
+                });
+
+        };
+
+        Demo.basicCard = function() {
+
+            let countdown;
+
+            // A counter that stays after a reload.
+            const visits = basic.storage.loadOr("basic-samples-new-features-visits", 0) + 1;
+            basic.storage.save("basic-samples-new-features-visits", visits);
+
+            Demo.card("basic.* helpers",
+                'basic.version;  basic.isReady;\n' +
+                'basic.clamp(150, 0, 100);   basic.lerp(0, 200, 0.25);\n' +
+                'basic.storage.loadOr("visits", 0);\n' +
+                'await basic.sleep(1000);    await basic.nextFrame();',
+                function() {
+
+                    Demo.output("basic.version = \"" + basic.version + "\",  basic.isReady = " + basic.isReady);
+                    Demo.output("basic.clamp(150, 0, 100) = " + basic.clamp(150, 0, 100)
+                        + ",  basic.lerp(0, 200, 0.25) = " + basic.lerp(0, 200, 0.25));
+                    Demo.output("basic.storage.loadOr(): you opened this page " + visits + " time(s).");
+
+                    HGroup({ hug: 1, gap: 12, align: "left center", clipContent: 0 });
+
+                        Button({ text: "Count down with basic.sleep()", ...SMALL_BUTTON });
+                        that.on("click", async function(self) {
+                            self.enabled = 0;
+                            for (let i = 3; i > 0; i--) {
+                                countdown.text = i + "...";
+                                await basic.sleep(1000);
+                            }
+                            countdown.text = "Go!";
+                            self.enabled = 1;
+                        });
+
+                        countdown = Label({ text: "", ...TEXT, bold: 1, textColor: ACCENT });
+
+                    endGroup();
+
+                });
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+
+        <!-- HTML content -->
+
+    </body>
+</html>
