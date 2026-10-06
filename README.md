@@ -1,126 +1,144 @@
-# basic.js — Getting Started and Philosophy (Introduction)
+# basic.js
 
-`basic.js` is a lightweight JavaScript library built to make developing web applications as **simple, fast, and understandable** as possible. No need to write HTML or CSS!
+A small JavaScript library for building web applications with plain JavaScript. You don't write HTML or CSS: you create the objects on the screen (boxes, labels, buttons, inputs, images) directly in code.
 
-Its Goal:
-Not to make coding harder, but **to turn it into an enjoyable and fluent experience**.
+- **Version:** v26.09.18
+- **Size:** 38 KB minified, about 12 KB gzipped
+- **Dependencies:** none
+- **Build step:** none (no npm, no bundler)
+- **License:** Apache 2.0
 
-- Project Site: https://bug7a.github.io/basic.js/
+**[Project site](https://bug7a.github.io/basic.js/)** · **[Handbook](https://bug7a.github.io/basic.js-handbook/)** · **[Components](https://bug7a.github.io/js-components/)**
+
+---
+
+## Quick start
+
+1. Download the [`basic/`](https://github.com/bug7a/js-components/tree/main/basic) folder and put it next to your page.
+2. Save the code below as `index.htm`.
+3. Open it in a browser.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My first basic.js page</title>
+
+    <link rel="stylesheet" href="basic/basic.min.css">
+    <script src="basic/basic.min.js"></script>
+
+    <script>
+
+    let count = 0;
+
+    // basic.js calls start() when the page is ready.
+    const start = function () {
+
+        page.color = "whitesmoke";
+
+        // A group places its content. This one centers it.
+        VGroup({ align: "center", gap: 12 });
+
+            const lblCount = Label({ text: "Clicked: 0", fontSize: 24 });
+
+            Button({ text: "Click me", width: 160 });
+            that.on("click", function () {
+                count++;
+                lblCount.text = "Clicked: " + count;
+            });
+
+        endGroup();
+
+    };
+
+    </script>
+</head>
+<body></body>
+</html>
+```
+
+The result:
+
+![A label that says "Clicked: 2" over a "Click me" button, centered on the page](counter-example.png)
+
+The page needs three things from the `basic/` folder: `basic.min.js`, `basic.min.css` and `font/` (Open Sans, loaded by the CSS).
+
+---
+
+## The concepts
+
+There are only a few, and the example above uses most of them.
+
+| Concept | What it is |
+|---|---|
+| `page` | The screen. basic.js creates it for you. Everything else goes inside it. |
+| `start()` | Your first function. basic.js calls it when the page is ready. |
+| `Box`, `Label`, `Button`, `Input`, `Icon` | The five objects everything is made of. Each one takes a props object: `Label({ text: "Hi", fontSize: 16 })`. |
+| `HGroup`, `VGroup` … `endGroup()` | Auto layout. Objects created between the two calls are placed in a row or a column (`align`, `gap`, `padding`). |
+| `startBox()` … `endBox()` | The same idea for a plain box: objects created in between go inside it. |
+| `that` | The object you created last, so you can keep working on it without giving it a name. |
+| `obj.on("click", fn)` | Events. |
+| `obj.elem` | The real DOM element, when you need it. |
+
+Properties are changed by assigning them: `lblCount.text = "Hello"`, `box.color = "tomato"`, `box.left = 40`. There is no template, no state system and no render step. The object on the screen changes when you change it.
 
 ---
 
 ## Why basic.js?
 
-- **Highly Readable Code:** Instead of getting lost among complex structures, it focuses on offering a fluent, self-explanatory syntax that is immediately understood at a glance, as if you were reading a story. It aims to make software development as simple and enjoyable as putting together lego pieces.
+**Readable code.** A page reads from top to bottom in the order it appears on the screen. The indentation of the code is the structure of the interface.
 
-`Code is written not just for the machine, but for humans too.`
+**Little to learn.** Five objects, groups, events and a list of properties. If you know basic JavaScript, you can read a basic.js page on the first day.
 
-- **Zero Learning Curve:** Instead of endless documents or heavy theoretical concepts, it builds a natural and effortless learning path where you can go into production in minutes just by looking at the flow of the code. It aims to help you quickly grasp the core concepts and instantly transform your ideas into working interfaces.
+**Light.** One script and one small stylesheet. It works directly on the DOM: no virtual DOM, no compiler, nothing to install.
 
-`There are a small number of basic concepts.`
+**One language, one place.** Layout, style and logic are in the same JavaScript file, so a value like a color or a width is an ordinary variable you can calculate, share and change at run time.
 
-- **Lightweight and High Performance:** With its structure free from unnecessary burdens and external dependencies, it aims to deliver the highest response speed with the lowest resource consumption directly on the DOM. Thanks to its lean structure that prioritizes performance, it offers a fluent experience, especially in projects where speed and flexibility are critical.
-
-`No extra dependencies.`
-
-- **Full Control and Flexibility:** Instead of splitting between HTML and CSS files, it tries to create a limitless space for you to move by transferring all UI processes and layouts to a fully JavaScript-based structure. It provides a development infrastructure where you can manage every detail from a single center with full control.
-
-`Provides a more flexible structure.`
-
-- **Rapid Prototyping and Agile Development:** Instead of overly complex structures where tasks are heavily divided, it endeavors to make the process much more efficient for solo developers, especially in small to medium-scale projects where interface flexibility and logic speed are in the foreground.
-
-`No over-engineering.`
-`Keeps simple things simple.`
+**Made for one developer.** It keeps simple things simple. It suits small and medium projects where one person writes both the interface and the logic.
 
 ---
 
-## Working Logic and Example
+## When to use it
 
-You can better see how this system is no different from a lego set with a simple click Counter example:
+**A good fit:**
 
-```javascript
-// Variables
-let lblText;
-let clickedCount = 0;
-    
-// The first (main) function to be triggered when the application runs
-window.onload = function() {
+- Admin panels, dashboards and internal tools
+- Forms, small apps and prototypes
+- Kiosk and device screens, PWAs
+- Learning and teaching programming
 
-    // We change the color of the page where everything resides
-    page.color = "whitesmoke";
+**Not a good fit:**
 
-    // GROUP: Start the auto layout group. 
-    // Center all its content horizontally.
-    HGroup({
-        // flow: "horizontal", // Or "vertical"
-        // align: "center", // Or "top left", "center right"
-        // gap: 0,
-        // padding: 0, // Ex: [0, 0, 0, 0]
-    });
-
-        // LABEL: We add a box inside the group intended as a clickable button
-        lblText = Label({
-            text: "Click Me",
-            color: "white",
-            padding: [12, 4],
-            round: 4,
-            border: 1,
-            borderColor: "rgba(0, 0, 0, 0.1)",
-        });
-        
-        // The last created element is attached to the variable named "that".
-        // Therefore, an event or mouse cursor can be attached without explicitly calling its name.
-        that.elem.style.cursor = "pointer";
-        that.on("click", increaseOne);
-
-    // We Close the Group.
-    endGroup();
-
-};
-
-// Externally linked function that will run every time the button (.on("click")) is clicked
-const increaseOne = function(self, event) {
-
-    // Increase the variable
-    clickedCount++;
-    
-    // Change the text content of our Lego piece (.text)
-    lblText.text = "Clicked Count: " + clickedCount;
-
-    // We can also print to the console
-    println(clickedCount);
-
-};
-```
+- Content sites that depend on search engines. The page is drawn by JavaScript, so there is no HTML for a crawler to read unless you add it yourself.
+- Large teams that need the tooling and conventions of a big framework.
+- Server-side rendering.
 
 ---
 
-## Handbook File Structure
+## More than the core
 
-This handbook exemplifies how you can use the library most efficiently, from basic to advanced levels:
+basic.js is the base of the [JS-Component Suite](https://github.com/bug7a/js-components):
 
-1. **Basic Components:**
-   The objects that make up our visual framework (`02-box.md`, `01-label.md`, `03-image.md`, etc.).
-2. **Input and Interaction:**
-   Objects designed for taking input from the user and processing operations (`06-button.md`, `07-input.md`).
-3. **Page and Layout Hierarchy:**
-   Controlling the entire screen (`08-page.md`) or attaching objects to each other in a higher-level layout (`05-autolayout.md`).
-4. **Common Properties:**
-   The standard capabilities that every element possesses unless otherwise specified (`04-common-properties.md`).
-5. **Animations and Tools:**
-   Animation controls that bring objects to life (`10-motion.md`), internal audio player (`13-sound.md`), and helper functions that power the system (`12-utilities.md` and `11-other-functions.md`).
-6. **Practical Information (Tips & Tricks):**
-   CSS/interface tactics that might feel complex like casting a shadow on a component or adding a gradient in the UI, but are single-line lifesavers via the library (`09-useful-examples.md`).
+- **Components:** more than 50 ready-made components written with basic.js, such as tabs, tables, date and color pickers, charts, modals, a rich text editor and a sortable list. See them live in the [component catalog](https://bug7a.github.io/js-components/).
+- **Templates:** an [admin panel](https://github.com/bug7a/js-components/tree/main/04-template-m2/js-admin-panel), ready-made [web forms](https://github.com/bug7a/js-components/tree/main/04-template-m2/web-forms) and a [PWA tool](https://github.com/bug7a/js-components/tree/main/04-template-m2/easy-pwa).
+- **VS Code extensions:** a code completer, an object navigator and a view inspector for basic.js ([`__developer-toolkit/`](https://github.com/bug7a/js-components/tree/main/__developer-toolkit)).
+- **AI context files:** short documents that teach an AI assistant how to write basic.js code ([`context/`](https://github.com/bug7a/js-components/tree/main/context)).
 
-Also, to quickly look at the latest developments and fresh methods added to the library, you can review the **`00-what-is-new.md`** release notes.
+---
 
-I wish you to see its benefits.
+## Documentation
 
+- **[Handbook](https://bug7a.github.io/basic.js-handbook/):** every object, property and function with examples, in English and Turkish. It also works offline as an installable app.
+- **[What is new](https://github.com/bug7a/js-components/blob/main/__handbook/english/00-what-is-new.md):** release notes.
+- **[Tutorial pages](https://github.com/bug7a/js-components/tree/main/01-basic-samples-m1):** numbered sample pages for the core library.
 
-## LICENSE
+---
+
+## License
 
 Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com>
 - https://github.com/bug7a
 
-Licensed under the Apache License, Version 2.0
-
+Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
