@@ -1,11 +1,11 @@
 # basic.js
 
-A small JavaScript library for building web applications with plain JavaScript. You don't write HTML or CSS: you create the objects on the screen (boxes, labels, buttons, inputs, images) directly in code.
+A small library for building web applications in plain JavaScript. You create the objects on the screen (boxes, labels, buttons, inputs, images) directly in code, with their layout, style and behavior in one place.
 
-- **Version:** v26.09.18
-- **Size:** 38 KB minified, about 12 KB gzipped
+- **Version:** v26.11.01
+- **Size:** about 45 KB minified, about 14 KB gzipped
 - **Dependencies:** none
-- **Build step:** none (no npm, no bundler)
+- **Build step:** none: add a `<script>` tag and open the page in a browser
 - **License:** Apache 2.0
 
 **[Project site](https://bug7a.github.io/basic.js/)** · **[Handbook](https://bug7a.github.io/basic.js-handbook/)** · **[Components](https://bug7a.github.io/js-components/)**
@@ -14,7 +14,7 @@ A small JavaScript library for building web applications with plain JavaScript. 
 
 ## Quick start
 
-1. Download the [`basic/`](https://github.com/bug7a/js-components/tree/main/basic) folder and put it next to your page.
+1. Download the [`basic/`](basic/) folder and put it next to your page.
 2. Save the code below as `index.htm`.
 3. Open it in a browser.
 
@@ -82,7 +82,7 @@ There are only a few, and the example above uses most of them.
 | `obj.on("click", fn)` | Events. |
 | `obj.elem` | The real DOM element, when you need it. |
 
-Properties are changed by assigning them: `lblCount.text = "Hello"`, `box.color = "tomato"`, `box.left = 40`. There is no template, no state system and no render step. The object on the screen changes when you change it.
+Properties are changed by assigning them: `lblCount.text = "Hello"`, `box.color = "tomato"`, `box.left = 40`. The object on the screen changes when you change it.
 
 ---
 
@@ -92,7 +92,7 @@ Properties are changed by assigning them: `lblCount.text = "Hello"`, `box.color 
 
 **Little to learn.** Five objects, groups, events and a list of properties. If you know basic JavaScript, you can read a basic.js page on the first day.
 
-**Light.** One script and one small stylesheet. It works directly on the DOM: no virtual DOM, no compiler, nothing to install.
+**Light.** One script and one small stylesheet. It works directly on the DOM, and a page runs as soon as you open it in a browser.
 
 **One language, one place.** Layout, style and logic are in the same JavaScript file, so a value like a color or a width is an ordinary variable you can calculate, share and change at run time.
 
@@ -119,11 +119,11 @@ Properties are changed by assigning them: `lblCount.text = "Hello"`, `box.color 
 
 ## More than the core
 
-basic.js is the base of the [JS-Component Suite](https://github.com/bug7a/js-components):
+basic.js is the base of the [JS-Component Kit](https://github.com/bug7a/js-components):
 
-- **Components:** more than 50 ready-made components written with basic.js, such as tabs, tables, date and color pickers, charts, modals, a rich text editor and a sortable list. See them live in the [component catalog](https://bug7a.github.io/js-components/).
-- **Templates:** an [admin panel](https://github.com/bug7a/js-components/tree/main/04-template-m2/js-admin-panel), ready-made [web forms](https://github.com/bug7a/js-components/tree/main/04-template-m2/web-forms) and a [PWA tool](https://github.com/bug7a/js-components/tree/main/04-template-m2/easy-pwa).
-- **VS Code extensions:** a code completer, an object navigator and a view inspector for basic.js ([`__developer-toolkit/`](https://github.com/bug7a/js-components/tree/main/__developer-toolkit)).
+- **Components:** nearly 70 ready-made components written with basic.js, such as tabs, tables, date and color pickers, charts, dialogs, a rich text editor and a sortable list. See them live in the [component catalog](https://bug7a.github.io/js-components/).
+- **Templates:** [mobile apps](https://github.com/bug7a/javascript-mobile-app-template), an [admin panel](https://github.com/bug7a/js-components/tree/main/04-templates/ozden-panel), ready-made [web forms](https://github.com/bug7a/js-components/tree/main/04-templates/web-forms) and a [PWA tool](https://github.com/bug7a/js-components/tree/main/04-templates/easy-pwa).
+- **VS Code extensions:** a code completer, an object navigator and a view inspector for basic.js ([`__developer-toolkit/`](__developer-toolkit/)).
 - **AI context files:** short documents that teach an AI assistant how to write basic.js code ([`context/`](https://github.com/bug7a/js-components/tree/main/context)).
 
 ---
