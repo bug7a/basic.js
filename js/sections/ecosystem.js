@@ -21,7 +21,7 @@ const EcosystemSection = function () {
     const links = {
         handbook: CONFIG.handbookURL,
         components: CONFIG.componentsURL,
-        templates: CONFIG.adminPanelURL,
+        templates: CONFIG.templatesURL,
         toolkit: CONFIG.toolkitURL,
     };
 

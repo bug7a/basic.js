@@ -30,15 +30,15 @@ const CONFIG = {
     handbookURL: "https://bug7a.github.io/basic.js-handbook/",
     componentsURL: "https://bug7a.github.io/js-components/",
     authorURL: "https://bug7a.github.io/", // Alt bilgideki "Bugra Ozden"
-    adminPanelURL: "https://github.com/bug7a/js-components/tree/main/04-template-m2/js-admin-panel", // TODO: the page of the admin panel, when it is published
+    templatesURL: "https://github.com/bug7a/js-components/tree/main/04-templates",
     toolkitURL: "https://github.com/bug7a/js-components/tree/main/__developer-toolkit",
     // "basic.js'i görün" düğmesi (kaynak kod GitHub'da; bu klasörde sadece .min dosyası var)
     sourceURL: "https://github.com/bug7a/js-components/blob/main/basic/basic.js",
 
     // *** FACTS: (Tanıtımdaki sayılar. basic.min.js değişince güncelleyin.)
-    // basic/basic.min.js: 39.6 KB, gzip: 11.8 KB (v26.09.18)
-    sizeGzip: "12 KB",
-    componentCount: 72,
+    // basic/basic.min.js: 45.1 KB, gzip: 14.3 KB (v26.11.01)
+    sizeGzip: "14 KB",
+    componentCount: 69,
     chapterCount: 16,
     license: "Apache 2.0",
 

@@ -46,7 +46,7 @@ Sayfayı kuran fonksiyon: `js/site.js` → `SiteApp.build()`.
   `js/texts.js` → `playgroundTabs` içine de adını ekleyin.
 - **Sayılar:** `js/config.js` → `sizeGzip`, `componentCount`, `chapterCount`. basic.min.js veya bileşenler değişince güncelleyin.
 - **Renkler:** `js/theme.js` başındaki `SITE` nesnesi. Vurgu rengi `ACCENT` (`#F5B82E`).
-- **Bağlantılar:** `js/config.js` (el kitabı, bileşenler, yönetim paneli, GitHub).
+- **Bağlantılar:** `js/config.js` (el kitabı, bileşenler, şablonlar, GitHub).
 
 ---
 
@@ -58,7 +58,7 @@ Sayfayı kuran fonksiyon: `js/site.js` → `SiteApp.build()`.
 - **Site kendi içinden çalışır:** Kütüphane `basic/` klasöründe, bileşenler (`web-view`, `tabs`, `toast`) `comp/` klasöründe,
   hepsi `.min` olarak. Klasör olduğu gibi başka bir yere kopyalanıp yayınlanabilir. Canlı örnekler `basic/basic.min.js` ile
   çalışır (`js/config.js` → `rootPath: "./"`). Bu kopyalar deponun ana dizinindeki `_make-standalone.sh` ile yapılır ve
-  kendiliğinden güncellenmez: kütüphane veya bu bileşenler değişince `./_make-standalone.sh 03-webpage-m2/webpage-basicjs`
+  kendiliğinden güncellenmez: kütüphane veya bu bileşenler değişince `./_make-standalone.sh 03-webpages/webpage-basicjs --in-place`
   çalıştırın. `basic/` ve `comp/` içindeki dosyaları elle düzenlemeyin.
 - `js/code-highlight.js`, ana dizindeki `index/code-highlight.js` dosyasının kopyasıdır; buna CSS renklendirmesi eklendi.
 - Düzenleyicide Chrome satır sonunu `<br>` olarak ekler; `LiveCode` bunları satır sonu metnine çevirir.

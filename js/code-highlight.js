@@ -48,7 +48,7 @@ CodeHighlight.JS_LITERALS = new Set("true false null undefined NaN Infinity".spl
 
 CodeHighlight.BASIC_NAMES = new Set(("page that prevThat basic Box Label Button Input Icon HGroup VGroup AutoLayout startBox endBox "
     + "startFlexBox endFlexBox endGroup startObject endObject startExtendedObject endExtendedObject mergeIntoIfMissing createIn "
-    + "setDefaultContainerBox println Black White go num str random waitAndRun setLoopTimer isMobile withPageZoom makeBasicObject").split(" "));
+    + "setDefaultContainerBox println Black White Alpha random waitAndRun setLoopTimer withPageZoom makeBasicObject").split(" "));
 
 // WHY: Bu işaretlerden (veya bu kelimelerden) sonra gelen "/" bölme değil, düzenli ifadedir (regex).
 CodeHighlight.REGEX_BEFORE = new Set("( , = : [ ! & | ? { } ; + - * % < > ~ ^".split(" "));

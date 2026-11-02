@@ -20,7 +20,7 @@ const TEXTS = {
     en: {
         htmlLang: "en",
         pageTitle: "basic.js – Build web interfaces with plain JavaScript",
-        pageDescription: "basic.js is a small, dependency-free JavaScript library that creates the DOM for you. No HTML markup, no CSS files, no build step.",
+        pageDescription: "basic.js is a small, dependency-free JavaScript library that creates the page objects for you. Layout, style and behavior stay together in plain JavaScript.",
         languageButton: "TR",
         languageHint: "Türkçe",
 
@@ -39,7 +39,7 @@ const TEXTS = {
         // HERO
         heroEyebrow: "v{version} · Open source",
         heroTitle: "Build web interfaces with plain JavaScript.",
-        heroLead: "basic.js creates the page objects for you. No HTML markup, no CSS files, no build step: write one function and open the page in a browser.",
+        heroLead: "basic.js creates the page objects for you. Write one function with the layout, style and behavior of your screen, and open the page in a browser.",
         heroPrimary: "Get started",
         heroSecondary: "Read the handbook",
         heroFacts: ["{size} gzipped", "0 dependencies", "No build step", "{license}"],
@@ -50,15 +50,15 @@ const TEXTS = {
         whyTitle: "Keep simple things simple",
         why: [
             { icon: "read", title: "Reads like the screen", text: "The code of a screen follows its layout: a group, a title, a button. You understand it at a glance, months later too." },
-            { icon: "feather", title: "Small and dependency-free", text: "One {size} file works directly on the DOM. No framework runtime, no virtual DOM, no node_modules." },
-            { icon: "bolt", title: "No build step", text: "Add a script tag, save, refresh. There is nothing to compile, bundle or configure." },
-            { icon: "hand", title: "Full control in one place", text: "Layout, style and behavior live together in JavaScript, so there is no markup and stylesheet to keep in sync." },
+            { icon: "feather", title: "Small and dependency-free", text: "One file, {size} gzipped, works directly on the DOM. Add it to a page and start." },
+            { icon: "bolt", title: "Runs right away", text: "Add a script tag, save, refresh. The code you write is the code that runs." },
+            { icon: "hand", title: "Full control in one place", text: "Layout, style and behavior live together in JavaScript, so everything about a screen is in one place." },
         ],
 
         // COMPARE
         compareEyebrow: "HOW IT WORKS",
         compareTitle: "The same card, two ways",
-        compareLead: "With HTML and CSS a screen is split into markup, styles and scripts that must stay in sync. With basic.js it is one function that reads like the screen.",
+        compareLead: "Here is one card written with HTML, CSS and JavaScript, and again with basic.js. In basic.js the whole card is one function that reads like the screen.",
         compareClassic: "HTML + CSS + JavaScript",
         compareClassicNote: "3 files",
         compareBasic: "basic.js",
@@ -82,7 +82,7 @@ const TEXTS = {
         // PLAYGROUND
         playgroundEyebrow: "PLAYGROUND",
         playgroundTitle: "Try it here",
-        playgroundLead: "Pick an example, change the code and watch the result update. Nothing to install.",
+        playgroundLead: "Pick an example, change the code and watch the result update, right here in the page.",
         playgroundTabs: {
             layout: "Layout",
             todo: "To-do list",
@@ -100,11 +100,11 @@ const TEXTS = {
         // ECOSYSTEM
         ecosystemEyebrow: "ECOSYSTEM",
         ecosystemTitle: "More than a library",
-        ecosystemLead: "basic.js comes with a handbook, a component suite and ready app templates, all written with the same few ideas.",
+        ecosystemLead: "basic.js comes with a handbook, the JS-Component Kit and ready app templates, all written with the same few ideas.",
         ecosystem: [
             { key: "handbook", icon: "book", title: "Handbook", text: "{chapters} chapters, from the first Box to motion and utilities. Every example runs in the page.", link: "Open the handbook" },
-            { key: "components", icon: "grid", title: "Components", text: "{components} ready components: tabs, tables, date pickers, charts, toasts, modals… each with a live example and its code.", link: "Browse the components" },
-            { key: "templates", icon: "layout", title: "App templates", text: "A modular admin panel, an installable PWA shell and forms that post to a service. Start from a working app.", link: "See the admin panel" },
+            { key: "components", icon: "grid", title: "Components", text: "{components} ready components: tabs, tables, date pickers, charts, toasts, dialogs… each with a live example and its code.", link: "Browse the components" },
+            { key: "templates", icon: "layout", title: "App templates", text: "Mobile apps, a modular admin panel, an installable PWA and forms that post to a service. Start from a working app.", link: "See the templates" },
             { key: "toolkit", icon: "code", title: "VS Code tools", text: "Extensions for basic.js: code completion, an object navigator and a view inspector.", link: "In the repository" },
         ],
 
@@ -122,8 +122,8 @@ const TEXTS = {
         // WHAT'S NEW
         newsEyebrow: "RELEASE",
         newsTitle: "New in v{version}",
-        newsText: "Fully compatible with the previous version. Every object got new properties and methods:",
-        newsItems: ["css", "bold", "ellipsis", "grow", "plainText", "show() / hide()", "animate()", "once()", "createIn()", "Input.onEnter()", "wrap / justify", "basic.sleep()"],
+        newsText: "New since v26.09.18, for cleaner components and fitted pages. One change to check in older pages: since v26.10.25 five helpers are under basic.* (basic.num()…), and the old create* functions are gone.",
+        newsItems: ["basic.uiScale", "basic.scaleStyle()", "basic.applyStylePackage()", "basic.resolveTheme()", "basic.addCss()", "basic.isOn()", "Alpha()", "listenTo()", "onPageResize()", "after() / every()", "own()", "onHoverChange()", "setFocusRing()"],
         newsLink: "Release notes",
 
         // COPY
@@ -139,7 +139,7 @@ const TEXTS = {
     tr: {
         htmlLang: "tr",
         pageTitle: "basic.js – Saf JavaScript ile web arayüzleri",
-        pageDescription: "basic.js, sayfa nesnelerini sizin için oluşturan küçük ve bağımlılıksız bir JavaScript kütüphanesidir. HTML etiketi, CSS dosyası ve derleme adımı yok.",
+        pageDescription: "basic.js, sayfa nesnelerini sizin için oluşturan küçük ve bağımlılıksız bir JavaScript kütüphanesidir. Yerleşim, görünüm ve davranış saf JavaScript içinde bir arada durur.",
         languageButton: "EN",
         languageHint: "English",
 
@@ -158,7 +158,7 @@ const TEXTS = {
         // HERO
         heroEyebrow: "v{version} · Açık kaynak",
         heroTitle: "Web arayüzlerini saf JavaScript ile kurun.",
-        heroLead: "basic.js sayfa nesnelerini sizin için oluşturur. HTML etiketi, CSS dosyası ve derleme adımı yok: bir fonksiyon yazın ve sayfayı tarayıcıda açın.",
+        heroLead: "basic.js sayfa nesnelerini sizin için oluşturur. Ekranınızın yerleşimini, görünümünü ve davranışını bir fonksiyonda yazın, sayfayı tarayıcıda açın.",
         heroPrimary: "Başlayın",
         heroSecondary: "El kitabını okuyun",
         heroFacts: ["{size} (gzip)", "0 bağımlılık", "Derleme yok", "{license}"],
@@ -169,15 +169,15 @@ const TEXTS = {
         whyTitle: "Basit işler basit kalsın",
         why: [
             { icon: "read", title: "Ekran gibi okunur", text: "Bir ekranın kodu, ekranın düzenini izler: bir grup, bir başlık, bir düğme. Bir bakışta, aylar sonra da anlaşılır." },
-            { icon: "feather", title: "Küçük ve bağımlılıksız", text: "{size} tek bir dosya, doğrudan DOM üzerinde çalışır. Framework, sanal DOM ve node_modules yok." },
-            { icon: "bolt", title: "Derleme adımı yok", text: "Bir script etiketi ekleyin, kaydedin, yenileyin. Derlenecek, paketlenecek veya ayarlanacak bir şey yok." },
-            { icon: "hand", title: "Her şey tek yerde", text: "Yerleşim, görünüm ve davranış JavaScript içinde bir arada durur; eşit tutulacak ayrı HTML ve CSS dosyaları yoktur." },
+            { icon: "feather", title: "Küçük ve bağımlılıksız", text: "Gzip ile {size} olan tek bir dosya, doğrudan DOM üzerinde çalışır. Sayfaya ekleyin ve başlayın." },
+            { icon: "bolt", title: "Hemen çalışır", text: "Bir script etiketi ekleyin, kaydedin, yenileyin. Yazdığınız kod, çalışan koddur." },
+            { icon: "hand", title: "Her şey tek yerde", text: "Yerleşim, görünüm ve davranış JavaScript içinde bir arada durur; bir ekranla ilgili her şey tek yerdedir." },
         ],
 
         // COMPARE
         compareEyebrow: "NASIL ÇALIŞIR",
         compareTitle: "Aynı kart, iki yol",
-        compareLead: "HTML ve CSS ile bir ekran; birbirine uyması gereken etiketlere, stillere ve kodlara bölünür. basic.js ile ekran gibi okunan tek bir fonksiyondur.",
+        compareLead: "Aynı kart önce HTML, CSS ve JavaScript ile, sonra basic.js ile yazıldı. basic.js'te kartın tamamı, ekran gibi okunan tek bir fonksiyondur.",
         compareClassic: "HTML + CSS + JavaScript",
         compareClassicNote: "3 dosya",
         compareBasic: "basic.js",
@@ -201,7 +201,7 @@ const TEXTS = {
         // PLAYGROUND
         playgroundEyebrow: "DENEME ALANI",
         playgroundTitle: "Burada deneyin",
-        playgroundLead: "Bir örnek seçin, kodu değiştirin ve sonucun yenilenmesini izleyin. Kurulacak bir şey yok.",
+        playgroundLead: "Bir örnek seçin, kodu değiştirin ve sonucun yenilenmesini doğrudan bu sayfada izleyin.",
         playgroundTabs: {
             layout: "Yerleşim",
             todo: "Yapılacaklar",
@@ -219,11 +219,11 @@ const TEXTS = {
         // ECOSYSTEM
         ecosystemEyebrow: "EKOSİSTEM",
         ecosystemTitle: "Bir kütüphaneden fazlası",
-        ecosystemLead: "basic.js ile birlikte bir el kitabı, bir bileşen seti ve hazır uygulama şablonları gelir; hepsi aynı birkaç fikirle yazılmıştır.",
+        ecosystemLead: "basic.js ile birlikte bir el kitabı, JS-Component Kit ve hazır uygulama şablonları gelir; hepsi aynı birkaç fikirle yazılmıştır.",
         ecosystem: [
             { key: "handbook", icon: "book", title: "El kitabı", text: "İlk Box'tan harekete ve yardımcı fonksiyonlara {chapters} bölüm. Her örnek sayfanın içinde çalışır.", link: "El kitabını açın" },
             { key: "components", icon: "grid", title: "Bileşenler", text: "{components} hazır bileşen: sekmeler, tablolar, tarih seçiciler, grafikler, bildirimler, pencereler… her biri canlı örneği ve koduyla.", link: "Bileşenlere göz atın" },
-            { key: "templates", icon: "layout", title: "Uygulama şablonları", text: "Modüler bir yönetim paneli, kurulabilir bir PWA ve bir servise gönderilen formlar. Çalışan bir uygulamadan başlayın.", link: "Yönetim panelini görün" },
+            { key: "templates", icon: "layout", title: "Uygulama şablonları", text: "Mobil uygulamalar, modüler bir yönetim paneli, kurulabilir bir PWA ve bir servise gönderilen formlar. Çalışan bir uygulamadan başlayın.", link: "Şablonları görün" },
             { key: "toolkit", icon: "code", title: "VS Code araçları", text: "basic.js için eklentiler: kod tamamlama, nesne gezgini ve görünüm denetçisi.", link: "Depoda" },
         ],
 
@@ -241,8 +241,8 @@ const TEXTS = {
         // WHAT'S NEW
         newsEyebrow: "SÜRÜM",
         newsTitle: "v{version} ile gelenler",
-        newsText: "Önceki sürümle tam uyumlu. Her nesneye yeni özellikler ve metodlar geldi:",
-        newsItems: ["css", "bold", "ellipsis", "grow", "plainText", "show() / hide()", "animate()", "once()", "createIn()", "Input.onEnter()", "wrap / justify", "basic.sleep()"],
+        newsText: "v26.09.18'den bu yana gelenler: daha temiz bileşenler ve page.fit ile sığdırılan sayfalar için. Eski sayfalarda bakılacak tek değişiklik: v26.10.25 ile beş yardımcı basic.* altına taşındı (basic.num()…), eski create* fonksiyonları kaldırıldı.",
+        newsItems: ["basic.uiScale", "basic.scaleStyle()", "basic.applyStylePackage()", "basic.resolveTheme()", "basic.addCss()", "basic.isOn()", "Alpha()", "listenTo()", "onPageResize()", "after() / every()", "own()", "onHoverChange()", "setFocusRing()"],
         newsLink: "Sürüm notları",
 
         // COPY
