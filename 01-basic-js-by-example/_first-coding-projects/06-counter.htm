@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Counter</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        COUNTER
+
+        ALGORITHM:
+        Every second, the number on the Label grows by one.
+        A click on the Button resets it to 0.
+
+        WORKING LOGIC:
+        - basic.js runs the function loop() every second, by itself.
+          loop() runs increaseTheNumber(), which adds 1 to the number.
+        - When the button is clicked, resetTheNumber() makes the number 0.
+
+        */
+
+        // *** VARIABLES:
+
+        let lblNumber;      // shows the number
+        let btnReset;       // resets the number
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "lightblue";
+
+            // LABEL: The number. Parameters: left, top, then the props.
+            lblNumber = Label(50, 50, {
+                text: "0",
+                textAlign: "center",    // the text is in the middle of the label's width
+                fontSize: 40,           // px
+            });
+
+            // BUTTON: Reset. Parameters: left, top, then the props.
+            btnReset = Button(50, 120, { text: "Reset" });
+            that.on("click", resetTheNumber);
+
+            // NOTE: "that" is the last object that was created (here: the button).
+            //       It is a short way to write btnReset.
+
+            // Make the label match the button:
+            // the color of its text is the color of the button,
+            lblNumber.textColor = btnReset.color;
+            // and its width is the width of the button (so the number is in the middle, over the button).
+            lblNumber.width = btnReset.width;
+
+        };
+
+        // basic.js runs loop() every second, by itself.
+        const loop = function () {
+
+            // One more every second.
+            increaseTheNumber();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Adds 1 to the number on the label.
+        const increaseTheNumber = function () {
+
+            lblNumber.text = basic.num(lblNumber.text) + 1;
+
+            // NOTE: The .text of a label is always a text (a string): "5", not 5.
+            //       basic.num() turns it into a number, so 1 can be added: 5 + 1 = 6.
+            //       The new number is written back as a text by itself.
+
+        };
+
+        // Makes the number 0. (The button runs it.)
+        const resetTheNumber = function () {
+            lblNumber.text = "0";
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show the number as minutes and seconds (00:00).
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

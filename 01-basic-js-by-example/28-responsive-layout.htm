@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Responsive Layout</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        RESPONSIVE LAYOUT
+
+        One page, three layouts. Make the browser window narrower and wider to see them.
+
+        - Desktop (900 px and more): a side menu with texts, 4 stats and 3 cards in a row.
+        - Tablet  (600 - 899 px):    a side menu with only the icons, 2 stats and 2 cards in a row.
+        - Phone   (less than 600):   the menu is a drawer that ☰ opens, 2 stats and 1 card in a row.
+
+        - page.onResize(fn)                   -> fn runs every time the window size changes.
+        - HGroup({ wrap: 1 })                 -> the cards continue on the next line when a line is full.
+        - width: "calc((100% - 32px) / 3)"    -> a width as a CSS text: 3 cards with 2 gaps of 16 px in a row.
+        - width: 10, grow: 1                  -> the content starts small and takes the space the menu leaves.
+        - show() / hide(), group.align        -> the texts of the menu and the ☰ button come and go.
+        - position: "absolute"                -> on a phone the menu leaves the row and covers the page.
+        - await obj.animate({ opacity }, ms)  -> the dark layer behind the drawer fades in and out.
+
+        TRY: change the numbers in CARDS_IN_A_ROW, or DESKTOP_MIN_WIDTH.
+
+        */
+
+        // *** VARIABLES:
+
+        const GAP = 16;
+
+        // The window widths where the layout changes.
+        const DESKTOP_MIN_WIDTH = 900;
+        const TABLET_MIN_WIDTH = 600;
+
+        // How many stats and cards are in a row, in every layout.
+        const STATS_IN_A_ROW = { desktop: 4, tablet: 2, phone: 2 };
+        const CARDS_IN_A_ROW = { desktop: 3, tablet: 2, phone: 1 };
+
+        const MENU_WIDTH = 220;
+        const MENU_ICONS_WIDTH = 72;    // tablet: only the icons
+        const DRAWER_TIME = 250;        // ms: the drawer slides in and out
+        const BAR_COUNT = 8;            // the bars of a card's chart
+
+        const COLOR_MENU = "#1F2433";
+        const COLOR_ACCENT = "#4C8DF6";
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Layout = {};
+
+        Layout.mode = "";           // "desktop", "tablet" or "phone"
+        Layout.menuItems = [];
+        Layout.stats = [];
+        Layout.cards = [];
+
+        let sidebar, logoLabel, menuButton, titleLabel, sizeLabel, backdrop;
+
+        const MENU = [
+            { icon: "▦", text: "Dashboard" },
+            { icon: "◷", text: "Reports" },
+            { icon: "✉", text: "Messages" },
+            { icon: "☰", text: "Tasks" },
+            { icon: "⚙", text: "Settings" },
+        ];
+
+        const STATS = [
+            { value: "1,284", name: "Visitors today" },
+            { value: "96", name: "New orders" },
+            { value: "4.8", name: "Average rating" },
+            { value: "12", name: "Open tasks" },
+        ];
+
+        const CARDS = [
+            "Sales", "Traffic", "Customers", "Products", "Stock", "Returns",
+        ];
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#F1F3F8";
+
+            // GROUP: Menu | Content
+            HGroup({ width: "100%", height: "100%", gap: 0, align: "left top" });
+
+                Layout.createSidebar();
+                Layout.createMain();
+
+            endGroup();
+
+            // BOX: The dark layer behind the drawer menu. (Phone only) A click on it closes the drawer.
+            backdrop = Box(0, 0, "100%", "100%", { color: Black(0.4), clickable: 1, zIndex: 5, opacity: 0 });
+            backdrop.on("click", Layout.closeDrawer);
+            backdrop.hide();
+
+            Layout.selectMenuItem(Layout.menuItems[0]);
+
+            Layout.applyLayout();
+            page.onResize(Layout.applyLayout);
+
+        };
+
+        // *** VIEW:
+
+        Layout.createSidebar = function () {
+
+            // GROUP: Side menu
+            sidebar = VGroup({
+                width: MENU_WIDTH,
+                height: "100%",
+                align: "left top",
+                gap: 6,
+                padding: 16,
+                color: COLOR_MENU,
+                zIndex: 10,         // WHY: On a phone the drawer covers the content and the backdrop (zIndex 5).
+            });
+
+                logoLabel = Label({
+                    text: "basic.js",
+                    width: "100%",
+                    height: 48,
+                    lineHeight: 48,     // WHY: One line as tall as the label: the text is in its middle.
+                    fontSize: 20,
+                    bold: 1,
+                    textColor: "white",
+                });
+
+                MENU.forEach(function (data) {
+                    Layout.menuItems.push(Layout.createMenuItem(data));
+                });
+
+            endGroup();
+
+        };
+
+        Layout.createMenuItem = function (data) {
+
+            // GROUP: One menu item
+            const item = HGroup({
+                width: "100%",
+                height: 44,
+                gap: 12,
+                padding: [12, 0],
+                align: "left center",
+                round: 8,
+                clickable: 1,
+                cursor: "pointer",
+            });
+
+                item.icon = Label({
+                    text: data.icon,
+                    width: 24,
+                    fontSize: 18,
+                    textColor: White(0.6),
+                    textAlign: "center",
+                });
+
+                item.textLabel = Label({ text: data.text, fontSize: 15, textColor: White(0.75) });
+
+            endGroup();
+
+            item.data = data;
+            item.isSelected = 0;
+
+            // A light color under the mouse. (The selected item keeps its own color.)
+            item.onHoverChange(function (self, isOver) {
+                if (self.isSelected) return;
+                self.color = (isOver) ? White(0.08) : "transparent";
+            });
+
+            item.on("click", Layout.selectMenuItem);
+
+            return item;
+
+        };
+
+        Layout.createMain = function () {
+
+            // GROUP: Top bar and the content. (width: 10 + grow: 1 -> it takes the space the menu leaves.)
+            VGroup({ width: 10, height: "100%", grow: 1, gap: 0, align: "left top" });
+
+                // GROUP: Top bar
+                HGroup({ width: "100%", height: 60, gap: 12, padding: [20, 0], align: "left center", color: "white" });
+
+                    menuButton = Button({
+                        text: "☰",
+                        width: 40,
+                        height: 40,
+                        minimal: 1,
+                        color: Black(0.05),
+                        textColor: Black(0.7),
+                        round: 8,
+                        fontSize: 18,
+                        aria: { label: "Menu" },   // WHY: A button with only a symbol: a screen reader says "Menu".
+                    });
+                    menuButton.on("click", Layout.openDrawer);
+
+                    titleLabel = Label({
+                        text: "",
+                        width: 10,
+                        grow: 1,
+                        ellipsis: 1,
+                        fontSize: 20,
+                        bold: 1,
+                        textColor: Black(0.8),
+                    });
+
+                    sizeLabel = Label({ text: "", fontSize: 13, textColor: Black(0.45) });
+
+                endGroup();
+
+                // BOX: The content scrolls. (page never scrolls) height: 10 + grow: 1 -> the rest of the height.
+                startBox({ width: "100%", height: 10, grow: 1, color: "transparent", scrollY: 1 });
+
+                    VGroup({ width: "100%", height: "auto", align: "left top", gap: 24, padding: 20 });
+
+                        // GROUP: Stats
+                        HGroup({ width: "100%", height: "auto", gap: GAP, wrap: 1, align: "left top" });
+                            STATS.forEach(function (data) { Layout.stats.push(Layout.createStat(data)); });
+                        endGroup();
+
+                        // GROUP: Cards
+                        HGroup({ width: "100%", height: "auto", gap: GAP, wrap: 1, align: "left top" });
+                            CARDS.forEach(function (name) { Layout.cards.push(Layout.createCard(name)); });
+                        endGroup();
+
+                    endGroup();
+
+                endBox();
+
+            endGroup();
+
+        };
+
+        // A stat: a big number and its name. (applyLayout() gives it its real width.)
+        Layout.createStat = function (data) {
+
+            const stat = VGroup({
+                width: 200,
+                height: 96,
+                gap: 2,
+                padding: 16,
+                align: "left center",
+                color: "white",
+                round: 12,
+            });
+
+                Label({ text: data.value, fontSize: 26, bold: 1, textColor: Black(0.8) });
+                Label({ text: data.name, fontSize: 13, textColor: Black(0.45) });
+
+            endGroup();
+
+            return stat;
+
+        };
+
+        // A card: its name and a chart. (applyLayout() gives it its real width.)
+        Layout.createCard = function (name) {
+
+            const card = VGroup({
+                width: 200,
+                height: 160,
+                gap: 10,
+                padding: 20,
+                align: "left top",
+                color: "white",
+                round: 12,
+            });
+
+                Label({ text: name, fontSize: 17, bold: 1, textColor: Black(0.8) });
+
+                // GROUP: A fake chart: bars with random heights. (height: 10 + grow: 1 -> the rest of the card)
+                HGroup({ width: "100%", height: 10, grow: 1, gap: 6, align: "left bottom" });
+                    for (let i = 0; i < BAR_COUNT; i++) {
+                        Box({
+                            width: 10,
+                            height: random(20, 100) + "%",
+                            grow: 1,
+                            color: COLOR_ACCENT,
+                            round: 3,
+                            opacity: 0.35 + i * 0.08,     // every bar is a little stronger
+                        });
+                    }
+                endGroup();
+
+            endGroup();
+
+            return card;
+
+        };
+
+        // *** LAYOUT:
+
+        Layout.getMode = function (width) {
+            if (width >= DESKTOP_MIN_WIDTH) return "desktop";
+            if (width >= TABLET_MIN_WIDTH) return "tablet";
+            return "phone";
+        };
+
+        // The CSS width of one item when "count" items are in a row. Ex: 3 -> "calc((100% - 32px) / 3)"
+        Layout.getItemWidth = function (count) {
+            if (count === 1) return "100%";
+            const gapsWidth = (count - 1) * GAP;
+            return "calc((100% - " + gapsWidth + "px) / " + count + ")";
+        };
+
+        // At the start, then again every time the window size changes (page.onResize).
+        Layout.applyLayout = function () {
+
+            const width = page.width;
+            const mode = Layout.getMode(width);
+
+            sizeLabel.text = mode + " · " + width + " px";
+
+            // WHY: The rest changes only when the mode changes, not on every pixel of a resize.
+            if (mode === Layout.mode) return;
+            Layout.mode = mode;
+
+            // WHY: closeDrawer() works only in the phone mode, and the mode is already changed here.
+            backdrop.opacity = 0;
+            backdrop.hide();
+
+            Layout.setMenuIconsOnly(mode === "tablet");
+            Layout.setMenuAsDrawer(mode === "phone");
+
+            const statWidth = Layout.getItemWidth(STATS_IN_A_ROW[mode]);
+            const cardWidth = Layout.getItemWidth(CARDS_IN_A_ROW[mode]);
+            Layout.stats.forEach(function (stat) { stat.width = statWidth; });
+            Layout.cards.forEach(function (card) { card.width = cardWidth; });
+
+        };
+
+        // Tablet: a narrow menu with only the icons. Desktop and phone (the drawer): the icons and the texts.
+        Layout.setMenuIconsOnly = function (isIconsOnly) {
+
+            sidebar.width = (isIconsOnly) ? MENU_ICONS_WIDTH : MENU_WIDTH;
+            logoLabel.text = (isIconsOnly) ? "b." : "basic.js";
+
+            Layout.menuItems.forEach(function (item) {
+                if (isIconsOnly) {
+                    item.textLabel.hide();
+                } else {
+                    item.textLabel.show();
+                }
+                item.align = (isIconsOnly) ? "center center" : "left center";
+            });
+
+        };
+
+        // Phone: the menu leaves the row and waits outside the screen, until ☰ opens it.
+        // Tablet and desktop: the menu is in the row and pushes the content to the right.
+        Layout.setMenuAsDrawer = function (isDrawer) {
+
+            if (isDrawer) {
+                sidebar.position = "absolute";                  // out of the row: it covers the content
+                sidebar.props({ left: 0, top: 0 });
+                sidebar.css.transform = "translateX(-100%)";    // at the left, outside the screen
+                // WHY: The jump out of the screen has no motion. The slide is on from the next frame.
+                basic.nextFrame().then(function () { sidebar.setMotion("transform " + DRAWER_TIME + "ms"); });
+                menuButton.show();
+                return;
+            }
+
+            sidebar.setMotion("none");
+            sidebar.position = "relative";                      // back in the row
+            sidebar.css.transform = "none";
+            menuButton.hide();
+
+        };
+
+        // *** MENU:
+
+        Layout.selectMenuItem = function (item) {
+
+            Layout.menuItems.forEach(function (other) {
+                other.isSelected = (other === item) ? 1 : 0;
+                other.color = (other.isSelected) ? COLOR_ACCENT : "transparent";
+                other.icon.textColor = (other.isSelected) ? "white" : White(0.6);
+                other.textLabel.textColor = (other.isSelected) ? "white" : White(0.75);
+            });
+
+            titleLabel.text = item.data.text;
+            page.title = item.data.text + " · Responsive Layout";
+
+            Layout.closeDrawer();
+
+        };
+
+        Layout.openDrawer = function () {
+
+            if (Layout.mode !== "phone") return;
+
+            sidebar.css.transform = "translateX(0)";
+
+            backdrop.show();
+            backdrop.animate({ opacity: 1 }, DRAWER_TIME);
+
+        };
+
+        Layout.closeDrawer = async function () {
+
+            if (Layout.mode !== "phone" || !backdrop.visible) return;
+
+            sidebar.css.transform = "translateX(-100%)";
+
+            await backdrop.animate({ opacity: 0 }, DRAWER_TIME);
+            backdrop.hide();    // WHY: A layer at opacity 0 can not be seen, but it still catches the clicks.
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

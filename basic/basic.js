@@ -2,14 +2,43 @@
 
 /*
 
-basic.js (v26.09.18) A lightweight JavaScript library for building web-based applications with simple code. No need to write HTML or CSS — just use basic JavaScript.
+basic.js (v26.11.01) A lightweight JavaScript library for building web-based applications with simple code. No need to write HTML or CSS — just use basic JavaScript.
 - Project Site: https://bug7a.github.io/basic.js/
 
-v26.09.18 is v26.09.17 plus the improvements below. Every page and component written for the
-previous versions works unchanged (same globals, same defaults, same DOM). The previous version is
-kept as basic/basic-bugra.js (and basic-bugra.min.js).
+v26.11.01 is v26.09.18 plus the additions below. Every page and component written for the
+previous versions works unchanged (same defaults, same DOM), except the global names moved under
+basic.* in v26.10.25 (see below).
 
-WHAT IS NEW IN v26.09.18 (see basic/basic-v26.09.18.md for examples):
+WHAT IS NEW IN v26.11.01 (see basic/basic-what-is-new.md):
+- basic:      uiScale, scaleStyle(style, factor), scaleSize(value, factor): the components drawn in screen px keep
+              their size on a page fitted with page.fit() (their "scale" param)
+
+WHAT IS NEW IN v26.10.27 (see basic/basic-what-is-new.md):
+- basic:      applyStylePackage: a package with its own "style" key is a package of params (its other keys
+              fill the params: an icon file outside the style can be in a package too)
+
+WHAT IS NEW IN v26.10.25 (see basic/basic-what-is-new.md):
+- Global:     Alpha(color, percent) - any color made transparent, like Black(0.5) / White(0.5)
+- basic:      resolveTheme(themes, name) - the colors of a theme ("auto": the system setting), filled from themes.light
+- MOVED:      num, str, isMobile, go, twoDigitFormat -> basic.num(), basic.str(), basic.isMobile(), basic.go(),
+              basic.twoDigitFormat(). They are not globals any more.
+- REMOVED:    the old globals createBox, createButton, createLabel, createImage, createIcon, createInput,
+              createTextBox. Use Box(), Button(), Label(), Icon(), Input() (the same, with props).
+              (They are still there as basic.createBox()...)
+
+WHAT IS NEW IN v26.10.24 (see basic/basic-what-is-new.md):
+- basic:      applyStylePackage(params, Comp.styles, CompDefaults) - the style packages of a component in one line
+
+WHAT IS NEW IN v26.10.23 (for simpler components; see basic/basic-what-is-new.md):
+- Cleaned in remove(): listenTo(target, event, func), onPageResize(func), after(ms, func), every(ms, func), own(obj)
+- Methods:    onHoverChange(func), setFocusRing(color)
+- Global:     createIn() returns the result of its function
+- basic:      isOn(), addCss()
+- Props:      role, aria ({ label: "Close", selected: true }), tabIndex (accessibility)
+- Fix:        grow, shrink and css in the props of a group are not written over by its flex styles
+- Fix:        rotate changes only the rotate() part of the transform (a translate or scale stays)
+
+WHAT IS NEW IN v26.09.18 (see basic/basic-what-is-new.md for examples):
 - Fixes:      "100" and "50%" work for left/top/right/bottom/width/height. Children created in a hidden
               HGroup/VGroup are real flex items (visible: 0 at create time). Objects created before the
               page is ready throw a clear error. Timers of a removed object can not run anymore.
@@ -39,7 +68,7 @@ Licensed under the Apache License, Version 2.0
 "use strict";
 const basic = {};
 
-basic.version = "26.09.18";
+basic.version = "26.11.01";
 basic.library = "basic.js";
 basic.isReady = 0; // 1 after the page object is created (before start() runs).
 
@@ -86,6 +115,7 @@ const resizeDetection = {};
 let removeCascadeDepth = 0; // remove(): 0 -> Children of the object are removed too. (Only in the first remove() call)
 
 const motionController = {};
+// WHY: WITH_MOTION_TIME must stay longer than DONT_MOTION_TIME: withMotion() runs after the transition of setMotion() is on.
 motionController.WITH_MOTION_TIME = 50;
 motionController.DONT_MOTION_TIME = 40;
 
@@ -176,7 +206,7 @@ window.random = function ($first, $second) {
 };
 //window.random = basic.random;
 
-window.num = function ($str, $type = "float") {
+basic.num = function ($str, $type = "float") {
 
     if ($type == "float") {
         const i = parseFloat($str);
@@ -187,14 +217,12 @@ window.num = function ($str, $type = "float") {
     }
 
 };
-//window.num = basic.num;
 
-window.str = function ($num) {
+basic.str = function ($num) {
     return String($num);
 };
-//window.str = basic.str;
 
-window.isMobile = function () {
+basic.isMobile = function () {
 
     let answer = 0;
 
@@ -206,9 +234,8 @@ window.isMobile = function () {
     return answer;
 
 };
-//window.isMobile = basic.isMobile;
 
-window.go = function ($url, $windowType = "_self") {
+basic.go = function ($url, $windowType = "_self") {
 
     // window.location.href = $url;
     const openedWindow = window.open($url, $windowType);
@@ -217,10 +244,9 @@ window.go = function ($url, $windowType = "_self") {
     return openedWindow;
 
 };
-//window.go = basic.go;
 
 // Tek haneli sayıyı, başına "0" ekleyerek iki haneli yapar. 03:10:05
-window.twoDigitFormat = function($number) {
+basic.twoDigitFormat = function($number) {
 
     if ($number <= 9) {
         $number = "0" + $number;
@@ -229,16 +255,27 @@ window.twoDigitFormat = function($number) {
     return $number;
 
 };
-//window.twoDigitFormat = basic.twoDigitFormat;
 
+// WHY: localStorage throws when it can not be used (a sandboxed iframe, blocked site data, a full quota).
+//      An error here stopped the code that called it (a theme change, saving a setting). save() returns 1 or 0.
 basic.storage = {
 
     save(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+            return 1;
+        } catch (e) {
+            console.warn("storage save error:", key, e.name);
+            return 0;
+        }
     },
 
     has(key) {
-        return localStorage.getItem(key) !== null;
+        try {
+            return localStorage.getItem(key) !== null;
+        } catch (e) {
+            return false;
+        }
     },
 
     load(key) {
@@ -252,11 +289,11 @@ basic.storage = {
     },
 
     remove(key) {
-        localStorage.removeItem(key);
+        try { localStorage.removeItem(key); } catch (e) {}
     },
 
     clear() {
-        localStorage.clear();
+        try { localStorage.clear(); } catch (e) {}
     }
 
 };
@@ -378,6 +415,130 @@ basic.escapeHtml = function ($str) {
     return String(($str === null || $str === undefined) ? "" : $str).replace(/[&<>"']/g, function (c) { return map[c]; });
 };
 
+// v26.10.23: An "on" value of a param: 1, "1", true. (Components wrote (v == 1 || v === true) again and again.)
+// basic.isOn(box.closable)
+basic.isOn = function ($value) {
+    return $value === true || $value === 1 || $value === "1";
+};
+
+// v26.10.23: Adds a <style> to the page once (the same id again: nothing, unless $replace). Returns the element.
+// For what inline styles can not do: :hover, :focus-visible, ::placeholder, ::-webkit-scrollbar, @keyframes.
+// basic.addCss("tabs-css", ".tabs-strip::-webkit-scrollbar { display: none; }")
+basic.addCss = function ($id, $cssText, $replace = 0) {
+    let style = document.getElementById($id);
+    if (style && !$replace) return style;
+    if (!style) {
+        style = document.createElement("style");
+        style.id = $id;
+        document.head.appendChild(style);
+    }
+    style.textContent = $cssText;
+    return style;
+};
+
+// The colors of a theme: $themes[name], the missing keys filled from $themes.light (a new theme needs only the keys
+// that differ). "auto": the system setting (light or dark). Used by the components with a theme param (Modal, Toast).
+// USAGE: const colors = basic.resolveTheme(Modal.THEMES, "auto");
+basic.resolveTheme = function ($themes, $name = "light") {
+    let name = $name || "light";
+    if (name === "auto") {
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        name = (prefersDark) ? "dark" : "light";
+    }
+    const theme = $themes[name];
+    if (!theme) console.warn("Theme not found: " + name);
+    const colors = {};
+    mergeIntoIfMissing(colors, theme || {});
+    mergeIntoIfMissing(colors, $themes.light || {});
+    return colors;
+};
+
+// v26.10.24: The style of a component from its style packages. The first line of a component, before
+// mergeIntoIfMissing(params, Defaults): params.style > $packages[params.styleName] > Defaults.style (by that merge).
+// WHY: params.style becomes a new object, so a package given as it is (style: Tabs.styles.dark) is never changed:
+//      the merges after it would write into the package of every object of the page.
+// v26.10.27: A package with its own "style" key is a package of params: its "style" goes into params.style as
+// above, its other keys go into the params that were not given (Ex: an icon file outside the style).
+// A package without a "style" key is the style itself, as before.
+// basic.applyStylePackage(params, Tabs.styles, TabsDefaults)
+// Tabs.styles.dark = { style: { tab: { textColor: "white" } }, closeIconFile: "tabs/close-white.svg" }
+basic.applyStylePackage = function ($params, $packages, $defaults) {
+    const name = $params.styleName || $defaults.styleName;
+    const stylePackage = $packages[name];
+    if (!stylePackage) console.warn("Style package not found: " + name);
+
+    const isParamsPackage = !!stylePackage && Object.prototype.hasOwnProperty.call(stylePackage, "style");
+    const packageStyle = isParamsPackage ? stylePackage.style : stylePackage;
+
+    const ownStyle = {};
+    mergeIntoIfMissing(ownStyle, $params.style || {});
+    mergeIntoIfMissing(ownStyle, packageStyle || {});
+    $params.style = ownStyle;
+
+    if (isParamsPackage) {
+        // WHY: mergeIntoIfMissing copies the objects of the package, but it gives an array as it is:
+        //      the arrays are copied here, so the package is never changed (editor.colorPalette.push()).
+        const packageParams = Object.assign({}, stylePackage);
+        delete packageParams.style;
+        for (const key in packageParams) {
+            if (Array.isArray(packageParams[key])) packageParams[key] = packageParams[key].slice();
+        }
+        mergeIntoIfMissing($params, packageParams);
+    }
+    return $params;
+};
+
+// v26.11.01: THE SCALE OF THE COMPONENTS ON A FITTED PAGE
+// WHY: page.fit(600) on a 390 px phone zooms the page to 0.65, so a component made for screen px is 0.65 as big
+//      (its texts too small to read). A page sets basic.uiScale = 1 / page.zoom once; such a component takes it as
+//      the default of its "scale" param and multiplies its sizes with basic.scaleStyle(), so it keeps its size.
+// USAGE: page.fit(600, 800); basic.uiScale = 1 / page.zoom;
+basic.uiScale = 1;
+
+// The keys of a style that are sizes: fontSize, width, height, size, gap, padding, margin, round, top, border...
+// (lineHeight is not: it is often a ratio)
+basic.SIZE_KEY_ENDINGS = ["size", "width", "height", "gap", "space", "spacing", "padding", "margin", "round", "radius",
+    "offset", "thickness", "top", "left", "right", "bottom", "border"];
+
+basic.isSizeKey = function ($key) {
+    const key = String($key).toLowerCase();
+    if (key === "lineheight") return false;
+    return basic.SIZE_KEY_ENDINGS.some((ending) => key.endsWith(ending));
+};
+
+// A size multiplied: a number, or an array of numbers ([x, y] padding). Text values ("100%", "auto") stay.
+// USAGE: basic.scaleSize(20, 1.5) -> 30, basic.scaleSize([12, 4], 1.5) -> [18, 6]
+basic.scaleSize = function ($value, $factor) {
+    if (typeof $value === "number") return $value * $factor;
+    if (Array.isArray($value)) return $value.map((item) => (typeof item === "number") ? item * $factor : item);
+    return $value;
+};
+
+// The px of a CSS text multiplied (a shadow, a border). Other texts and values stay.
+// USAGE: basic.scaleCssText("0 8px 24px rgba(0, 0, 0, 0.12)", 2) -> "0 16px 48px rgba(0, 0, 0, 0.12)"
+basic.scaleCssText = function ($text, $factor) {
+    if ($factor === 1 || typeof $text !== "string") return $text;
+    return $text.replace(/(\d*\.?\d+)px/g, (found, number) => (Number(number) * $factor) + "px");
+};
+
+// A copy of a style package with its sizes multiplied (the package is not changed). factor 1: the same object.
+// WHY not the texts: a size key can hold "100%" or "auto"; a page multiplies a shadow with basic.scaleCssText().
+// USAGE: params.style = basic.scaleStyle(params.style, params.scale);
+basic.scaleStyle = function ($style, $factor) {
+    if ($factor === 1 || !$style || typeof $style !== "object") return $style;
+    const scaled = {};
+    for (const key in $style) {
+        const value = $style[key];
+        const isGroup = (value !== null && typeof value === "object" && !Array.isArray(value));
+        if (isGroup) {
+            scaled[key] = basic.scaleStyle(value, $factor);
+            continue;
+        }
+        scaled[key] = basic.isSizeKey(key) ? basic.scaleSize(value, $factor) : value;
+    }
+    return scaled;
+};
+
 // basic.storage.loadOr("settings", { theme: "light" })
 basic.storage.loadOr = function ($key, $fallback) {
     const value = basic.storage.load($key);
@@ -411,6 +572,27 @@ const isFlexContainer = function ($box) {
 };
 
 // Common methods and properties of basic objects.
+// "translateY(4px) rotate(10deg)" + ("rotate", "45deg") -> "translateY(4px) rotate(45deg)"
+// The part is changed in its place (the order of a transform matters); a new part is added at the end.
+const setTransformPart = function ($transform, $name, $value) {
+    const part = $name + "(" + $value + ")";
+    const current = ($transform === "none") ? "" : ($transform || "");
+    const pattern = new RegExp("(^|\\s|\\))" + $name + "\\([^)]*\\)"); // WHY: Not "rotateX(": the name must start a part.
+    if (pattern.test(current)) {
+        return current.replace(pattern, function (found, space) { return space + part; });
+    }
+    return (current.trim()) ? current.trim() + " " + part : part;
+};
+
+// role / aria: true / false -> "true" / "false"; null, undefined or "" -> the attribute is removed.
+const setOrRemoveAttribute = function ($elem, $name, $value) {
+    if ($value === null || $value === undefined || $value === "") {
+        $elem.removeAttribute($name);
+        return;
+    }
+    $elem.setAttribute($name, String($value));
+};
+
 class Basic_UIComponent {
 
     /*
@@ -578,7 +760,8 @@ class Basic_UIComponent {
 
     set rotate($value) {
         this._rotate = parseInt($value);
-        this.elem.style.transform = "rotate(" + $value + "deg)";
+        // WHY: Only the rotate() part changes; a translate() or scale() in the transform stays (v26.10.23).
+        this.elem.style.transform = setTransformPart(this.elem.style.transform, "rotate", $value + "deg");
     }
 
     // -- Hizalama ve boyutlandırma SONU
@@ -930,6 +1113,49 @@ class Basic_UIComponent {
         this._textElem.textContent = ($value === null || $value === undefined) ? "" : String($value);
     }
 
+    // *** v26.10.23 ADDITIONS: ACCESSIBILITY ***
+    // On the element that takes the focus (the <input> of an Input).
+
+    // role: "button", "tab", "tree"... "" or null removes it.
+    get role() {
+        return this._textElem.getAttribute("role") || "";
+    }
+
+    set role($value) {
+        setOrRemoveAttribute(this._textElem, "role", $value);
+    }
+
+    // aria: { label: "Close", selected: true, level: 2 } -> aria-label, aria-selected, aria-level.
+    // Only the given keys change. true / false -> "true" / "false". null, undefined or "" removes the attribute.
+    // The keys are the ARIA names without "aria-" (activedescendant, labelledby: one word, as in ARIA).
+    get aria() {
+        const out = {};
+        for (const attribute of this._textElem.attributes) {
+            if (attribute.name.indexOf("aria-") === 0) out[attribute.name.slice(5)] = attribute.value;
+        }
+        return out;
+    }
+
+    set aria($value) {
+        if (!$value) return;
+        for (let key in $value) {
+            setOrRemoveAttribute(this._textElem, "aria-" + key.toLowerCase(), $value[key]);
+        }
+    }
+
+    // tabIndex: 0 -> the Tab key reaches it, -1 -> only focus() of the code. null or "" -> the default of the element.
+    get tabIndex() {
+        return this._textElem.tabIndex;
+    }
+
+    set tabIndex($value) {
+        if ($value === null || $value === undefined || $value === "") {
+            this._textElem.removeAttribute("tabindex");
+            return;
+        }
+        this._textElem.tabIndex = Number($value);
+    }
+
     // 1 after remove().
     get isRemoved() {
         return this._isRemoved ? 1 : 0;
@@ -1015,6 +1241,8 @@ class Basic_UIComponent {
             // The transition to restore is the one before the first animate() call (chained calls keep it).
             if (_that._animateTimeout) {
                 clearTimeout(_that._animateTimeout);
+                // WHY: The animation is cut by this one: its Promise is resolved now (await must not wait forever).
+                if (_that._animateResolve) _that._animateResolve(_that);
             } else {
                 _that._animateBaseTransition = _that.elem.style.transition;
             }
@@ -1024,8 +1252,10 @@ class Basic_UIComponent {
 
             for (let key in $props) _that[key] = $props[key];
 
+            _that._animateResolve = resolve;
             _that._animateTimeout = setTimeout(function () {
                 _that._animateTimeout = null;
+                _that._animateResolve = null;
                 if (!_that._isRemoved) _that.elem.style.transition = _that._animateBaseTransition || "";
                 resolve(_that);
             }, $duration + 20);
@@ -1033,6 +1263,72 @@ class Basic_UIComponent {
         });
 
     }
+
+    // *** v26.10.23 ADDITIONS (all objects): THE GLOBAL THINGS OF AN OBJECT ARE CLEANED BY ITS remove() ***
+    // WHY: A component had to clean its window / document events, its timers, its page.onResize and the objects it
+    //      made on the page in its own remove() (42 components overrode remove() for it; a forgotten one leaked).
+
+    // An event of another element (window, document...): func(self, event). Returns the remover function.
+    // obj.listenTo(window, "keydown", function (self, event) {})
+    listenTo($target, $eventName, $func, $useCapture = false) {
+        return this._addEventListener($eventName, $func, $target, $useCapture);
+    }
+
+    // The resize of the window: func(self, event). Returns the remover function. (page.onResize is not cleaned.)
+    onPageResize($func) {
+        return this.listenTo(window, "resize", $func);
+    }
+
+    // A timer of the object: func(self) once after ms. Returns the cancel function.
+    after($ms, $func) {
+        const _that = this;
+        if (!this._timerList) this._timerList = new Set();
+        const id = setTimeout(function () {
+            _that._timerList.delete(id);
+            if (!_that._isRemoved) $func(_that);
+        }, $ms);
+        this._timerList.add(id);
+        return function () { clearTimeout(id); _that._timerList.delete(id); };
+    }
+
+    // A timer of the object: func(self) every ms. Returns the stop function.
+    every($ms, $func) {
+        const _that = this;
+        if (!this._intervalList) this._intervalList = new Set();
+        const id = setInterval(function () { if (!_that._isRemoved) $func(_that); }, $ms);
+        this._intervalList.add(id);
+        return function () { clearInterval(id); _that._intervalList.delete(id); };
+    }
+
+    // An object made somewhere else (Ex: a menu on the page) is removed with this one. Returns the object.
+    // const menu = obj.own(createIn(page, function () { return Box(...); }))
+    own($obj) {
+        if (!$obj) return $obj;
+        if (!this._ownedList) this._ownedList = [];
+        this._ownedList.push($obj);
+        return $obj;
+    }
+
+    // The mouse comes on / leaves the object: func(self, isOver, event). Returns the remover function.
+    // obj.onHoverChange(function (self, isOver) { self.color = isOver ? "#EEE" : "white"; })
+    onHoverChange($func) {
+        const removeEnter = this.on("mouseenter", function (self, event) { $func(self, 1, event); });
+        const removeLeave = this.on("mouseleave", function (self, event) { $func(self, 0, event); });
+        return function () { removeEnter(); removeLeave(); };
+    }
+
+    // A focus ring for the keyboard only (:focus-visible: not after a mouse click). "" or 0: no ring.
+    // WHY: Components drew it by hand with focus / blur / mousedown events.
+    setFocusRing($color = "rgba(95, 158, 160, 0.8)") {
+        basic.addCss("basic-focus-ring", ".basic-focus-ring:focus { outline: none; }" +
+            ".basic-focus-ring:focus-visible { outline: 2px solid var(--basic-focus-ring); outline-offset: -2px; }");
+        const el = this._textElem;
+        el.classList.toggle("basic-focus-ring", !!$color);
+        if ($color) el.style.setProperty("--basic-focus-ring", $color);
+        return this;
+    }
+
+    // *** v26.10.23 ADDITIONS END ***
 
     // *** v26.09.18 ADDITIONS END ***
 
@@ -1084,12 +1380,25 @@ class Basic_UIComponent {
         if (this._withMotionTimeout) clearTimeout(this._withMotionTimeout);
         if (this._dontMotionTimeout) clearTimeout(this._dontMotionTimeout);
         if (this._animateTimeout) clearTimeout(this._animateTimeout);
+        if (this._animateResolve) { this._animateResolve(this); this._animateResolve = null; } // WHY: await animate() ends.
+
+        // v26.10.23: the timers of after() / every() and the objects of own(). (listenTo / onPageResize are events: step 1)
+        if (this._timerList) { this._timerList.forEach(function (id) { clearTimeout(id); }); this._timerList.clear(); }
+        if (this._intervalList) { this._intervalList.forEach(function (id) { clearInterval(id); }); this._intervalList.clear(); }
+        if (this._ownedList) {
+            const owned = this._ownedList;
+            this._ownedList = null;
+            owned.forEach(function (obj) {
+                try { if (obj && !obj._isRemoved && typeof obj.remove === "function") obj.remove(); }
+                catch (error) { println("basic.js: An owned object could not be removed: " + error.message, "warn"); }
+            });
+        }
 
         // 1.  Eklenmiş tüm eventleri kaldır. _addEventListener() - Otomatik temizleme
         if (this._eventFuncList && this._eventFuncList.length) {
             for (let i = this._eventFuncList.length - 1; i >= 0; i--) {
                 const ev = this._eventFuncList[i];
-                ev.elem.removeEventListener(ev.eventName, ev.eventFunc);
+                ev.elem.removeEventListener(ev.eventName, ev.eventFunc, ev.capture);
                 this._eventFuncList.pop();
             }
         }
@@ -1147,11 +1456,17 @@ class Basic_UIComponent {
         eventDataItem.originalFunc = $func;
         eventDataItem.eventFunc = eventFunc;
         eventDataItem.elem = $element;
+        // WHY: removeEventListener() must get the same capture value, or a capture listener stays.
+        eventDataItem.capture = (typeof $useCapture == "object" && $useCapture !== null) ? !!$useCapture.capture : !!$useCapture;
 
         this._eventFuncList.push(eventDataItem); // Nesne .remove() edilirken, hepsi temizlenir.
 
+        // WHY: The remover removes its own listener (the same function can be added to several events).
         const removeEvent = function() {
-            _that._removeEventListener($eventName, $func, $element);
+            const index = _that._eventFuncList ? _that._eventFuncList.indexOf(eventDataItem) : -1;
+            if (index < 0) return;
+            _that._eventFuncList.splice(index, 1);
+            eventDataItem.elem.removeEventListener(eventDataItem.eventName, eventDataItem.eventFunc, eventDataItem.capture);
         };
 
         return removeEvent; // Eklenen olayı kolayca silmek için fonksiyon döndür.
@@ -1162,18 +1477,14 @@ class Basic_UIComponent {
     _removeEventListener($eventName, $func, $element) {
 
         //Otomatik temizleme
-        let eventFunc = null; // Orjinal fonksiyon bulunacak.
-        
+        // WHY: The event name and the element must match too: the same function can be on click and keydown.
         for (let i = 0; i < this._eventFuncList.length; i++) {
-            if (this._eventFuncList[i].originalFunc == $func) {
-                eventFunc = this._eventFuncList[i].eventFunc;
+            const item = this._eventFuncList[i];
+            if (item.originalFunc == $func && item.eventName == $eventName && item.elem == $element) {
                 this._eventFuncList.splice(i, 1);
+                $element.removeEventListener($eventName, item.eventFunc, item.capture);
                 break;
             }
-        }
-
-        if (eventFunc) {
-            $element.removeEventListener($eventName, eventFunc);
         }
         
         //$element.removeEventListener($eventName, $func);
@@ -1511,8 +1822,8 @@ class BBox extends Basic_UIComponent {
         const divElement = document.createElement("DIV");
         divElement.classList.add("basic_box");
 
-        divElement.style.left = $left + "px";
-        divElement.style.top = $top + "px";
+        divElement.style.left = toCssLength($left);
+        divElement.style.top = toCssLength($top);
 
         this._element = divElement;
         attachToContainer(this, this._element);
@@ -1631,7 +1942,7 @@ class BBox extends Basic_UIComponent {
 const createBox = function ($left, $top, $width, $height) {
     return new BBox($left, $top, $width, $height);
 };
-window.createBox = createBox;
+basic.createBox = createBox;
 
 // Alternatif kullanım
 /*
@@ -1667,8 +1978,8 @@ class BButton extends Basic_UIComponent {
         buttonElement.classList.add("basic_button");
         buttonElement.setAttribute("type", "button");
 
-        buttonElement.style.left = $left + "px";
-        buttonElement.style.top = $top + "px";
+        buttonElement.style.left = toCssLength($left);
+        buttonElement.style.top = toCssLength($top);
 
         this._element = buttonElement;
         attachToContainer(this, this._element);
@@ -1736,6 +2047,9 @@ class BButton extends Basic_UIComponent {
         } else {
             this.buttonElement.classList.remove("minimal");
         }
+        // WHY (v26.10.27): basic.css gives a minimal one no border (0) and the others 1: border reads it (it read 1
+        //      with minimal). A border written on it (border: 2) is stronger than the CSS: it stays.
+        if (this.buttonElement.style.borderWidth === "") this._border = ($value) ? 0 : 1;
     }
 
     get spaceX() {
@@ -1767,7 +2081,7 @@ class BButton extends Basic_UIComponent {
 const createButton = function ($left, $top, $width, $height) {
     return new BButton($left, $top, $width, $height);
 };
-window.createButton = createButton;
+basic.createButton = createButton;
 
 // Alternatif kullanım 2
 /*
@@ -1820,8 +2134,8 @@ class BTextBox extends Basic_UIComponent {
         element.style.height = "100%";
         this._element = element;
 
-        mainElement.style.left = $left + "px";
-        mainElement.style.top = $top + "px";
+        mainElement.style.left = toCssLength($left);
+        mainElement.style.top = toCssLength($top);
 
         mainElement.appendChild(this._titleElement);
         mainElement.appendChild(this._element);
@@ -1903,6 +2217,9 @@ class BTextBox extends Basic_UIComponent {
         } else {
             this.inputElement.classList.remove("minimal");
         }
+        // WHY (v26.10.27): basic.css gives a minimal one no border (0) and the others 1: border reads it (it read 1
+        //      with minimal). A border written on it (border: 2) is stronger than the CSS: it stays.
+        if (this.inputElement.style.borderWidth === "") this._border = ($value) ? 0 : 1;
     }
 
     // *** v26.09.18 ADDITIONS (Input / TextBox) ***
@@ -1991,7 +2308,7 @@ class BTextBox extends Basic_UIComponent {
         for (let i = this._eventFuncList.length - 1; i >= 0; i--) {
             const item = this._eventFuncList[i];
             if (item.eventName == "keydown" && item.originalFunc._enterFunc === $func) {
-                item.elem.removeEventListener("keydown", item.eventFunc);
+                item.elem.removeEventListener("keydown", item.eventFunc, item.capture);
                 this._eventFuncList.splice(i, 1);
             }
         }
@@ -2018,8 +2335,8 @@ class BTextBox extends Basic_UIComponent {
 const createTextBox = function ($left, $top, $width, $height) {
     return new BTextBox($left, $top, $width, $height);
 };
-window.createTextBox = createTextBox;
-window.createInput = createTextBox;
+basic.createTextBox = createTextBox;
+basic.createInput = createTextBox;
 
 // Alternatif kullanım
 /*
@@ -2053,8 +2370,8 @@ class BLabel extends Basic_UIComponent {
         //divElement.innerHTML = "";
         divElement.classList.add("basic_label");
 
-        divElement.style.left = $left + "px";
-        divElement.style.top = $top + "px";
+        divElement.style.left = toCssLength($left);
+        divElement.style.top = toCssLength($top);
 
         this._element = divElement;
         attachToContainer(this, this._element);
@@ -2152,7 +2469,7 @@ class BLabel extends Basic_UIComponent {
 const createLabel = function ($left, $top, $width, $height) {
     return new BLabel($left, $top, $width, $height);
 };
-window.createLabel = createLabel;
+basic.createLabel = createLabel;
 
 // Alternatif kullanım
 /*
@@ -2189,8 +2506,8 @@ class BImage extends Basic_UIComponent {
         const imageElement = document.createElement("IMG");
         imageElement.classList.add("basic_image");
 
-        imageElement.style.left = $left + "px";
-        imageElement.style.top = $top + "px";
+        imageElement.style.left = toCssLength($left);
+        imageElement.style.top = toCssLength($top);
 
         this._element = imageElement;
         attachToContainer(this, this._element);
@@ -2374,8 +2691,8 @@ class BImage extends Basic_UIComponent {
 const createImage = function ($left, $top, $width, $height) {
     return new BImage($left, $top, $width, $height);
 };
-window.createImage = createImage;
-window.createIcon = createImage;
+basic.createImage = createImage;
+basic.createIcon = createImage;
 
 // Alternatif kullanım
 /*
@@ -2470,8 +2787,8 @@ class BSound {
     stop() {
         if (!this.paused) {
             this.elem.pause();
-            this.elem.currentTime = 0;
         }
+        this.elem.currentTime = 0; // WHY: A paused sound goes back to the start too.
     }
     
     onLoad($func) {
@@ -2483,14 +2800,16 @@ class BSound {
 
     load($path) {
 
-        let fileType = "audio/wav";
+        const types = { mp3: "audio/mpeg", wav: "audio/wav", ogg: "audio/ogg", oga: "audio/ogg", m4a: "audio/mp4", aac: "audio/aac", webm: "audio/webm" };
+        const extension = String($path).split(/[?#]/)[0].split(".").pop().toLowerCase();
+        const source = this.elem.children[0];
 
-        if ($path.substr(-3).toLowerCase() == "mp3") {
-            fileType = "audio/mpeg";
-        }
+        source.setAttribute("src", $path);
+        // WHY: A wrong type (an .ogg file as "audio/wav") makes some browsers skip the file. Unknown: no type.
+        if (types[extension]) source.setAttribute("type", types[extension]); else source.removeAttribute("type");
 
-        this.elem.children[0].setAttribute("src", $path);
-        this.elem.children[0].setAttribute("type", fileType);
+        // WHY: A changed <source> is not read again by itself: the second load() kept playing the first file.
+        this.elem.load();
 
     }
 
@@ -2819,7 +3138,8 @@ const createIn = function ($container, $func) {
     setDefaultContainerBox($container);
 
     try {
-        $func($container);
+        // v26.10.23: the result of $func is returned. (const menu = createIn(page, function () { return Box(...); }))
+        return $func($container);
     } finally {
         startedBoxList = previousStartedBoxList;
         setDefaultContainerBox(previous);
@@ -2848,6 +3168,9 @@ const mergeIntoIfMissing = function (target, source, depth = 1, maxDepth = 4) {
     if (depth > maxDepth) return; // Maksimum derinlik sınırı
 
     for (let key in source) {
+        // WHY: JSON.parse('{"__proto__": {...}}') gives an own "__proto__" key; target["__proto__"] is
+        //      Object.prototype, so the merge would write into every object of the page.
+        if (key === "__proto__" || key === "constructor" || key === "prototype") continue;
         const sourceVal = source[key];
         const targetVal = target[key];
 
@@ -2863,6 +3186,13 @@ const mergeIntoIfMissing = function (target, source, depth = 1, maxDepth = 4) {
                 if (!(key in target)) {
                     target[key] = sourceVal; // referansla ekle
                 }
+                continue;
+            }
+
+            // WHY: At the depth limit the object was replaced by an empty {} (the keys under it were lost).
+            //      Now it is added as it is (by reference) when the target does not have it.
+            if (depth >= maxDepth) {
+                if (!(key in target)) target[key] = sourceVal;
                 continue;
             }
 
@@ -3089,7 +3419,7 @@ const applyFlexAlign = function($style, align, isRow) {
 };
 
 const checkGap = function(gap) {
-    return (Number.isInteger(gap)) ? gap + "px" : gap;
+    return (typeof gap == "number" && isFinite(gap)) ? gap + "px" : gap; // WHY: 2.5 -> "2.5px" too (not only integers).
 };
 
 // .flow, .align, .gap, .wrap, .justify of every group.
@@ -3202,7 +3532,7 @@ const startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
         props.justifyContent = getJustifyContent(props.justify);
     }
 
-    if (Number.isInteger(props.gap)) {
+    if (typeof props.gap == "number") {
         props.gap = checkGap(props.gap);
     }
 
@@ -3213,6 +3543,14 @@ const startFlexBox = function(p1 = {}, p2, p3, p4, p5) {
     for (let parameterName in FLEX_STYLES) {
         box.elem.style[parameterName] = box[parameterName];
     }
+
+    // WHY: The loop above writes the flex styles (alignItems, flexGrow, flexShrink...) again, over the props.
+    //      grow, shrink and css of the props are applied after it, so they are not lost.
+    //      Ex: VGroup({ align: "left top", css: { alignItems: "stretch" } }), HGroup({ grow: 1 })
+    if (props.grow !== undefined) box.grow = props.grow;
+    if (props.shrink !== undefined) box.shrink = props.shrink;
+    if (props.css) box.css = props.css;
+    box._propsCss = props.css; // WHY: VGroup() sets the flow after this, and the flow writes alignItems again.
 
     // GAP:
     if (box.gap) {
@@ -3236,6 +3574,7 @@ window.HGroup = function(...args) {
 window.VGroup = function(...args) {
     const group = startFlexBox(...args);
     group.flow = "vertical";
+    if (group._propsCss) group.css = group._propsCss;
     return group;
 };
 
@@ -3272,17 +3611,24 @@ window.endGroup = endBox;
 
 let savedThat = null;
 let savedExThat = null;
+const savedThatStack = []; // WHY: A component created inside another one must not overwrite the saved that of the outer one.
 
 const saveCurrentThat = function() {
 
     savedThat = that;
     savedExThat = previousThat;
+    savedThatStack.push({ that: that, previousThat: previousThat });
 
 };
 window.saveCurrentThat = saveCurrentThat;
 
 const restoreThatFromSaved = function() {
 
+    const saved = savedThatStack.pop();
+    if (saved) {
+        savedThat = saved.that;
+        savedExThat = saved.previousThat;
+    }
     that = savedThat;
     previousThat = savedExThat;
     prevThat = previousThat;
@@ -3375,6 +3721,34 @@ window.White = function(percent = 1) {
     if (percent == 0) return "transparent";
     if (percent == 1) return "white";
     return `rgba(255,255,255,${percent})`;
+};
+
+// Any color made transparent, like Black() / White(): Alpha("#456789", 0.5) -> "rgba(69,103,137,0.5)"
+// A hex color (#RGB, #RGBA, #RRGGBB, #RRGGBBAA) becomes rgba. Any other color (a name, rgb(), var(--token))
+// goes through color-mix. An alpha the color already has is multiplied: Alpha("#00000080", 0.5) is 25%.
+window.Alpha = function(color, percent = 1) {
+
+    if (percent == 0) return "transparent";
+    if (percent == 1) return color;
+
+    const text = String(color).trim();
+    const isHex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(text);
+    if (!isHex) {
+        const mixPercent = Math.round(percent * 1000) / 10;
+        return "color-mix(in srgb, " + color + " " + mixPercent + "%, transparent)";
+    }
+
+    // WHY: #RGB is the short form of #RRGGBB: every digit is doubled.
+    const hex = text.slice(1);
+    const fullHex = (hex.length <= 4) ? hex.split("").map(function (digit) { return digit + digit; }).join("") : hex;
+    const red = parseInt(fullHex.slice(0, 2), 16);
+    const green = parseInt(fullHex.slice(2, 4), 16);
+    const blue = parseInt(fullHex.slice(4, 6), 16);
+    const ownAlpha = (fullHex.length === 8) ? parseInt(fullHex.slice(6, 8), 16) / 255 : 1;
+    const alpha = Math.round(ownAlpha * percent * 1000) / 1000;
+
+    return `rgba(${red},${green},${blue},${alpha})`;
+
 };
 
 // Çok fazla arka arkaya çağırılan fonksiyonların daha verimli çalışmasını sağlar. 

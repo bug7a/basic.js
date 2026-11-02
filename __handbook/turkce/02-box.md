@@ -61,6 +61,34 @@ Alternatif olarak, doğrudan koordinat ve boyut vererek de oluşturulabilir:
 - `scrollX` (boolean) — Yatay kaydırma çubuğu aktifliği.
 - `scrollY` (boolean) — Dikey kaydırma çubuğu aktifliği.
 
+### Kutusunun dışına çıkan içerik (clipContent: 0)
+
+**Her Box kenarlarını aşan içeriği keser; her grup da keser** (`HGroup`, `VGroup`, `AutoLayout` de birer kutudur). Varsayılan budur (`clipContent: 1`, CSS `overflow: hidden`) ve kolay unutulur, çünkü içerik içeride durdukça hiçbir şey kesilmez.
+
+İçerik hareket edince, büyüyünce ya da parlayınca dışarı çıkar:
+- fareyle üstüne gelince yukarı kalkan (`transform: translateY(-2px)`) ya da büyüyen (`scale(1.05)`) bir düğme,
+- fareyle büyüyen bir resim ya da kart,
+- bir gölge (`boxShadow`), parlama ya da düğmenin odak çizgisi,
+- hareketle kayan ya da zıplayan bir nesne.
+
+Yüksekliği içeriği kadar olan bir grupta (`height: "auto"`, `hug: 1`) kalkan düğme hemen kenara değer: üstü kesilir ve düğme bozuk görünür. Böyle nesneleri tutan kutuya ya da gruba `clipContent: 0` ver:
+
+```javascript
+// GROUP: Fareyle yukarı kalkan düğmeler
+HGroup({ width: "auto", height: "auto", gap: 12, clipContent: 0 }); // WHY: kalkışları ve gölgeleri kesilmesin
+
+    Button({ text: "Oyna", width: 120, height: 44 });
+    that.elem.style.transition = "transform 0.15s";
+    that.on("mouseover", function (self) { self.elem.style.transform = "translateY(-2px)"; });
+    that.on("mouseout", function (self) { self.elem.style.transform = ""; });
+
+endGroup();
+```
+
+- Nesne ile sayfa arasındaki her kutuya bak: kesen tek bir kutu, nesneyi kesmeye yeter.
+- Kesmenin istendiği yerde `clipContent: 1` kalsın: köşeleri yuvarlak bir resim, kutusundan büyük bir arka plan resmi, kayan bir liste (`scrollY: 1` zaten keser).
+- Label'da da aynı özellik var: `clipContent: 0` satırın dışına taşan harfleri gösterir (büyük yazıda g, ş, ğ).
+
 ---
 
 ## Kutuya Nesne Ekleme (.add() ve .in())

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Button</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        BUTTON
+
+        Two buttons at fixed places on the page. A click writes a message under them.
+
+        - Button(left, top, width, height, props)
+                                -> the first four numbers place the button (in px, from the top left corner of the
+                                   page); the props object sets the rest of its look.
+        - minimal: 1            -> a flat button: only your own color, round and border.
+        - obj.on("click", fn)   -> runs fn when the button is clicked. fn gets the button itself (self).
+
+        TRY: change color, textColor, round, border or fontSize in the props of the second button.
+
+        */
+
+        // *** VARIABLES:
+
+        const LEFT = 40;
+        const BUTTON_WIDTH = 180;
+        const BUTTON_HEIGHT = 50;
+
+        let btnDefault, btnFlat, lblMessage;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // BUTTON: The default look of basic.js
+            btnDefault = Button(LEFT, 40, BUTTON_WIDTH, BUTTON_HEIGHT, {
+                text: "HELLO",
+            });
+            btnDefault.on("click", sayHello);
+
+            // BUTTON: A flat button with its own look
+            btnFlat = Button(LEFT, 110, BUTTON_WIDTH, BUTTON_HEIGHT, {
+                text: "HELLO",
+                minimal: 1,
+                color: "orangered",
+                textColor: "white",
+                round: 14,
+                fontSize: 18,
+            });
+            btnFlat.on("click", sayHello);
+
+            // LABEL: The message of the last click
+            lblMessage = Label(LEFT, 190, "auto", "auto", {
+                text: "Click a button.",
+                textColor: Black(0.6),
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        // self: the clicked button
+        const sayHello = function (self) {
+            const name = (self === btnFlat) ? "the flat button" : "the default button";
+            lblMessage.text = "Hello World, from " + name + ".";
+            println("Hello World");
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

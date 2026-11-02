@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Open the Box</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        OPEN THE BOX
+
+        A design can be made of many boxes. In this example we learn to show a box
+        with a click on a button, and to hide it when we are done with it.
+
+        ALGORITHM:
+        The button opens (shows) a box. The "x" in the corner of the box closes (hides) it.
+
+        WORKING LOGIC:
+        - The box (boxPopup) is created at the start, and hidden at once (visible = 0).
+        - The button makes it visible (visible = 1). The "x" hides it again.
+        - When the size of the page changes, the button and the box are centered again.
+
+        */
+
+        // *** VARIABLES:
+
+        const BOX_WIDTH = 350;          // px
+        const BOX_HEIGHT = 200;         // px
+        const CLOSE_SIZE = 30;          // px: the width and the height of the "x"
+        const CLOSE_SPACE = 10;         // px: between the "x" and the top right corner of the box
+
+        let btnOpenBox;     // the button that opens the box
+        let boxPopup;       // the box that pops up. Its objects are kept on it:
+                            // boxPopup.btnCloseBox, boxPopup.lblBoxText
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            // BUTTON: Opens the box. In the middle of the page.
+            btnOpenBox = Button({
+                text: "Open Box",
+                textColor: "rgba(255, 255, 255, 0.85)",
+                minimal: 1,     // a simple look: no border and no shade
+            });
+            btnOpenBox.center();
+            btnOpenBox.on("click", showBox);
+
+            // BOX: The box that opens. Parameters: left, top, width, height, then the props.
+            // startBox(): the objects created after it, until endBox(), go into this box.
+            boxPopup = startBox(0, 0, BOX_WIDTH, BOX_HEIGHT, {
+                round: 10,
+                color: "lightgray",
+            });
+
+                // LABEL: The "x" that closes the box (a Label can be clicked too).
+                boxPopup.btnCloseBox = Label(0, 0, CLOSE_SIZE, CLOSE_SIZE, {
+                    text: "<b>x</b>",       // <b>: bold, in HTML
+                    textAlign: "center",
+                    color: "white",
+                    round: CLOSE_SIZE / 2,  // a circle: the round corners are half of its size (15 px)
+                    opacity: 0.7,
+                });
+                // At the top right corner of the box: 10 px from the top and 10 px from the right edge.
+                boxPopup.btnCloseBox.top = CLOSE_SPACE;
+                boxPopup.btnCloseBox.right = CLOSE_SPACE;
+                boxPopup.btnCloseBox.on("click", hideBox);
+
+                // LABEL: The text in the middle of the box.
+                boxPopup.lblBoxText = Label(0, 0, 180, 30, {
+                    text: "Box",
+                    textAlign: "center",
+                });
+                // center() puts it in the middle of the box it is in (boxPopup).
+                boxPopup.lblBoxText.center();
+
+            endBox();
+
+            // The box is in the middle of the page too.
+            boxPopup.center();
+
+            // Hide the box at the start.
+            hideBox();
+
+            // When the size of the page changes, centerAll() runs.
+            page.onResize(centerAll);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Shows the box.
+        const showBox = function () {
+            boxPopup.visible = 1;
+        };
+
+        // Hides the box.
+        const hideBox = function () {
+            boxPopup.visible = 0;
+        };
+
+        // NOTE: boxPopup.show() and boxPopup.hide() do the same.
+
+        // Runs when the size of the page changes.
+        const centerAll = function () {
+            // Center the objects of the page again.
+            btnOpenBox.center();
+            boxPopup.center();
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Put a second button in the box, which closes it too.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

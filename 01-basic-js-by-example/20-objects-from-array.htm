@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Objects from an Array</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        OBJECTS FROM AN ARRAY
+
+        Write the data once, in an array. A loop then creates one object for every item of it.
+        To show one more item, add it to the array: no new object code is needed.
+
+        - array.forEach(fn)          -> calls fn once for every item of the array: fn(item).
+        - An array of texts          -> COLOR_NAMES: one label for each text (its color is its own name).
+        - An array of objects        -> PRODUCTS: one card for each product, made from its fields (name, price...).
+        - HGroup({ wrap: 1 })        -> a row that continues on the next line when it is full.
+        - obj.on("click", fn)        -> every card gets its own fn, so a click knows its own product.
+
+        TRY: add "orchid" to COLOR_NAMES, or this item to PRODUCTS:
+             { name: "Olives", price: 4.25, iconFile: "assets/olives.png" }
+
+        */
+
+        // *** VARIABLES:
+
+        const COLOR_NAMES = ["tomato", "darkorange", "seagreen", "teal", "steelblue", "slateblue"];
+
+        const PRODUCTS = [
+            { name: "Strawberry", price: 3.50, iconFile: "assets/strawberry.png" },
+            { name: "Blueberries", price: 5.90, iconFile: "assets/blueberries.png" },
+            { name: "Carrot", price: 1.20, iconFile: "assets/carrot.png" },
+            { name: "Broccoli", price: 2.40, iconFile: "assets/broccoli.png" },
+        ];
+
+        const CARD_WIDTH = 130;
+        const ICON_SIZE = 64;
+
+        let lblPicked;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // BOX: The page never scrolls, this box does. (The cards can be taller than a small window.)
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                // GROUP: The content, one under the other. height: "auto" -> it can be taller than the box.
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 16, padding: [16, 30] });
+
+                    createTitle("An array of texts");
+
+                    // GROUP: One label for every color name
+                    HGroup({ width: "100%", height: "auto", wrap: 1, gap: 8 });
+                        COLOR_NAMES.forEach(createColorLabel);
+                    endGroup();
+
+                    createTitle("An array of objects");
+
+                    // GROUP: One card for every product
+                    HGroup({ width: "100%", height: "auto", wrap: 1, gap: 12 });
+                        PRODUCTS.forEach(createProductCard);
+                    endGroup();
+
+                    // LABEL: Shows the clicked product
+                    lblPicked = Label({
+                        text: "Click a product.",
+                        fontSize: 16,
+                        textColor: Black(0.6),
+                    });
+
+                endGroup();
+
+            endBox();
+
+        };
+
+        // *** VIEW:
+
+        const createTitle = function (titleText) {
+
+            // LABEL:
+            Label({
+                text: titleText,
+                fontSize: 14,
+                bold: 1,
+                textColor: Black(0.45),
+            });
+
+        };
+
+        // colorName: one item of COLOR_NAMES. It is the text and the color of the label.
+        const createColorLabel = function (colorName) {
+
+            // LABEL:
+            Label({
+                text: colorName,
+                color: colorName,
+                textColor: "white",
+                fontSize: 16,
+                padding: [12, 6],
+                round: 6,
+            });
+
+        };
+
+        // product: one item of PRODUCTS, Ex: { name: "Carrot", price: 1.20, iconFile: "assets/carrot.png" }
+        const createProductCard = function (product) {
+
+            // GROUP: A card: picture, name and price, one under the other
+            const card = VGroup({
+                width: CARD_WIDTH,
+                height: "auto",
+                gap: 4,
+                padding: 12,
+                color: "whitesmoke",
+                round: 12,
+                cursor: "pointer",
+            });
+
+                // ICON: The picture of the product
+                const icon = Icon({
+                    width: ICON_SIZE,
+                    height: ICON_SIZE,
+                    alt: product.name,
+                });
+                icon.load(product.iconFile);
+
+                // LABEL: Name
+                Label({
+                    text: product.name,
+                    fontSize: 16,
+                });
+
+                // LABEL: Price
+                Label({
+                    text: formatPrice(product.price),
+                    fontSize: 14,
+                    textColor: Black(0.5),
+                });
+
+            endGroup();
+
+            // WHY: This function is made here, inside createProductCard(), so it remembers this card's product.
+            card.on("click", function () {
+                showPicked(product);
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        const showPicked = function (product) {
+            lblPicked.text = "You picked: " + product.name + " (" + formatPrice(product.price) + ")";
+        };
+
+        // 3.5 -> "$3.50"
+        const formatPrice = function (price) {
+            return "$" + price.toFixed(2);
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Fetch Data</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        FETCH DATA
+
+        Loads a list of users from a server (JSONPlaceholder, a free test API) and shows it.
+        A page that loads data has three states, and each one needs its own view:
+
+        - Loading -> Gray rows in the shape of the user rows. They pulse until the data comes.
+        - Error   -> What went wrong and a "Try again" button.
+        - Ready   -> The rows. The search box filters them without a new request.
+
+        - fetch(url) + await                -> asks the server, and waits for the answer without stopping the page.
+                                               (await works only in an async function: see Users.load.)
+        - response.ok, response.json()      -> was the answer a good one? Its text as JavaScript objects.
+        - AbortSignal.timeout(ms)           -> the request stops when the server does not answer in 8 seconds.
+        - requestId                         -> an old answer that comes late is thrown away.
+        - list.children + remove()          -> the rows of the old state are removed...
+        - createIn(list, fn)                -> ...and the rows of the new state are created in the list.
+        - plainText                         -> data from a server is shown as text, never as HTML.
+        - list.every(ms, fn)                -> fn runs again and again (the pulse), until its stop function is called.
+
+        The page needs the internet (it loads https://jsonplaceholder.typicode.com/users), but not a
+        server: it works when you open the file directly. Without the internet, the error view says so.
+        "Simulate error" asks for a page that does not exist, to see the error view.
+
+        TRY: set REQUEST_TIMEOUT to 1 (ms): the error view says that the server did not answer in time.
+
+        */
+
+        // *** VARIABLES:
+
+        const API_URL = "https://jsonplaceholder.typicode.com/users";
+        const WRONG_URL = "https://jsonplaceholder.typicode.com/no-such-page";
+        const REQUEST_TIMEOUT = 8000;      // ms
+        const MAX_WIDTH = 720;             // The column of the page is not wider than this.
+
+        const ROW_HEIGHT = 76;
+        const AVATAR_SIZE = 44;
+        const SKELETON_ROW_COUNT = 6;
+        const PULSE_TIME = 700;            // ms: the gray rows fade out, then in, in this time.
+        const PULSE_OPACITY = 0.45;
+
+        const DARK_BUTTON_COLOR = "#2F2F2F";
+        const ERROR_COLOR = "#C0392B";
+        const AVATAR_COLORS = ["#E07A5F", "#3D8B7D", "#5B6CD9", "#C9A227", "#8E6C8A", "#3E7CB1"];
+
+        const TOOLBAR_BUTTON = {
+            width: "auto",
+            height: 44,
+            padding: [16, 0],
+            round: 10,
+            minimal: 1,
+            fontSize: 14,
+        };
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Users = {};
+
+        Users.all = [];                // The users from the server.
+        Users.state = "";              // "loading", "error" or "ready"
+        Users.requestId = 0;           // The number of the last request.
+        Users.simulateError = 0;       // 1: the requests ask for a page that does not exist.
+        Users.stopPulse = null;        // The stop function of the pulse timer. (list.every() returns it.)
+
+        let searchInput, errorButton, countLabel, list;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#F2F3F7";
+
+            // GROUP: Fills the page and puts the column in its middle
+            VGroup({ width: "100%", height: "100%", align: "center top", padding: [16, 24] });
+
+                // GROUP: The column: title, toolbar, count and the list
+                VGroup({
+                    width: "100%",
+                    height: "100%",
+                    gap: 14,
+                    align: "left top",
+                    css: { maxWidth: MAX_WIDTH + "px" },
+                });
+
+                    // LABEL: The title
+                    Label({ text: "Users", fontSize: 26, bold: 1, textColor: Black(0.8) });
+
+                    Users.createToolbar();
+
+                    // LABEL: "10 users", "Loading..."
+                    countLabel = Label({ text: "", fontSize: 13, textColor: Black(0.45) });
+
+                    // BOX: The list scrolls, the toolbar stays. (grow: 1 -> the rest of the height)
+                    startBox({ width: "100%", height: 10, grow: 1, color: "transparent", scrollY: 1 });
+
+                        // GROUP: The rows of the state that is shown
+                        list = VGroup({ width: "100%", height: "auto", align: "left top", gap: 10, padding: [0, 4] });
+                        endGroup();
+
+                    endBox();
+
+                endGroup();
+
+            endGroup();
+
+            Users.load();
+
+        };
+
+        // *** VIEW:
+
+        Users.createToolbar = function () {
+
+            // GROUP: Search, reload and the error switch. (wrap: on a phone the buttons go to the next line.)
+            HGroup({ width: "100%", height: "auto", gap: 10, wrap: 1, align: "left center" });
+
+                // INPUT: Filters the rows that are already loaded
+                searchInput = Input({
+                    width: 10,
+                    height: 44,
+                    grow: 1,
+                    fontSize: 15,
+                    round: 10,
+                    borderColor: Black(0.15),
+                    placeholder: "Search a name, e-mail, city...",
+                    inputType: "search",
+                    css: { minWidth: "220px" },
+                });
+                searchInput.on("input", Users.showUsers);
+
+                // BUTTON: Loads the list again
+                Button({ text: "Reload", color: DARK_BUTTON_COLOR, textColor: "white", ...TOOLBAR_BUTTON });
+                that.on("click", Users.load);
+
+                // BUTTON: On / off
+                errorButton = Button({
+                    text: "Simulate error: off",
+                    color: "white",
+                    textColor: Black(0.6),
+                    border: 1,
+                    borderColor: Black(0.15),
+                    ...TOOLBAR_BUTTON,
+                });
+                errorButton.on("click", Users.toggleSimulatedError);
+
+            endGroup();
+
+        };
+
+        // One user: avatar, name and e-mail, city and company.
+        // WHY: Everything that comes from the server is set with plainText, never with text (innerHTML):
+        //      a name like "<img src=x onerror=...>" is shown as it is, and can not run code.
+        Users.createRow = function (user) {
+
+            const avatarColor = AVATAR_COLORS[user.id % AVATAR_COLORS.length];
+
+            // GROUP: The row
+            HGroup({
+                width: "100%",
+                height: ROW_HEIGHT,
+                gap: 14,
+                padding: [16, 0],
+                align: "left center",
+                color: "white",
+                round: 12,
+            });
+
+                // LABEL: The avatar: the initials in a colored circle
+                Label({
+                    plainText: Users.getInitials(user.name),
+                    width: AVATAR_SIZE,
+                    height: AVATAR_SIZE,
+                    round: AVATAR_SIZE / 2,
+                    color: avatarColor,
+                    textColor: "white",
+                    fontSize: 16,
+                    bold: 1,
+                    textAlign: "center",
+                    lineHeight: AVATAR_SIZE,    // One line as high as the circle: the text is in its middle.
+                });
+
+                // GROUP: Name and e-mail. width: 10 + grow: 1 -> it takes the free width, and a long
+                // text ends with "..." (ellipsis) instead of pushing the city out of the row.
+                VGroup({ width: 10, height: "auto", grow: 1, gap: 2, align: "left center" });
+
+                    Label({
+                        plainText: user.name,
+                        width: "100%",
+                        fontSize: 16,
+                        bold: 1,
+                        textColor: Black(0.8),
+                        ellipsis: 1,
+                    });
+
+                    Label({
+                        plainText: user.email,
+                        width: "100%",
+                        fontSize: 13,
+                        textColor: Black(0.5),
+                        ellipsis: 1,
+                    });
+
+                endGroup();
+
+                // GROUP: City and company
+                VGroup({ hug: 1, gap: 2, align: "right center" });
+
+                    Label({ plainText: user.address.city, fontSize: 14, textColor: Black(0.7) });
+                    Label({ plainText: user.company.name, fontSize: 12, textColor: Black(0.4) });
+
+                endGroup();
+
+            endGroup();
+
+        };
+
+        // A gray row in the shape of a user row. (Loading)
+        Users.createSkeletonRow = function () {
+
+            // GROUP: The row
+            HGroup({
+                width: "100%",
+                height: ROW_HEIGHT,
+                gap: 14,
+                padding: [16, 0],
+                align: "left center",
+                color: "white",
+                round: 12,
+            });
+
+                // BOX: The avatar
+                Box({ width: AVATAR_SIZE, height: AVATAR_SIZE, round: AVATAR_SIZE / 2, color: Black(0.08) });
+
+                // GROUP: Two gray lines in the place of the texts. (random widths: like texts of different lengths)
+                VGroup({ hug: 1, gap: 8, align: "left center" });
+                    Box({ width: random(120, 200), height: 12, round: 6, color: Black(0.08) });
+                    Box({ width: random(160, 240), height: 10, round: 5, color: Black(0.06) });
+                endGroup();
+
+            endGroup();
+
+        };
+
+        // A message in the middle of the list. (Error, nothing found)
+        // message: { icon, title, detail, buttonText, onClick }. Without a buttonText, there is no button.
+        Users.createMessage = function (message) {
+
+            // GROUP: The message
+            VGroup({ width: "100%", height: "auto", gap: 8, padding: [0, 48], align: "center top" });
+
+                Label({ text: message.icon, fontSize: 36 });
+
+                Label({
+                    plainText: message.title,
+                    fontSize: 17,
+                    bold: 1,
+                    textColor: Black(0.75),
+                    textAlign: "center",
+                });
+
+                Label({
+                    plainText: message.detail,
+                    fontSize: 14,
+                    textColor: Black(0.5),
+                    textAlign: "center",
+                });
+
+                if (message.buttonText) {
+                    Button({
+                        text: message.buttonText,
+                        width: "auto",
+                        height: 40,
+                        padding: [18, 0],
+                        round: 10,
+                        minimal: 1,
+                        color: DARK_BUTTON_COLOR,
+                        textColor: "white",
+                        fontSize: 14,
+                    });
+                    that.on("click", message.onClick);
+                }
+
+            endGroup();
+
+        };
+
+        // *** DATA:
+
+        // async: the function can wait (await) for the server, and the page keeps working meanwhile.
+        Users.load = async function () {
+
+            // WHY: Reload can be pressed while a request is still on the way. Every request has a
+            //      number, and only the answer of the last one is shown. An older answer that comes
+            //      later is thrown away, so it can not replace the newer list.
+            Users.requestId++;
+            const thisRequestId = Users.requestId;
+
+            Users.showLoading();
+
+            const url = Users.simulateError ? WRONG_URL : API_URL;
+
+            try {
+
+                const users = await Users.fetchJson(url);
+
+                if (thisRequestId !== Users.requestId) return;   // A newer request was sent.
+
+                Users.all = users;
+                Users.state = "ready";
+                Users.showUsers();
+
+            } catch (error) {
+
+                if (thisRequestId !== Users.requestId) return;
+                Users.showError(error.message);
+
+            }
+
+        };
+
+        // fetch() with a time limit and clear error texts.
+        Users.fetchJson = async function (url) {
+
+            try {
+
+                const response = await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT) });
+
+                // WHY: fetch() does not throw for 404 or 500. The answer came, but it is an error.
+                if (!response.ok) {
+                    throw new Error("The server answered with the error " + response.status + ".");
+                }
+
+                return await response.json();
+
+            } catch (error) {
+
+                throw Users.toReadableError(error);
+
+            }
+
+        };
+
+        // The error of fetch() in words that a user understands.
+        Users.toReadableError = function (error) {
+
+            if (error.name === "TimeoutError") {
+                const seconds = REQUEST_TIMEOUT / 1000;
+                return new Error("The server did not answer in " + seconds + " seconds.");
+            }
+
+            // WHY: fetch() throws a TypeError when no answer came at all (no internet, a wrong address).
+            if (error.name === "TypeError") {
+                return new Error("There is no connection to the server.");
+            }
+
+            return error;
+
+        };
+
+        // "Leanne Graham" -> "LG": the first letters of the first two words that start with a capital letter.
+        Users.getInitials = function (name) {
+
+            let initials = "";
+
+            name.split(" ").forEach(function (word) {
+                const startsWithCapital = /^[A-Z]/.test(word);
+                if (startsWithCapital && initials.length < 2) initials += word[0];
+            });
+
+            return initials;
+
+        };
+
+        Users.toggleSimulatedError = function () {
+
+            Users.simulateError = Users.simulateError ? 0 : 1;
+
+            errorButton.text = "Simulate error: " + (Users.simulateError ? "on" : "off");
+            errorButton.textColor = Users.simulateError ? ERROR_COLOR : Black(0.6);
+
+            Users.load();
+
+        };
+
+        // *** STATES:
+
+        // Removes every row of the list, and stops the pulse of the loading view.
+        Users.clearList = function () {
+
+            Users.stopPulsing();
+
+            // WHY: list.children is a new array on every call, so remove() in the loop is safe.
+            list.children.forEach(function (child) {
+                child.remove();
+            });
+
+        };
+
+        Users.showLoading = function () {
+
+            Users.state = "loading";
+            Users.clearList();
+            countLabel.text = "Loading...";
+
+            createIn(list, function () {
+                for (let i = 0; i < SKELETON_ROW_COUNT; i++) {
+                    Users.createSkeletonRow();
+                }
+            });
+
+            Users.startPulsing();
+
+        };
+
+        // The gray rows fade out and in, again and again, until the data comes.
+        Users.startPulsing = function () {
+
+            list.setMotion("opacity " + (PULSE_TIME / 1000) + "s");
+
+            Users.stopPulse = list.every(PULSE_TIME, function () {
+                list.opacity = (list.opacity === 1) ? PULSE_OPACITY : 1;
+            });
+
+        };
+
+        Users.stopPulsing = function () {
+
+            if (Users.stopPulse) {
+                Users.stopPulse();
+                Users.stopPulse = null;
+            }
+
+            list.setMotion("none");
+            list.opacity = 1;
+
+        };
+
+        Users.showError = function (errorText) {
+
+            Users.state = "error";
+            Users.clearList();
+            countLabel.text = "";
+
+            createIn(list, function () {
+                Users.createMessage({
+                    icon: "⚠️",
+                    title: "The users could not be loaded.",
+                    detail: errorText,
+                    buttonText: "Try again",
+                    onClick: Users.load,
+                });
+            });
+
+        };
+
+        // The rows that match the search text. (The search box calls it at every letter.)
+        Users.showUsers = function () {
+
+            // WHY: The search box can be used while the data is loading. There is nothing to filter yet.
+            if (Users.state !== "ready") return;
+
+            const query = searchInput.value.trim().toLowerCase();
+
+            const users = Users.all.filter(function (user) {
+                const text = [user.name, user.email, user.address.city, user.company.name].join(" ");
+                return text.toLowerCase().includes(query);
+            });
+
+            Users.clearList();
+
+            createIn(list, function () {
+
+                if (users.length > 0) {
+                    users.forEach(Users.createRow);
+                    return;
+                }
+
+                Users.createMessage({
+                    icon: "🔍",
+                    title: "No user matches \"" + query + "\".",
+                    detail: "Try another name or city.",
+                });
+
+            });
+
+            countLabel.text = (query === "")
+                ? Users.all.length + " users"
+                : users.length + " of " + Users.all.length + " users";
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

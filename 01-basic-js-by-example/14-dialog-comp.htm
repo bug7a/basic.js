@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Dialog Component</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        DIALOG COMPONENT
+
+        A component is a function that creates a group of objects and is used like one basic.js object:
+        Dialog({ titleText: "Delete?" }). This page writes a small dialog component (DIALOG COMPONENT, at the
+        bottom) and opens it with two different sets of params. The answer is written on the page.
+
+        HOW A COMPONENT IS WRITTEN:
+        - DialogDefaults            -> every param of the component, with its default value.
+        - mergeIntoIfMissing(params, DialogDefaults)
+                                    -> a param that is not given gets its default value.
+        - let box = startObject(params)
+                                    -> creates the box of the component. The objects created after it go into it,
+                                       and every param becomes a property of it (box.titleText, box.onAnswer...).
+        - box.close = function      -> a public function: the page can call it too (dialog.close()).
+        - return endObject(box)     -> ends the box (like endBox) and gives the component to the page.
+        - The parts of a component, always in this order: PRIVATE VARIABLES, PRIVATE FUNCTIONS, PUBLIC FUNCTIONS,
+          OBJECT VIEW (its objects) and OBJECT INIT CODE (its events and its first motion).
+
+        ALSO ON THIS PAGE:
+        - setMotion() + withMotion()        -> the dark cover fades in and the card rises.
+        - box.listenTo(window, "keydown")   -> Escape closes the dialog. The event is removed with the box.
+        - box.remove()                      -> removes the dialog with every object in it.
+
+        TRY: add a third button that opens Dialog({ titleText: "Hello!" }). Every other param is a default.
+
+        */
+
+        // *** VARIABLES:
+
+        // The look of the buttons of the page. (...PAGE_BUTTON copies these props into a props object.)
+        const PAGE_BUTTON = {
+            width: "auto",
+            padding: [20, 0],
+            minimal: 1,
+            color: "white",
+            border: 1,
+            borderColor: Black(0.15),
+            round: 8,
+            fontSize: 18,
+        };
+
+        let lblAnswer;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // GROUP: Fills the page and puts its objects in the middle, one under the other
+            VGroup({ gap: 20 });
+
+                // GROUP: Two buttons in a row
+                HGroup({ hug: 1, gap: 12 });
+
+                    // BUTTON: Opens a warning dialog
+                    Button({ text: "Delete the File", ...PAGE_BUTTON });
+                    that.on("click", askToDeleteFile);
+
+                    // BUTTON: Opens the same component with other params
+                    Button({ text: "Log Out", ...PAGE_BUTTON });
+                    that.on("click", askToLogOut);
+
+                endGroup();
+
+                // LABEL: The answer of the last dialog
+                lblAnswer = Label({
+                    text: "Click a button to open a dialog.",
+                    fontSize: 16,
+                    textColor: Black(0.6),
+                });
+
+            endGroup();
+
+        };
+
+        // *** FUNCTIONS:
+
+        const askToDeleteFile = function () {
+            Dialog({
+                iconFile: "assets/key.png",
+                titleText: "Delete the file?",
+                messageText: "This action cannot be undone. Are you sure you want to proceed?",
+                confirmText: "Yes, delete it",
+                confirmColor: basic.WARNING_COLOR,      // "tomato": the warning color of basic.js
+                onAnswer: showAnswer,
+            });
+        };
+
+        // No picture and the default (blue) confirm button: those params are not given.
+        const askToLogOut = function () {
+            Dialog({
+                titleText: "Log out?",
+                messageText: "You can log in again at any time.",
+                confirmText: "Log Out",
+                onAnswer: showAnswer,
+            });
+        };
+
+        // self: the dialog that was closed. Its params can still be read (self.titleText).
+        const showAnswer = function (self, isConfirmed) {
+            const buttonText = (isConfirmed) ? self.confirmText : self.cancelText;
+            lblAnswer.text = self.titleText + " Answer: " + buttonText;
+            println("isConfirmed: " + isConfirmed);
+        };
+
+        // *** DIALOG COMPONENT:
+
+        // Every param with its default value. (Each one becomes a property of the dialog box.)
+        const DialogDefaults = {
+            iconFile: "",                               // a picture before the title. "": no picture
+            titleText: "Are you sure?",
+            messageText: "",
+            confirmText: "OK",
+            cancelText: "Cancel",
+            confirmColor: basic.ACTION_COLOR,           // the blue of the basic.js buttons
+            coverColor: Black(0.6),                     // the dark layer over the page
+            onAnswer: function (self, isConfirmed) {},  // 1: the confirm button. 0: Cancel, Escape or a click outside
+        };
+
+        const Dialog = function (params = {}) {
+
+            mergeIntoIfMissing(params, DialogDefaults);
+
+            // WHY: A dialog always covers the whole page, so its place and size are not params.
+            params.left = 0;
+            params.top = 0;
+            params.width = "100%";
+            params.height = "100%";
+
+            // BOX: The dialog. The objects created from here to endObject() go into it.
+            let box = startObject(params);
+
+            // *** PRIVATE VARIABLES:
+
+            const CARD_WIDTH = 460;
+            const SIDE_SPACE = 32;                      // px: the free space at the sides of the card on a phone
+            const RISE_DISTANCE = 50;                   // px: the card rises from this far below its place
+            const BUTTON_LOOK = { width: "auto", height: 40, padding: [18, 0], fontSize: 16, minimal: 1 };
+
+            // *** PUBLIC FUNCTIONS:
+
+            // Closes the dialog and sends the answer to the page. isConfirmed: 1 or 0
+            box.close = function (isConfirmed = 0) {
+                if (box.isRemoved) return;              // WHY: A double click must not answer twice.
+                box.remove();                           // the dialog with every object in it
+                box.onAnswer(box, isConfirmed);
+            };
+            // USAGE: dialog.close() is the same as a click on Cancel.
+
+            // *** OBJECT VIEW:
+
+            // BOX: The dark cover over the page. A click on it is a "Cancel".
+            box.cover = Box(0, 0, "100%", "100%", { color: box.coverColor, opacity: 0 });
+
+            // GROUP: Fills the dialog and puts the card in its middle
+            AutoLayout();
+
+                // GROUP: The card
+                box.card = VGroup({
+                    width: Math.min(CARD_WIDTH, page.width - SIDE_SPACE),
+                    height: "auto",
+                    align: "left top",
+                    color: "white",
+                    round: 8,
+                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.25)",
+                    clickable: 1,                       // WHY: A click on the card must not go through to the cover.
+                    opacity: 0,
+                });
+
+                    // GROUP: The picture, the title and the message
+                    VGroup({ width: "100%", height: "auto", align: "left top", gap: 10, padding: 20 });
+
+                        // GROUP: The picture and the title in one row
+                        HGroup({ hug: 1, gap: 10 });
+
+                            // ICON: Only when the dialog has a picture
+                            if (box.iconFile) {
+                                box.icon = Icon({ width: 32, height: 32 });
+                                box.icon.load(box.iconFile);
+                            }
+
+                            // LABEL: Title
+                            box.lblTitle = Label({ text: box.titleText, bold: 1 });
+
+                        endGroup();
+
+                        // LABEL: Message. It is as wide as the card, so a long text goes on the next line.
+                        box.lblMessage = Label({
+                            text: box.messageText,
+                            width: "100%",
+                            fontSize: 16,
+                            textColor: Black(0.7),
+                        });
+
+                    endGroup();
+
+                    // GROUP: The buttons, at the right
+                    HGroup({
+                        width: "100%",
+                        height: "auto",
+                        align: "right center",
+                        gap: 8,
+                        padding: 12,
+                        color: "whitesmoke",
+                        // WHY: A line only at the top. (The border prop draws a line on every side.)
+                        css: { borderTop: "1px solid " + Black(0.1) },
+                    });
+
+                        // BUTTON: Cancel
+                        box.btnCancel = Button({ text: box.cancelText, color: "lightgray", ...BUTTON_LOOK });
+
+                        // BUTTON: Confirm
+                        box.btnConfirm = Button({ text: box.confirmText, color: box.confirmColor, ...BUTTON_LOOK });
+
+                    endGroup();
+
+                endGroup();
+
+            endGroup();
+
+            // *** OBJECT INIT CODE:
+
+            box.cover.on("click", function () { box.close(0); });
+            box.btnCancel.on("click", function () { box.close(0); });
+            box.btnConfirm.on("click", function () { box.close(1); });
+
+            // A lighter confirm button under the mouse. (basic.js has no prop for a CSS filter: css is used.)
+            box.btnConfirm.onHoverChange(function (self, isOver) {
+                self.css.filter = (isOver) ? "brightness(110%)" : "none";
+            });
+
+            // KEY: Escape is a "Cancel".
+            // WHY: The keys go to the window, not to the dialog. listenTo() adds the event to the window and
+            //      removes it when the dialog is removed. (An event added with page.on() would stay.)
+            box.listenTo(window, "keydown", function (self, event) {
+                if (event.key === "Escape") box.close(0);
+            });
+
+            // WHY: The button that opened the dialog still has the keyboard focus: Enter would open a second
+            //      dialog. A basic.js Button has no focus(), so the focus() of its HTML element is used.
+            box.btnCancel.elem.focus();
+
+            // MOTION: setMotion() says which styles change slowly and how long it takes. withMotion() makes the
+            // change a moment later, when the browser has drawn the start (transparent, the card 50 px down).
+            // WHY: A change in the same moment as the creation is not seen: the object would appear at its end.
+            box.card.css.transform = "translateY(" + RISE_DISTANCE + "px)";
+            box.cover.setMotion("opacity 0.2s");
+            box.card.setMotion("opacity 0.2s, transform 0.2s");
+
+            box.cover.withMotion(function (self) {
+                self.opacity = 1;
+            });
+
+            box.card.withMotion(function (self) {
+                self.opacity = 1;
+                self.css.transform = "translateY(0px)";
+            });
+
+            return endObject(box);
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

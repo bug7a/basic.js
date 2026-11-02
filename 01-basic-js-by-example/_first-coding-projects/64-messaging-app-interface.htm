@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Messaging App Interface</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MESSAGING APP INTERFACE
+
+        ALGORITHM:
+        New messages come one after the other, at random times. Every message is put under the
+        messages before it, and the list slides down to the newest one.
+
+        WORKING LOGIC:
+        - The list is a Box that scrolls up and down (scrollY: 1). A VGroup in it holds the messages.
+        - A VGroup puts its objects one under the other by itself. So a new message is only created
+          at the end of the group (createIn()), and the group puts it under the messages before it.
+          No code calculates the top of a message: a long text has more lines, its message is higher,
+          and the group puts the next messages lower by itself.
+          (The old versions of this project needed code that calculated the top of every message,
+          or CSS tricks.)
+        - The height of the VGroup is "auto": it grows with every message. onResize() runs a function
+          when the group gets higher: the list slides down to its end, so the newest message is seen.
+        - Every message is a group too (an HGroup): the picture of the writer and the text, side by side.
+          align: "right top" puts them at the right side of the list, "left top" at the left side.
+        - after() runs a function once, after a wait. Here it waits a random time, sends a random
+          message, and then waits again for the next one.
+
+        NOTE: The texts are lorem ipsum (placeholder text). They have no meaning.
+
+        */
+
+        // *** VARIABLES:
+
+        const LIST_WIDTH = 450;             // px
+        const MESSAGE_WIDTH = 350;          // px: the width of a message text
+        const AVATAR_SIZE = 30;             // px: the picture of the writer
+        const AVATAR_TOP = 20;              // px: the space over the picture (next to the first line of the text)
+        const AVATAR_SPACE = 25;            // px: the space between the picture and the text
+        const SIDE_SPACE = 15;              // px: the space between a message and the side of the list
+        const FIRST_MESSAGE_TOP = 50;       // px: the space above the first message
+        const MESSAGE_SPACE = 10;           // px: the space under every message
+        const MESSAGE_WAIT_MIN = 500;       // ms: the shortest wait before the next message
+        const MESSAGE_WAIT_MAX = 4000;      // ms: the longest wait before the next message
+
+        // The sample texts of the messages
+        const sampleMessages = [
+            "Integer at risus in ligula pharetra finibus. Suspendisse et magna convallis, aliquam ex sed, facilisis turpis. Ut commodo urna purus, vitae scelerisque nibh volutpat nec.",
+            "Vestibulum tempus ornare tellus, lobortis laoreet augue. Suspendisse malesuada ullamcorper sapien, a lacinia eros ornare vel. Praesent lacinia nisl sed lorem sollicitudin, vel rutrum est sagittis.",
+            "Nulla accumsan ex urna, id rutrum libero finibus sit amet.",
+            "Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Cras molestie dui nisi, ac rutrum leo venenatis ac. Maecenas cursus tincidunt nisi quis pellentesque. Vivamus id massa metus. Etiam semper erat quis dolor tristique, non molestie ante mollis.",
+            "Fusce dignissim.",
+            "Aenean",
+            "Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
+            "Maecenas commodo varius metus a fermentum.",
+        ];
+
+        // The message list (a Box that scrolls)
+        let listBox;
+        // The messages in the list, one under the other (a VGroup)
+        let grpMessages;
+
+        // *** START:
+
+        const start = function () {
+
+            // GROUP: It has no size, so it is as big as the page, and it puts the list in its middle.
+            HGroup();
+
+                // BOX: The message list. 450 px wide, as high as the page. It scrolls up and down.
+                listBox = startBox({
+                    width: LIST_WIDTH,
+                    height: "100%",
+                    scrollY: 1,
+                });
+
+                    // GROUP: The messages, one under the other. height: "auto": it grows with every message.
+                    grpMessages = VGroup({
+                        width: "100%",
+                        height: "auto",
+                        align: "left top",
+                        gap: MESSAGE_SPACE,     // the space between two messages
+                        // padding: [left, top, right, bottom]: a space over the first message and under the last one
+                        padding: [0, FIRST_MESSAGE_TOP, 0, MESSAGE_SPACE],
+                    });
+                    endGroup();
+
+                endBox();
+
+            endGroup();
+
+            // When the group of the messages gets higher (a new message), the list slides down to its end.
+            grpMessages.onResize(scrollToTheEnd);
+
+            // Add 10 random messages.
+            for (let i = 0; i < 10; i++) {
+                createRandomMessage();
+            }
+
+            // The next messages come one by one, at random times.
+            waitForTheNextMessage();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Waits a random time, then sends a random message, and waits again for the next one.
+        const waitForTheNextMessage = function () {
+
+            // after(): the function runs once, after the wait (ms). The timer belongs to the list:
+            // if the list is removed, its timer stops too.
+            listBox.after(random(MESSAGE_WAIT_MIN, MESSAGE_WAIT_MAX), function () {
+                createRandomMessage();
+                waitForTheNextMessage();
+            });
+
+        };
+
+        // Adds a random text, written by one of the 2 people.
+        const createRandomMessage = function () {
+
+            // A random text from the list
+            const randomMessage = sampleMessages[random(0, sampleMessages.length - 1)];
+
+            // One of the 2 people writes it, by chance.
+            if (random(1, 2) == 1) {
+                addNewMessage(randomMessage, "right", "avatar1.png", "pink");
+            } else {
+                addNewMessage(randomMessage, "left", "avatar2.png", "lightblue");
+            }
+
+        };
+
+        // Adds a message at the end of the list.
+        // side: the side of the message ("right" or "left"), avatarFile: the picture of the writer,
+        // color: the color of the text box
+        const addNewMessage = function (message, side, avatarFile, color) {
+
+            // createIn(): the objects created in the function go into the group of the messages, at its end.
+            createIn(grpMessages, function () {
+
+                // GROUP: A message: the picture and the text, side by side.
+                // align: "right top" puts them at the right side of the list, "left top" at the left side.
+                HGroup({
+                    width: "100%",
+                    height: "auto",
+                    align: side + " top",
+                    gap: AVATAR_SPACE,
+                    padding: [SIDE_SPACE, 0],   // [left and right, top and bottom]
+                });
+
+                    // At the right side: the picture, then the text. At the left side: the text, then the picture.
+                    if (side == "right") {
+                        createAvatar(avatarFile);
+                        createMessageText(message, color);
+                    } else {
+                        createMessageText(message, color);
+                        createAvatar(avatarFile);
+                    }
+
+                endGroup();
+
+            });
+
+        };
+
+        // The small round picture of the writer, next to the first line of the text.
+        const createAvatar = function (avatarFile) {
+
+            // GROUP: It only makes a space over the picture. padding: [left, top, right, bottom]
+            VGroup({
+                hug: 1,
+                padding: [0, AVATAR_TOP, 0, 0],
+            });
+
+                // ICON: The picture
+                const imgAvatar = Icon({
+                    width: AVATAR_SIZE,
+                    height: AVATAR_SIZE,
+                    round: AVATAR_SIZE / 2,
+                    color: "lightgray",
+                });
+                imgAvatar.load("images/31/" + avatarFile);
+
+            endGroup();
+
+        };
+
+        // The text of a message, in a colored box with round corners.
+        const createMessageText = function (message, color) {
+
+            // LABEL: Its height is "auto": as high as its lines (a long text has more lines).
+            Label({
+                width: MESSAGE_WIDTH,
+                height: "auto",
+                color: color,
+                fontSize: 20,
+                padding: [10, 20],      // the space inside: 10 px at the left and right, 20 px at the top and bottom
+                round: 8,
+                plainText: message,     // the text is shown as it is (a message is never read as HTML)
+            });
+
+        };
+
+        // Slides the list to the bottom, so the newest message is seen.
+        const scrollToTheEnd = function () {
+
+            // NOTE: scrollTo() belongs to the browser's own element of the box (listBox.elem), not to basic.js.
+            listBox.elem.scrollTo({
+                left: 0,
+                top: listBox.elem.scrollHeight,
+                behavior: "smooth",     // it slides; it does not jump
+            });
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a text box and a send button at the bottom of the page, so you can write your own messages.
+        - Show the time of every message under its text.
+        - Change the text of a message after it is shown, and watch the messages under it move by themselves.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Motion One After Another</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            body {
+
+                /* So the page does not flash white while it loads */
+                background-color: black;
+
+            }
+
+        </style>
+
+        <script>
+
+        /*
+
+        MOTION ONE AFTER ANOTHER
+
+        ALGORITHM:
+        A circle moves down, then up, then down again... One motion starts when the other one ends,
+        and it never stops.
+
+        WORKING LOGIC:
+        - The circle is a Box with round corners. setMotion() makes a change of its top take 2 seconds.
+        - startAnimation() moves the circle 200 px under the middle of the page.
+          2 seconds later (after(): a timer of the circle), it moves the circle back to its first place,
+          200 px above the middle. 2 seconds after that, startAnimation() calls itself again:
+          so the motion goes on forever.
+        - When the size of the window changes, the circle goes to the middle again (only left and right).
+
+        */
+
+        // *** VARIABLES:
+
+        const MOTION_TIME = 2000;   // ms: the time of one motion ("top 2s" in setMotion())
+        const DISTANCE = 200;       // px: from the middle of the page, up and down
+
+        // The moving circle (a Box)
+        let circle;
+
+        // *** START:
+
+        const start = function () {
+
+            // BOX: The moving circle, on the black page
+            circle = Box(0, 0, 80, 80, {
+                color: "tomato",
+                round: 40,
+            });
+            circle.setMotion("top 2s, background-color 2s");
+
+            // Its first place
+            circle.center();
+            circle.top -= DISTANCE;
+
+            // A moment later, when its motion is ready, start the animation.
+            circle.withMotion(function (self) {
+                startAnimation(self);
+            });
+
+            page.onResize(pageResized);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Moves the circle down, then back up, and calls itself again. self: the circle.
+        const startAnimation = function (self) {
+
+            // Move
+            self.center();
+            self.top += DISTANCE;
+
+            // self.after(time, function): runs the function once, after the time (in milliseconds).
+            // The timer belongs to the circle: when the circle is removed (remove()), its timers stop too.
+            self.after(MOTION_TIME, function () {
+
+                // Go back to the first place.
+                self.center();
+                self.top -= DISTANCE;
+
+                self.after(MOTION_TIME, function () {
+
+                    // Call itself again,
+                    // so the motion never stops.
+                    startAnimation(self);
+
+                });
+
+            });
+
+            // NOTE: after() is made with the setTimeout() function of JavaScript.
+            //       You can search for more about it: "JavaScript setTimeout"
+
+        };
+
+        const pageResized = function () {
+
+            // Only left and right: the circle goes to the middle of the new width.
+            circle.center("left");
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Change the color of the circle at each motion ("background-color 2s" is already in setMotion()).
+        - Move the circle to the left and to the right too (add "left 2s" to setMotion()).
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

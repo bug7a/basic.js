@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Light and Dark Theme</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        LIGHT AND DARK THEME
+
+        A basic.js object takes its colors when it is created. To change the theme without a
+        reload, every object says which color NAME it uses, and the theme sets them all again.
+
+            Theme.bind(label, { textColor: "text" });                   // prop -> color name
+            Theme.bind(track, function (colors) {                       // or a function, when the
+                return { color: isOn ? colors.accent : colors.soft };   // color depends on a state
+            });
+            Theme.refresh(track);                                       // after the state changes
+
+        - THEMES: the colors of every theme, with the same names (background, text, accent...).
+        - "Light", "Dark" or "System". System follows the setting of the computer or the phone,
+          also when it changes while the page is open. (matchMedia "prefers-color-scheme")
+        - The choice is saved with basic.storage: it is the same after a reload.
+        - The colors change slowly. (setMotion)
+
+        TRY: change accent in THEMES.light, or add a color name and bind an object to it.
+
+        */
+
+        // *** VARIABLES:
+
+        const THEMES = {
+
+            light: {
+                background: "#F2F3F7",
+                surface: "#FFFFFF",
+                soft: "#EEF0F5",
+                text: "rgba(0, 0, 0, 0.82)",
+                textSoft: "rgba(0, 0, 0, 0.5)",
+                border: "rgba(0, 0, 0, 0.1)",
+                accent: "#4C6EF5",
+                onAccent: "#FFFFFF",
+                shadow: "0 4px 14px rgba(0, 0, 0, 0.06)",
+            },
+
+            dark: {
+                background: "#14161B",
+                surface: "#1E2128",
+                soft: "#2A2E37",
+                text: "rgba(255, 255, 255, 0.9)",
+                textSoft: "rgba(255, 255, 255, 0.55)",
+                border: "rgba(255, 255, 255, 0.1)",
+                accent: "#7C95FF",
+                onAccent: "#10131C",
+                shadow: "0 4px 14px rgba(0, 0, 0, 0.35)",
+            },
+
+        };
+
+        // The buttons of the theme card.
+        const THEME_CHOICES = [
+            { key: "light", text: "Light" },
+            { key: "dark", text: "Dark" },
+            { key: "system", text: "System" },
+        ];
+
+        const STORAGE_KEY = "basic-samples-theme";
+        const COLOR_MOTION = "background-color 0.35s, color 0.35s, border-color 0.35s";
+
+        const CARD_BUTTON = {
+            width: "auto",
+            height: 40,
+            padding: [20, 0],
+            round: 10,
+            minimal: 1,
+            fontSize: 15,
+        };
+
+        // The switch of a settings row
+        const SWITCH_WIDTH = 46;
+        const SWITCH_HEIGHT = 26;
+        const KNOB_SIZE = 20;
+        const KNOB_SPACE = 3;           // The space between the knob and the edge of the switch.
+        const KNOB_ON_LEFT = SWITCH_WIDTH - KNOB_SIZE - KNOB_SPACE;
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Theme = {};
+
+        Theme.choice = "system";       // "light", "dark" or "system" (what the user chose)
+        Theme.name = "light";          // "light" or "dark" (what is shown)
+        Theme.colors = THEMES.light;
+        Theme.bindings = [];           // [{ obj, colors }]
+        Theme.systemQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // The parts of the page. (View, not Page: page is the basic.js object of the window.)
+        const View = {};
+
+        let statusLabel;
+
+        // *** START:
+
+        const start = function () {
+
+            // WHY: The theme is chosen before the objects are created, so they start with the right colors.
+            Theme.choice = basic.storage.loadOr(STORAGE_KEY, "system");
+            Theme.name = Theme.getName();
+            Theme.colors = THEMES[Theme.name];
+
+            Theme.bind(page, { color: "background" });
+
+            // BOX: The page never scrolls, this box does.
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                // GROUP: The title and the cards, one under the other
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 16, padding: [16, 36] });
+
+                    // LABEL: The title
+                    Label({ text: "Light and Dark Theme", fontSize: 28, bold: 1 });
+                    Theme.bind(that, { textColor: "text" });
+
+                    Label({ text: "Change the theme, nothing is created again.", fontSize: 15 });
+                    Theme.bind(that, { textColor: "textSoft" });
+
+                    View.createThemeCard();
+                    View.createProfileCard();
+                    View.createSettingsCard();
+
+                endGroup();
+
+            endBox();
+
+            // SYSTEM: The computer switched to dark (or light) while the page is open.
+            Theme.systemQuery.addEventListener("change", Theme.onSystemChange);
+
+            Theme.apply();
+
+        };
+
+        // *** THEME:
+
+        // "light" or "dark": the choice, or the setting of the system.
+        Theme.getName = function () {
+            if (Theme.choice !== "system") return Theme.choice;
+            return Theme.systemQuery.matches ? "dark" : "light";
+        };
+
+        // Remembers which colors an object uses, and sets them now. Returns the object.
+        // colors: { prop: "color name" }  or  function (colors) { return { prop: value }; }
+        Theme.bind = function (obj, colors) {
+
+            Theme.bindings.push({ obj: obj, colors: colors });
+
+            // WHY: Only the colors move. (An Input keeps its color on its <input>, it changes at once.)
+            if (obj !== page) obj.setMotion(COLOR_MOTION);
+
+            Theme.refresh(obj);
+            return obj;
+
+        };
+
+        // Sets the colors of one object again. (Also after its state changed.)
+        Theme.refresh = function (obj) {
+            Theme.bindings.forEach(function (binding) {
+                if (binding.obj === obj) Theme.setColors(binding);
+            });
+        };
+
+        Theme.setColors = function (binding) {
+
+            const props = Theme.getColorProps(binding);
+
+            // WHY: One by one, not props(): page (MainBox) has no props().
+            Object.keys(props).forEach(function (prop) {
+                binding.obj[prop] = props[prop];
+            });
+
+        };
+
+        // The props of a binding with the colors of the theme that is shown. Ex: { textColor: "#FFFFFF" }
+        Theme.getColorProps = function (binding) {
+
+            if (typeof binding.colors === "function") return binding.colors(Theme.colors);
+
+            const props = {};
+
+            Object.keys(binding.colors).forEach(function (prop) {
+                const colorName = binding.colors[prop];
+                props[prop] = Theme.colors[colorName];
+            });
+
+            return props;
+
+        };
+
+        // Shows the theme: every bound object gets its colors again.
+        Theme.apply = function () {
+
+            Theme.name = Theme.getName();
+            Theme.colors = THEMES[Theme.name];
+
+            // WHY: A removed object must not be changed. It is dropped from the list here.
+            Theme.bindings = Theme.bindings.filter(function (binding) {
+                return !binding.obj.isRemoved;
+            });
+            Theme.bindings.forEach(Theme.setColors);
+
+            // The browser draws the scroll bars and the form controls in the same theme.
+            document.documentElement.style.colorScheme = Theme.name;
+
+            const source = (Theme.choice === "system") ? " (from the system)" : "";
+            statusLabel.text = "Shown: " + Theme.name + source;
+
+        };
+
+        // choice: "light", "dark" or "system"
+        Theme.choose = function (choice) {
+            Theme.choice = choice;
+            basic.storage.save(STORAGE_KEY, choice);
+            Theme.apply();
+        };
+
+        Theme.onSystemChange = function () {
+            if (Theme.choice === "system") Theme.apply();
+        };
+
+        // *** VIEW:
+
+        // A card with a title. The objects created after it go into it, until endGroup().
+        View.startCard = function (title) {
+
+            // GROUP: The card
+            const card = VGroup({
+                width: "100%",
+                height: "auto",
+                gap: 14,
+                padding: 22,
+                align: "left top",
+                round: 16,
+                border: 1,
+                css: { maxWidth: "560px" },
+            });
+            Theme.bind(card, { color: "surface", borderColor: "border", boxShadow: "shadow" });
+
+            // LABEL: The title of the card
+            Label({ text: title, fontSize: 17, bold: 1 });
+            Theme.bind(that, { textColor: "text" });
+
+            return card;
+
+        };
+
+        View.createThemeCard = function () {
+
+            View.startCard("Theme");
+
+                // GROUP: Light / Dark / System
+                const segments = HGroup({ hug: 1, gap: 4, padding: 4, round: 12 });
+                Theme.bind(segments, { color: "soft" });
+
+                    THEME_CHOICES.forEach(View.createChoiceButton);
+
+                endGroup();
+
+                // LABEL: "Shown: dark (from the system)"
+                statusLabel = Label({ text: "", fontSize: 14 });
+                Theme.bind(statusLabel, { textColor: "textSoft" });
+
+            endGroup();
+
+        };
+
+        // A button of the theme card. The selected one looks different: its colors depend on a state,
+        // so they are given with a function.
+        View.createChoiceButton = function (choice) {
+
+            // BUTTON:
+            const button = Button({ text: choice.text, width: 96, height: 36, round: 9, minimal: 1, fontSize: 14 });
+
+            Theme.bind(button, function (colors) {
+                const isSelected = (Theme.choice === choice.key);
+                return {
+                    color: isSelected ? colors.surface : "transparent",
+                    textColor: isSelected ? colors.text : colors.textSoft,
+                    boxShadow: isSelected ? colors.shadow : "none",
+                };
+            });
+
+            button.on("click", function () {
+                Theme.choose(choice.key);
+            });
+
+        };
+
+        View.createProfileCard = function () {
+
+            View.startCard("Profile");
+
+                // GROUP: The avatar, the name and the e-mail
+                HGroup({ hug: 1, gap: 14, align: "left center" });
+
+                    // LABEL: The avatar. (One line as high as the circle: the text is in its middle.)
+                    Label({
+                        text: "AO",
+                        width: 52,
+                        height: 52,
+                        round: 26,
+                        fontSize: 18,
+                        bold: 1,
+                        textAlign: "center",
+                        lineHeight: 52,
+                    });
+                    Theme.bind(that, { color: "accent", textColor: "onAccent" });
+
+                    // GROUP: The name and the e-mail
+                    VGroup({ hug: 1, gap: 2, align: "left center" });
+
+                        Label({ text: "Ada Ocak", fontSize: 17, bold: 1 });
+                        Theme.bind(that, { textColor: "text" });
+
+                        Label({ text: "ada@example.com", fontSize: 14 });
+                        Theme.bind(that, { textColor: "textSoft" });
+
+                    endGroup();
+
+                endGroup();
+
+                // INPUT: The status
+                Input({
+                    width: "100%",
+                    height: 44,
+                    fontSize: 15,
+                    round: 10,
+                    minimal: 1,
+                    border: 1,
+                    placeholder: "Write a status...",
+                });
+                Theme.bind(that, { color: "soft", textColor: "text", borderColor: "border" });
+
+                // GROUP: The buttons
+                HGroup({ hug: 1, gap: 10, clipContent: 0 });
+
+                    Button({ text: "Save", ...CARD_BUTTON });
+                    Theme.bind(that, { color: "accent", textColor: "onAccent" });
+
+                    Button({ text: "Cancel", ...CARD_BUTTON });
+                    Theme.bind(that, { color: "soft", textColor: "text" });
+
+                endGroup();
+
+            endGroup();
+
+        };
+
+        View.createSettingsCard = function () {
+
+            View.startCard("Notifications");
+
+                View.createSwitchRow("E-mail", 1);
+                View.createSwitchRow("Push notifications", 0);
+                View.createSwitchRow("Weekly summary", 1);
+
+            endGroup();
+
+        };
+
+        // A row with a text and a switch. isOn: 1 or 0. The color of the switch depends on its state.
+        View.createSwitchRow = function (text, isOn) {
+
+            // GROUP: The row
+            HGroup({ width: "100%", height: 40, align: "left center", justify: "space-between" });
+
+                Label({ text: text, fontSize: 15 });
+                Theme.bind(that, { textColor: "text" });
+
+                // BOX: The switch and its knob
+                const track = startBox({
+                    width: SWITCH_WIDTH,
+                    height: SWITCH_HEIGHT,
+                    round: SWITCH_HEIGHT / 2,
+                    clickable: 1,
+                    cursor: "pointer",
+                });
+
+                    const knob = Box(KNOB_SPACE, KNOB_SPACE, KNOB_SIZE, KNOB_SIZE, {
+                        round: KNOB_SIZE / 2,
+                        color: "white",
+                        boxShadow: "0 1px 3px " + Black(0.3),
+                    });
+                    knob.setMotion("left 0.2s");
+
+                endBox();
+
+                Theme.bind(track, function (colors) {
+                    return { color: isOn ? colors.accent : colors.border };
+                });
+
+                const paintSwitch = function () {
+                    knob.left = isOn ? KNOB_ON_LEFT : KNOB_SPACE;
+                    Theme.refresh(track);   // WHY: The state changed, so its colors change too.
+                };
+
+                track.on("click", function () {
+                    isOn = isOn ? 0 : 1;
+                    paintSwitch();
+                });
+
+                paintSwitch();
+
+            endGroup();
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

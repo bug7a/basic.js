@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Increase/Decrease Buttons</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        INCREASE / DECREASE BUTTONS
+
+        ALGORITHM:
+        Choosing a number in a range: two buttons decrease and increase a number from 0 to 10.
+
+        WORKING LOGIC:
+        - The two buttons and the number are in a white box (boxCounter) at the bottom of the page.
+        - Each button changes the number by 1.
+        - After every change, refreshButtonsStatus() turns off the button that would leave the range:
+          "Increase" at 10, "Decrease" at 0.
+
+        */
+
+        // *** VARIABLES:
+
+        const BUTTON_WIDTH = 100;           // px
+        const NUMBER_WIDTH = 60;            // px: the space between the two buttons, for the number
+        const BOTTOM_SPACE = 40;            // px: between the box and the bottom of the page
+        const BUTTON_TEXT_COLOR = "rgba(255, 255, 255, 0.9)";
+
+        // The white box of the counter: the two buttons and the number.
+        // Its objects are kept on it: boxCounter.btnDecrease, boxCounter.lblNumber, boxCounter.btnIncrease
+        let boxCounter;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "lightgray";
+
+            // BOX: The white box of the counter. Parameters: left, top, width, height, then the props.
+            // startBox(): the objects created after it, until endBox(), go into this box.
+            boxCounter = startBox(50, 50, 270, 60, {
+                border: 0,
+                round: 12,
+                color: "white",
+            });
+
+                // BUTTON: Decrease. Its place (5, 5) is in the box: from the left and the top edges of the box.
+                boxCounter.btnDecrease = Button(5, 5, {
+                    text: "Decrease",
+                    textColor: BUTTON_TEXT_COLOR,
+                    color: "tomato",
+                    width: BUTTON_WIDTH,
+                    round: 12,
+                    minimal: 1,         // a simple look: no border and no shade
+                });
+                boxCounter.btnDecrease.on("click", decreaseNumber);
+
+                // LABEL: The number. The first number is 0.
+                boxCounter.lblNumber = Label({
+                    text: "0",
+                    textAlign: "center",
+                    width: NUMBER_WIDTH,
+                    height: 30,
+                    color: "transparent",
+                });
+                // At the right of the decrease button,
+                boxCounter.lblNumber.aline(boxCounter.btnDecrease, "right");
+                // then 10 px down.
+                boxCounter.lblNumber.top += 10;
+
+                // BUTTON: Increase. At the right of the decrease button, after the space of the number.
+                boxCounter.btnIncrease = Button({
+                    text: "Increase",
+                    textColor: BUTTON_TEXT_COLOR,
+                    color: "cadetblue",
+                    width: BUTTON_WIDTH,
+                    round: 12,
+                    minimal: 1,
+                });
+                boxCounter.btnIncrease.aline(boxCounter.btnDecrease, "right", NUMBER_WIDTH);
+                boxCounter.btnIncrease.on("click", increaseNumber);
+
+            endBox();
+
+            // The place of the box: in the middle of the page horizontally (center("left")),
+            // and 40 px over the bottom edge of the page.
+            boxCounter.center("left");
+            boxCounter.bottom = BOTTOM_SPACE;
+
+            // Check the buttons once at the start (the number is 0).
+            refreshButtonsStatus();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Adds 1 to the number. (The increase button runs it.)
+        const increaseNumber = function () {
+
+            // Read the number of the label, add 1, write it back to the label.
+            boxCounter.lblNumber.text = basic.num(boxCounter.lblNumber.text) + 1;
+
+            // The number changed: check the buttons.
+            refreshButtonsStatus();
+
+        };
+
+        // Takes 1 from the number. (The decrease button runs it.)
+        const decreaseNumber = function () {
+
+            // Read the number of the label, take 1, write it back to the label.
+            boxCounter.lblNumber.text = basic.num(boxCounter.lblNumber.text) - 1;
+
+            // The number changed: check the buttons.
+            refreshButtonsStatus();
+
+        };
+
+        // Turns the buttons on and off by the number.
+        const refreshButtonsStatus = function () {
+
+            // The number can be from 0 to 10.
+            // So a button that would go out of the range is turned off (passive): enabled = 0.
+            if (boxCounter.lblNumber.text == "10") {
+                boxCounter.btnIncrease.enabled = 0;
+
+            } else if (boxCounter.lblNumber.text == "0") {
+                boxCounter.btnDecrease.enabled = 0;
+
+            } else {
+                boxCounter.btnIncrease.enabled = 1;
+                boxCounter.btnDecrease.enabled = 1;
+            }
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Make the range from 0 to 20, with the two limits in constants (MIN_NUMBER, MAX_NUMBER).
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

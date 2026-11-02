@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Profile Card</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        PROFILE CARD
+
+        A card built from groups inside groups: a column (the card) holds a photo, two texts, a row of
+        numbers and a row of buttons. The texts and numbers come from the PROFILE object.
+        Click "Follow": the button and the followers number change.
+
+        - VGroup / HGroup({ hug: 1 })   -> a column / a row as big as its content. A group can hold groups.
+        - startBox() ... endBox()       -> a box that holds other objects (the round photo frame).
+        - bold: 1, boxShadow: "..."     -> the bold font, a shadow. Every look is a prop of the object.
+        - group.lblValue = Label(...)   -> keep an object on its group, to change it later (lblValue.text = ...).
+        - obj.onHoverChange(fn)         -> fn(self, isOver): isOver is 1 when the mouse comes, 0 when it leaves.
+
+        TRY: make the Message button do something: btnMessage.on("click", function () { ... });
+
+        */
+
+        // *** VARIABLES:
+
+        const PROFILE = {
+            name: "Sarah Connor",
+            job: "UI/UX Designer",
+            photoFile: "assets/olives.png",
+            posts: 120,
+            followers: 5400,
+            following: 450,
+        };
+
+        const COLOR_PRIMARY = "#86BA84";
+        const COLOR_TEXT = "#1A1A1A";
+        const PHOTO_SIZE = 100;
+        const BUTTON_WIDTH = 130;
+        const BUTTON_HEIGHT = 44;
+
+        let isFollowing = 0;
+        let statFollowers, btnFollow, btnMessage;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#F0F2F5";
+
+            // GROUP: Fills the page and puts the card in its middle
+            AutoLayout();
+
+                createCard();
+
+            endAutoLayout();
+
+            showFollowState();
+
+        };
+
+        // *** VIEW:
+
+        const createCard = function () {
+
+            // GROUP: The card: a column of everything below
+            VGroup({
+                hug: 1,
+                align: "center top",
+                gap: 15,
+                padding: 30,
+                color: "white",
+                round: 8,
+                border: 1,
+                borderColor: "lightgray",
+            });
+
+                createPhoto();
+
+                // GROUP: Name and job, close to each other
+                VGroup({ hug: 1, gap: 2 });
+
+                    // LABEL: Name
+                    Label({
+                        text: PROFILE.name,
+                        fontSize: 24,
+                        bold: 1,
+                        textColor: COLOR_TEXT,
+                    });
+
+                    // LABEL: Job
+                    Label({
+                        text: PROFILE.job,
+                        fontSize: 16,
+                        textColor: "#888888",
+                    });
+
+                endGroup();
+
+                // GROUP: The numbers row. padding: [15, 0] -> 15 px at the left and right, 0 at the top and bottom.
+                HGroup({ hug: 1, gap: 30, padding: [15, 0] });
+
+                    createStat(formatNumber(PROFILE.posts), "Posts");
+                    statFollowers = createStat(formatNumber(PROFILE.followers), "Followers");
+                    createStat(formatNumber(PROFILE.following), "Following");
+
+                endGroup();
+
+                // GROUP: The buttons row
+                HGroup({ hug: 1, gap: 15 });
+
+                    // BUTTON: Follow (its look is set by showFollowState)
+                    btnFollow = Button({
+                        width: BUTTON_WIDTH,
+                        height: BUTTON_HEIGHT,
+                        minimal: 1,
+                        round: 12,
+                        borderColor: COLOR_PRIMARY,
+                        fontSize: 16,
+                    });
+                    btnFollow.on("click", toggleFollow);
+                    btnFollow.onHoverChange(function (self, isOver) {
+                        self.opacity = isOver ? 0.85 : 1;
+                    });
+
+                    // BUTTON: Message
+                    btnMessage = Button({
+                        text: "Message",
+                        width: BUTTON_WIDTH,
+                        height: BUTTON_HEIGHT,
+                        minimal: 1,
+                        round: 12,
+                        color: "white",
+                        textColor: COLOR_PRIMARY,
+                        border: 2,
+                        borderColor: COLOR_PRIMARY,
+                        fontSize: 16,
+                    });
+                    // Alpha(color, 0.1): the color at 10%, a soft tint of it
+                    btnMessage.onHoverChange(function (self, isOver) {
+                        self.color = isOver ? Alpha(COLOR_PRIMARY, 0.1) : "white";
+                    });
+
+                endGroup();
+
+            endGroup();
+
+        };
+
+        // A round frame with a picture in it
+        const createPhoto = function () {
+
+            // BOX: The frame. round: half of its size -> a circle. Its content is cut at the circle.
+            startBox({
+                width: PHOTO_SIZE,
+                height: PHOTO_SIZE,
+                color: "#E1E5EA",
+                round: PHOTO_SIZE / 2,
+                border: 4,
+                borderColor: "white",
+                boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
+            });
+
+                // ICON: As big as the inside of the frame
+                const icon = Icon(0, 0, "100%", "100%", { alt: PROFILE.name });
+                icon.load(PROFILE.photoFile);
+
+            endBox();
+
+        };
+
+        // One number with its name under it. Returns the group: group.lblValue is the number label.
+        const createStat = function (valueText, nameText) {
+
+            // GROUP:
+            const group = VGroup({ hug: 1, gap: 4 });
+
+                // LABEL: The number
+                group.lblValue = Label({
+                    text: valueText,
+                    fontSize: 18,
+                    bold: 1,
+                    textColor: COLOR_TEXT,
+                });
+
+                // LABEL: Its name
+                Label({
+                    text: nameText,
+                    fontSize: 13,
+                    textColor: "#999999",
+                });
+
+            endGroup();
+
+            return group;
+
+        };
+
+        // *** FUNCTIONS:
+
+        const toggleFollow = function () {
+
+            if (isFollowing) {
+                isFollowing = 0;
+                PROFILE.followers--;
+            } else {
+                isFollowing = 1;
+                PROFILE.followers++;
+            }
+
+            showFollowState();
+
+        };
+
+        // The screen follows the data: the followers number and the look of the Follow button.
+        const showFollowState = function () {
+
+            statFollowers.lblValue.text = formatNumber(PROFILE.followers);
+
+            if (isFollowing) {
+                btnFollow.text = "Following";
+                btnFollow.color = "white";
+                btnFollow.textColor = COLOR_PRIMARY;
+                btnFollow.border = 2;
+            } else {
+                btnFollow.text = "Follow";
+                btnFollow.color = COLOR_PRIMARY;
+                btnFollow.textColor = "white";
+                btnFollow.border = 0;
+            }
+
+        };
+
+        // 5400 -> "5,400"
+        const formatNumber = function (value) {
+            return value.toLocaleString("en-US");
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

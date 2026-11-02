@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Minesweeper Mechanics</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MINESWEEPER MECHANICS
+
+        ALGORITHM:
+        A field of small squares hides some bombs. A click on a square opens its cover: under it there is
+        a bomb, or the number of the bombs around it. A square with no bombs around opens its neighbors too.
+
+        WORKING LOGIC:
+        - Every place of the field has two objects on top of each other: a square (Box) under,
+          and a cover picture (Icon) over it.
+        - The squares are kept in boxList, the covers in upperBoxList and the bombs in bombList.
+          Their names come from their column (x) and their row (y): "boxx3y5" is the square in column 3, row 5.
+        - placeTheBombs() puts the bombs on random squares (only one bomb on a square).
+        - markDangerZones() counts the bombs on the 8 squares around every square, writes the number
+          on the square and gives it a color: white 0, yellow 1, orange 2, red 3, dark red 4 or more.
+        - A click hides the cover. openNextWhiteBoxes() opens the covers at the 4 sides of a white square,
+          and it goes on from every white square that it opens: a function that calls itself (recursion).
+        - The level (Easy, Medium, Hard) sets the number of the squares and the bombs, and the sizes.
+        - These are only the mechanics: the game does not end when a bomb is opened.
+
+        */
+
+        // *** VARIABLES:
+
+        const GAME_PAGE_WIDTH = 600;        // px
+
+        // The levels. width / height: the number of squares across / down, mines: the number of bombs,
+        // boxSize: the size of a square (px), fontSize: the size of its number (px)
+        const levelList = [
+            { name: "Easy", width: 10, height: 10, mines: 15, boxSize: 40, fontSize: 28 },
+            { name: "Medium", width: 15, height: 15, mines: 30, boxSize: 30, fontSize: 21 },
+            { name: "Hard", width: 20, height: 20, mines: 40, boxSize: 20, fontSize: 15 },
+        ];
+
+        // The level of the game: 0 Easy, 1 Medium, 2 Hard
+        const selectedLevelIndex = 1;
+        const level = levelList[selectedLevelIndex];
+
+        // The game screen: a box as wide as the game, as high as the screen. It carries the field.
+        let boxGame;
+
+        // The objects of the field, found by their names
+        let upperBoxList = {};      // the covers: "imgx3y5"
+        let boxList = {};           // the squares under the covers: "boxx3y5"
+        let bombList = {};          // the bomb pictures, by the names of their squares: "boxx3y5"
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // On a screen narrower than the game, the page zooms out, so the whole game is seen.
+            page.fit(GAME_PAGE_WIDTH, GAME_PAGE_WIDTH);
+
+            // BOX: The game screen. As wide as the game, as high as the screen, in the middle.
+            boxGame = startBox(0, 0, GAME_PAGE_WIDTH, page.height);
+            boxGame.center("left");
+
+                // BOX: The field that carries the small squares. Parameters: the number of squares across and down
+                boxGame.boxField = createTheField(level.width, level.height);
+                boxGame.boxField.color = "white";
+                boxGame.boxField.border = 1;
+                boxGame.boxField.center();
+
+            endBox();
+
+            // Put the bombs. Parameter: the number of bombs
+            placeTheBombs(level.mines);
+            // Count the bombs around the squares. Parameters: the number of squares across and down
+            markDangerZones(level.width, level.height);
+
+            // Every time the size of the window changes, pageResized runs.
+            page.onResize(pageResized);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates the field with a square and a cover on every place, and gives it back.
+        // leftCount: the number of squares across, topCount: the number of squares down
+        const createTheField = function (leftCount, topCount) {
+
+            upperBoxList = {};
+            boxList = {};
+
+            // BOX: The field. Its size is given after its squares are created.
+            const boxField = startBox(0, 0);
+
+                // i: the row, j: the column
+                for (let i = 0; i < topCount; i++) {
+                    for (let j = 0; j < leftCount; j++) {
+                        createSquare(boxField, j, i);
+                    }
+                }
+
+            endBox();
+
+            // The field is as big as its squares, plus its border (1 px on each side).
+            boxField.width = (leftCount * level.boxSize) + 2;
+            boxField.height = (topCount * level.boxSize) + 2;
+
+            return boxField;
+
+        };
+
+        // Creates the square and the cover of one place of the field. x: its column, y: its row
+        const createSquare = function (boxField, x, y) {
+
+            const BOX_WIDTH = level.boxSize;
+            const BOX_HEIGHT = level.boxSize;
+
+            const boxName = "boxx" + x + "y" + y;
+            const upperBoxName = "imgx" + x + "y" + y;
+
+            // BOX: The square under the cover. It gets its color and its number later: markDangerZones().
+            boxField[boxName] = Box(x * BOX_WIDTH, y * BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT, {
+                round: 1,
+            });
+            boxList[boxName] = boxField[boxName];
+
+            // ICON: The cover over the square
+            boxField[upperBoxName] = Icon(x * BOX_WIDTH, y * BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT, {
+                color: "white",
+            });
+            const cover = boxField[upperBoxName];
+            cover.load("images/67/box.svg");
+            // Our own information on the cover: its column and its row
+            cover.x = x;
+            cover.y = y;
+            cover.on("click", openCover);
+            upperBoxList[upperBoxName] = cover;
+
+        };
+
+        // Puts the bombs on random squares. count: the number of bombs
+        const placeTheBombs = function (count) {
+
+            bombList = {};
+
+            for (let i = 0; i < count; i++) {
+
+                // A random square: a random column and a random row
+                const boxName = "boxx" + random(0, level.width - 1) + "y" + random(0, level.height - 1);
+
+                // Only one bomb can be on a square. When this square has one, this turn does not count (i--).
+                if (bombList[boxName]) {
+                    i--;
+                    continue;
+                }
+
+                const square = boxList[boxName];
+                square.color = "whitesmoke";
+                square.border = 1;
+                square.round = 3;
+
+                // createIn(): the objects created in the function go into the given box (the square).
+                createIn(square, function () {
+
+                    // ICON: The bomb picture
+                    square.imgBomb = Icon(0, 0, square.width, square.height, {
+                        space: 10,      // the space inside the picture: 10% of its size
+                    });
+                    square.imgBomb.load("images/67/bomb.png");
+
+                });
+
+                bombList[boxName] = square.imgBomb;
+
+            }
+
+        };
+
+        // Counts the bombs around every square without a bomb. Parameters: the number of squares across and down
+        const markDangerZones = function (leftCount, topCount) {
+
+            // The steps to the 8 squares around a square: [across, down]
+            const neighborSteps = [
+                [0, -1],    // up
+                [1, -1],    // up right
+                [1, 0],     // right
+                [1, 1],     // down right
+                [0, 1],     // down
+                [-1, 1],    // down left
+                [-1, 0],    // left
+                [-1, -1],   // up left
+            ];
+
+            for (let i = 0; i < topCount; i++) {
+                for (let j = 0; j < leftCount; j++) {
+
+                    const boxName = "boxx" + j + "y" + i;
+
+                    // A square with a bomb gets no number.
+                    if (bombList[boxName]) continue;
+
+                    let bombCount = 0;
+
+                    for (let k = 0; k < 8; k++) {
+
+                        const x = j + neighborSteps[k][0];
+                        const y = i + neighborSteps[k][1];
+                        const nextBoxName = "boxx" + x + "y" + y;
+
+                        // A square at the edge has fewer neighbors: a place out of the field is not in boxList.
+                        if (boxList[nextBoxName] && bombList[nextBoxName]) {
+                            bombCount++;
+                        }
+
+                    }
+
+                    paintDangerZone(boxList[boxName], bombCount);
+
+                }
+            }
+
+        };
+
+        // Writes the number of the bombs around on a square, and gives the square the color of its danger.
+        const paintDangerZone = function (square, bombCount) {
+
+            if (bombCount != 0) {
+
+                createIn(square, function () {
+
+                    // LABEL: The number of the bombs around
+                    square.lblNumber = Label(0, 0, level.boxSize, "auto", {
+                        text: bombCount,
+                        fontSize: level.fontSize,
+                        textAlign: "center",
+                        textColor: "black",
+                    });
+
+                });
+
+            }
+
+            // The more bombs around, the warmer the color.
+            switch (bombCount) {
+                case 0:
+                    square.color = "white";
+                    break;
+                case 1:
+                    square.color = "#FFEB3A";   // yellow
+                    break;
+                case 2:
+                    square.color = "#FAA236";   // orange
+                    break;
+                case 3:
+                    square.color = "#FE5D49";   // red
+                    break;
+                default:
+                    square.color = "#D0021B";   // dark red: 4 bombs or more
+                    break;
+            }
+
+        };
+
+        // Runs when a cover is clicked: the cover is hidden, and the white squares around are opened too.
+        // clickedCover: the cover itself (basic.js gives it).
+        const openCover = function (clickedCover) {
+            clickedCover.visible = 0;
+            openNextWhiteBoxes(clickedCover.x, clickedCover.y);
+        };
+
+        // When the square at (boxX, boxY) is white (no bombs around), the covers at its 4 sides are opened.
+        // From every opened square, the same is done again: the function calls itself (recursion).
+        const openNextWhiteBoxes = function (boxX, boxY) {
+
+            // The steps to the 4 squares at the sides: [across, down]
+            const sideSteps = [
+                [0, -1],    // up
+                [1, 0],     // right
+                [0, 1],     // down
+                [-1, 0],    // left
+            ];
+
+            const boxName = "boxx" + boxX + "y" + boxY;
+
+            // A square that is not white (it has a number or a bomb) opens only itself.
+            if (boxList[boxName].color != "white") return;
+
+            for (let k = 0; k < 4; k++) {
+
+                const x = boxX + sideSteps[k][0];
+                const y = boxY + sideSteps[k][1];
+
+                // A place out of the field is not in boxList.
+                if (!boxList["boxx" + x + "y" + y]) continue;
+
+                const nextCover = upperBoxList["imgx" + x + "y" + y];
+
+                // A cover that is still closed is opened, and the same is done from its square.
+                if (nextCover.visible == 1) {
+                    nextCover.visible = 0;
+                    openNextWhiteBoxes(nextCover.x, nextCover.y);
+                }
+
+            }
+
+        };
+
+        // Runs every time the size of the window changes.
+        const pageResized = function () {
+
+            page.fit(GAME_PAGE_WIDTH, GAME_PAGE_WIDTH);
+
+            boxGame.width = GAME_PAGE_WIDTH;
+            boxGame.height = page.height;
+            boxGame.center("left");
+            boxGame.boxField.center();
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - End the game when a bomb is opened: open all the covers and show a message.
+        - The player wins when every square without a bomb is opened.
+        - Put a flag on a cover with the right mouse button (the "contextmenu" event).
+        - Add buttons to choose the level: Easy, Medium, Hard.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

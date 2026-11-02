@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Rocket to the Target</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        ROCKET TO THE TARGET
+
+        THE SIMPLE MOTION OF AN OBJECT:
+        An object moves when its position is changed again and again, a little each time.
+
+        IN THIS EXAMPLE:
+        With a picture (the rocket), the coordinates of the page and a function that runs again and again
+        (loop), the picture moves to the place we want.
+
+        ALGORITHM:
+        A click on the page chooses a target. The rocket flies there 1 px at a time:
+        first left or right, then up or down.
+
+        WORKING LOGIC:
+        - A click saves the position of the mouse as the new target (newX, newY) and shows an "x" there.
+        - loop() runs every 8 milliseconds. Each time, the rocket moves 1 px toward the target and turns
+          its nose that way.
+        - When the rocket is at the target, the "x" is hidden.
+
+        MORE INFORMATION:
+        Better algorithms make these motions much nicer and smoother, with easier code.
+        This example teaches the basic and simplest idea.
+
+        */
+
+        // *** VARIABLES:
+
+        const LOOP_TIME = 8;        // ms: loop() runs again after this time
+        const TARGET_SIZE = 30;     // px: the size of the "x" of the target
+
+        // The rocket (an Icon)
+        let imgRocket;
+
+        // The target of the rocket: the place of its top left corner
+        let newX = 50;
+        let newY = 50;
+
+        let lblFinish;      // the "x" that marks the target
+        let lblInfo;        // the information text in the middle
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#141414";
+
+            // LABEL: The "x" that marks the clicked place. Hidden until a target is chosen.
+            lblFinish = Label(0, 0, TARGET_SIZE, TARGET_SIZE, {
+                text: "x",
+                color: "transparent",
+                textColor: "orangeRed",
+                textAlign: "center",
+                round: 15,
+                opacity: 0.4,
+                visible: 0,
+            });
+
+            // LABEL: The information text in the middle of the page
+            lblInfo = Label(0, 0, 200, 20, {
+                text: "Choose a target to start.",
+                textColor: "orangered",
+                fontSize: 14,
+                opacity: 0.8,
+                textAlign: "center",
+            });
+            // In the middle of the page
+            lblInfo.center();
+
+            // ICON: The rocket, at its first target (50, 50)
+            imgRocket = Icon(newX, newY, 50, 50);
+            imgRocket.load("images/rocket.png");
+
+            // When a mouse button is pressed on the page, mouseDown runs.
+            page.on("mousedown", mouseDown);
+
+            // Run loop() every 8 milliseconds. (basic.js runs it every 1000 ms when it is not set.)
+            setLoopTimer(LOOP_TIME);
+
+        };
+
+        // basic.js runs loop() again and again: every 8 ms here.
+        const loop = function () {
+
+            // First the left-right motion.
+            if (imgRocket.left > newX) {
+                // Move left.
+                imgRocket.left = imgRocket.left - 1;
+                imgRocket.rotate = 270;
+
+            } else if (imgRocket.left < newX) {
+                // Move right.
+                imgRocket.left = imgRocket.left + 1;
+                imgRocket.rotate = 90;
+
+            } else {
+
+                // Then the up-down motion.
+                if (imgRocket.top > newY) {
+                    // Move up.
+                    imgRocket.top = imgRocket.top - 1;
+                    imgRocket.rotate = 0;
+
+                } else if (imgRocket.top < newY) {
+                    // Move down.
+                    imgRocket.top = imgRocket.top + 1;
+                    imgRocket.rotate = 180;
+
+                } else {
+                    // The rocket is at the target: hide the "x".
+                    lblFinish.visible = 0;
+                }
+
+            }
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs when a mouse button is pressed. event: the information of the mouse (basic.js gives it).
+        const mouseDown = function (self, event) {
+
+            // Hide the information text.
+            lblInfo.visible = 0;
+
+            // Save the position of the mouse as the new target.
+            newX = event.offsetX;
+            newY = event.offsetY;
+
+            // Show the "x" with its center at the target.
+            lblFinish.visible = 1;
+            lblFinish.left = newX - (TARGET_SIZE / 2);
+            lblFinish.top = newY - (TARGET_SIZE / 2);
+
+            // The center of the rocket must reach the target, so its top left corner goes
+            // half of its size to the left and up.
+            newX = newX - (imgRocket.width / 2);
+            newY = newY - (imgRocket.height / 2);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Move the rocket 2 px at a time, so it is faster. (Be careful: it can jump over the target.)
+        - Move left-right and up-down at the same time (see 46-rocket-to-the-target-v2.htm).
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

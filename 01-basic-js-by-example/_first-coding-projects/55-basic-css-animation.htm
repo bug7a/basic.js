@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Basic CSS Animation</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        BASIC CSS ANIMATION
+
+        ALGORITHM:
+        In this example, the circle comes in by growing at the start.
+        Then it moves to the gray dot that is clicked.
+
+        WORKING LOGIC:
+        - The circle and the two gray dots are Boxes with round corners.
+        - setMotion() is given to the circle once. From then on, a change of its place, size, corners,
+          color or opacity is not sudden: it is a CSS motion of 1 second.
+        - The circle is created small and invisible (opacity 0). withMotion() changes it a moment later,
+          when its motion is ready: it grows to 150 px and becomes visible, with a motion.
+        - A click on a gray dot puts the circle over that dot (moveCircle()).
+        - When the size of the window changes, the objects are centered again,
+          and the circle goes to the middle without a motion (dontMotion()).
+
+        */
+
+        // *** VARIABLES:
+
+        // The stage: a box as big as the page. It carries the two gray dots and the circle.
+        let boxStage;
+
+        // *** START:
+
+        const start = function () {
+
+            // BOX: The stage, as big as the page
+            boxStage = startBox(0, 0, page.width, page.height);
+
+                // BOX: The top button: the gray dot at the top
+                boxStage.btnTopDot = Box(0, 0, 40, 40, {
+                    color: "lightgray",
+                    round: 20,
+                });
+                boxStage.btnTopDot.center();
+                boxStage.btnTopDot.top -= 150;
+                boxStage.btnTopDot.on("click", moveCircle);
+
+                // BOX: The bottom button: the gray dot at the bottom
+                boxStage.btnBottomDot = Box(0, 0, 40, 40, {
+                    color: "lightgray",
+                    round: 20,
+                });
+                boxStage.btnBottomDot.center();
+                boxStage.btnBottomDot.top += 150;
+                boxStage.btnBottomDot.on("click", moveCircle);
+
+                // BOX: The circle that has a motion
+                boxStage.circle = Box(0, 0, 20, 20, {
+                    color: "#FE5D49",
+                    round: 100,
+                });
+
+                boxStage.circle.center();
+                boxStage.circle.opacity = 0;
+
+                // Animate these properties with CSS.
+                boxStage.circle.setMotion("left 1s, top 1s, width 1s, height 1s, border-radius 1s, background-color 1s, opacity 1s");
+
+                // NOTE: This motion setting stays until it is cancelled.
+                // To cancel the motion:
+                // boxStage.circle.setMotion("none");
+
+                /*
+                ANOTHER WAY: the same changes, 5 seconds later:
+
+                const self = boxStage.circle;
+
+                setTimeout(function () {
+
+                    self.width = 150;
+                    self.height = 150;
+                    self.opacity = 1;
+                    self.center();
+
+                }, 5000);
+                */
+
+                // From its first place and size, go to the properties below with a soft change (a motion).
+                boxStage.circle.withMotion(function (self) {
+
+                    self.width = 150;
+                    self.height = 150;
+                    self.opacity = 1;
+                    self.center();
+
+                    // NOTE: self is the object boxStage.circle itself.
+
+                });
+
+            endBox();
+
+            // Every time the size of the page changes
+            page.onResize(pageResized);
+
+        };
+
+        // *** FUNCTIONS:
+
+        const pageResized = function () {
+
+            // The stage is as big as the page again.
+            boxStage.width = page.width;
+            boxStage.height = page.height;
+
+            // Only for this object: turn off the motion for a moment.
+            boxStage.circle.dontMotion();
+            boxStage.circle.center();
+
+            // NOTE: dontMotion() is used so that, when the size of the page changes,
+            //       the circle goes to its new place without a motion.
+
+            boxStage.btnTopDot.center();
+            boxStage.btnTopDot.top -= 150;
+
+            boxStage.btnBottomDot.center();
+            boxStage.btnBottomDot.top += 150;
+
+        };
+
+        // Puts the circle over the clicked gray dot. clickedDot: the dot itself (basic.js gives it).
+        const moveCircle = function (clickedDot) {
+
+            boxStage.circle.top = clickedDot.top - 55;
+            boxStage.circle.left = clickedDot.left - 55;
+
+            // NOTE: A CSS motion was added to the circle,
+            //       so its properties change with a motion.
+
+            // NOTE: How 55 is calculated: (boxStage.circle.width / 2) - (clickedDot.width / 2) = 75 - 20 = 55
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a third gray dot, and let the circle go to it too.
+        - Give the circle another color at each dot ("background-color 1s" is already in setMotion()).
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

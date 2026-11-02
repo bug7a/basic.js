@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Slider Component</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SLIDER COMPONENT
+
+        Two sliders made by one component function (SLIDER COMPONENT, at the bottom). Drag a slider, or click on
+        its track: the value is written next to its name. The two buttons change the sliders from the code.
+
+        HOW A COMPONENT IS WRITTEN (the same steps as 14-dialog-comp.htm):
+        - SliderDefaults + mergeIntoIfMissing()  -> the params, with a default for every one that is not given.
+        - let box = startObject(params) ... return endObject(box)
+                                                 -> the box of the component. Every param is a property of it
+                                                    (slider.value, slider.trackColor...).
+        - box.setValue(42)                       -> a PUBLIC function: the page changes the slider with it.
+        - placeThumb()                           -> a PRIVATE function: only the component itself can call it.
+        - onChange: function (self) {}           -> an event param: the page writes it, the component calls it.
+
+        ALSO ON THIS PAGE:
+        - box.on("pointerdown") + box.listenTo(window, "pointermove")
+                                                 -> dragging, with the mouse or with a finger.
+        - setMotion() and dontMotion()           -> setValue() slides the thumb; while dragging it moves at once.
+        - box.after(ms, fn)                      -> hides the value bubble a moment later.
+
+        TRY: give a slider min: 50 and max: 150, or call sliderCarrots.setTrackColor("orange") in start().
+
+        */
+
+        // *** VARIABLES:
+
+        const CARD_WIDTH = 330;
+        const CARD_PADDING = 24;
+        const SLIDER_WIDTH = CARD_WIDTH - 2 * CARD_PADDING;
+
+        // The look of the buttons of the page. (...PAGE_BUTTON copies these props into a props object.)
+        const PAGE_BUTTON = {
+            width: "auto",
+            height: 40,
+            padding: [16, 0],
+            fontSize: 15,
+            minimal: 1,
+            color: "whitesmoke",
+            border: 1,
+            borderColor: Black(0.12),
+            round: 8,
+        };
+
+        let sliderCarrots, sliderBlueberries;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#E9ECEB";
+
+            // BOX: The page never scrolls, this box does. (The content can be taller than a small screen.)
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                // GROUP: The content, one under the other. height: "auto" -> it can be taller than the box.
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 16, padding: [12, 40] });
+
+                    // GROUP: The card
+                    // WHY: clipContent: 0 -> the value bubble over a slider is not cut at the edge of the card.
+                    VGroup({
+                        width: CARD_WIDTH,
+                        height: "auto",
+                        align: "left top",
+                        gap: 28,
+                        padding: CARD_PADDING,
+                        color: "white",
+                        round: 16,
+                        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+                        clipContent: 0,
+                    });
+
+                        sliderCarrots = createSliderRow("assets/carrot.png", "Carrots", {
+                            value: random(0, 100),
+                        });
+
+                        sliderBlueberries = createSliderRow("assets/blueberries.png", "Blueberries", {
+                            value: random(0, 100),
+                            trackHeight: 44,
+                            trackColor: "indianred",
+                        });
+
+                        // GROUP: The buttons
+                        HGroup({ hug: 1, gap: 8 });
+
+                            // BUTTON: Sets new values from the code (setValue)
+                            Button({ text: "Random Values", ...PAGE_BUTTON });
+                            that.on("click", setRandomValues);
+
+                            // BUTTON: Shows the value bubbles for a moment (showValue)
+                            Button({ text: "Show Values", ...PAGE_BUTTON });
+                            that.on("click", showValues);
+
+                        endGroup();
+
+                    endGroup();
+
+                    // LABEL: Where the look comes from
+                    Label({
+                        text: "Inspired by Google Material 3 (not affiliated with Google)",
+                        fontSize: 13,
+                        textColor: Black(0.45),
+                        textAlign: "center",
+                    });
+
+                endGroup();
+
+            endBox();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // A title row (picture, name and value) with a slider under it. Returns the slider.
+        const createSliderRow = function (iconFile, nameText, sliderParams) {
+
+            let lblValue, slider;
+
+            // GROUP: The row
+            // WHY: clipContent: 0 -> the value bubble stands a little higher than the title row.
+            VGroup({ width: "100%", height: "auto", align: "left top", gap: 8, clipContent: 0 });
+
+                // GROUP: The picture, the name, and the value at the right end
+                HGroup({ width: "100%", height: "auto", align: "left center", gap: 8 });
+
+                    // ICON
+                    const icon = Icon({ width: 32, height: 32 });
+                    icon.load(iconFile);
+
+                    // LABEL: Name. grow: 1 -> it takes the free room, so the value goes to the right end.
+                    Label({ text: nameText, grow: 1 });
+
+                    // LABEL: Value
+                    lblValue = Label({ text: "", bold: 1 });
+
+                endGroup();
+
+                // SLIDER: Its onChange writes the value into the label of the row.
+                sliderParams.width = SLIDER_WIDTH;
+                sliderParams.onChange = function (self) {
+                    lblValue.text = self.value;
+                };
+                slider = Slider(sliderParams);
+
+            endGroup();
+
+            lblValue.text = slider.value;       // WHY: onChange is not called when the slider is created.
+
+            return slider;
+
+        };
+
+        const setRandomValues = function () {
+            sliderCarrots.setValue(random(0, 100));
+            sliderBlueberries.setValue(random(0, 100));
+        };
+
+        const showValues = function () {
+            sliderCarrots.showValue();
+            sliderBlueberries.showValue();
+        };
+
+        // *** SLIDER COMPONENT:
+
+        // Every param with its default value. (Each one becomes a property of the slider: slider.value.)
+        const SliderDefaults = {
+            width: 250,
+            value: 0,
+            min: 0,
+            max: 100,
+            trackHeight: 16,                    // Ex: 16 (a thin track), 44 (a thick one)
+            thumbHeight: 44,                    // the height of the thumb line
+            trackColor: "cadetblue",            // the filled part, at the left of the thumb
+            emptyTrackColor: Black(0.08),       // the empty part, at the right of the thumb
+            thumbColor: Black(0.7),
+            showValueOnSet: 1,                  // 1: setValue() shows the value over the thumb for a moment
+            onChange: function (self) {},       // self.value has changed (while dragging and after setValue)
+        };
+
+        const Slider = function (params = {}) {
+
+            mergeIntoIfMissing(params, SliderDefaults);
+
+            // WHY: The slider is as tall as its thumb line, or as its track when that is taller.
+            params.height = Math.max(params.thumbHeight, params.trackHeight);
+
+            // BOX: The slider. The objects created from here to endObject() go into it.
+            let box = startObject(params);
+
+            // *** PRIVATE VARIABLES:
+
+            const THUMB_MARGIN = 10;                        // px: the thumb line stops this far from the two ends
+            const LINE_WIDTH = 4;                           // the width of the thumb line,
+            const LINE_SPACE = 6;                           // and the free space at its two sides
+            const DRAG_LINE_WIDTH = 2;                      // while dragging: a thinner line, closer tracks
+            const DRAG_LINE_SPACE = 3;
+            const DOT_SIZE = 4;                             // the small dot at the right end of the track
+            const FILLED_TRACK_ROUND = "16px 4px 4px 16px"; // CSS order: top left, top right, bottom right, bottom left
+            const EMPTY_TRACK_ROUND = "4px 16px 16px 4px";
+            const BUBBLE_SPACE = 6;                         // px: between the value bubble and the thumb
+            const BUBBLE_SHOW_TIME = 1200;                  // ms: showValue() hides the bubble after it
+            const BUBBLE_SHOWN = "translateY(0px) scale(1)";
+            const BUBBLE_HIDDEN = "translateY(25px) scale(0.1)";    // small, down at the thumb
+
+            let isDragging = 0;
+            let cancelHideBubble = null;                    // stops the timer that hides the bubble (box.after)
+
+            // *** PRIVATE FUNCTIONS:
+
+            // Places the thumb at box.value. The two parts of the track fill the room at its two sides.
+            // isAnimated: 1 -> the parts slide to their new places (setMotion). 0 -> at once (while dragging).
+            const placeThumb = function (isAnimated) {
+
+                if (!isAnimated) {
+                    // dontMotion(): the next change of the object is at once, without its motion.
+                    box.thumb.dontMotion();
+                    box.filledTrack.dontMotion();
+                    box.emptyTrack.dontMotion();
+                    box.bubble.dontMotion();
+                }
+
+                const lineWidth = (isDragging) ? DRAG_LINE_WIDTH : LINE_WIDTH;
+                const lineSpace = (isDragging) ? DRAG_LINE_SPACE : LINE_SPACE;
+
+                // 0 at min, 1 at max: how far the value is on its way from min to max
+                const ratio = (box.value - box.min) / (box.max - box.min);
+                const lineCenter = THUMB_MARGIN + ratio * (box.width - 2 * THUMB_MARGIN);
+
+                box.thumb.width = lineWidth;
+                box.thumb.left = lineCenter - lineWidth / 2;
+
+                box.filledTrack.width = Math.max(0, lineCenter - lineWidth / 2 - lineSpace);
+                box.emptyTrack.width = Math.max(0, box.width - lineCenter - lineWidth / 2 - lineSpace);
+
+                // WHY: At an end only a few pixels of that part are left, so it is hidden.
+                box.filledTrack.opacity = (box.value === box.min) ? 0 : 1;
+                box.emptyTrack.opacity = (box.value === box.max) ? 0 : 1;
+
+                // aline(): over the thumb ("top"), 6 px away, in the middle of it ("center")
+                box.bubble.text = box.value;
+                box.bubble.aline(box.thumb, "top", BUBBLE_SPACE, "center");
+
+            };
+
+            // Saves the value (a whole number between min and max), moves the thumb and tells the page.
+            const changeValue = function (value, isAnimated, silent = 0) {
+                const newValue = Math.round(basic.clamp(value, box.min, box.max));
+                const isChanged = (newValue !== box.value);
+                box.value = newValue;
+                placeThumb(isAnimated);
+                if (isChanged && !silent) box.onChange(box);
+            };
+
+            // The value under the mouse: the x of the mouse in the slider, as a part of the way from min to max.
+            const getValueAt = function (event) {
+                // WHY: The place of the slider on the screen, like event.clientX (also in a scrolled box).
+                const sliderLeft = box.elem.getBoundingClientRect().left;
+                const ratio = (event.clientX - sliderLeft - THUMB_MARGIN) / (box.width - 2 * THUMB_MARGIN);
+                return box.min + ratio * (box.max - box.min);
+            };
+
+            // The value bubble grows out of the thumb, and goes back into it.
+            const showBubble = function () {
+                if (cancelHideBubble) cancelHideBubble();
+                box.bubble.opacity = 1;
+                box.bubble.css.transform = BUBBLE_SHOWN;
+            };
+
+            const hideBubble = function () {
+                box.bubble.opacity = 0;
+                box.bubble.css.transform = BUBBLE_HIDDEN;
+            };
+
+            // DRAG: pointer events work for the mouse and for a finger.
+            const startDrag = function (self, event) {
+                if (event.button !== 0) return;         // WHY: Only the main button. A right click opens a menu.
+                isDragging = 1;
+                showBubble();
+                changeValue(getValueAt(event), 1);     // the thumb slides to the mouse and gets thinner
+            };
+
+            const drag = function (self, event) {
+                if (!isDragging) return;
+                changeValue(getValueAt(event), 0);     // at once: the thumb follows the mouse
+            };
+
+            const endDrag = function () {
+                if (!isDragging) return;
+                isDragging = 0;
+                placeThumb(1);                          // the thumb line gets its width back
+                hideBubble();
+            };
+
+            // *** PUBLIC FUNCTIONS:
+
+            // silent: 1 -> onChange is not called.
+            box.setValue = function (value, silent = 0) {
+                changeValue(value, 1, silent);
+                if (box.showValueOnSet) box.showValue();
+            };
+            // USAGE: get: slider.value, set: slider.setValue(42)
+
+            // Shows the value over the thumb for a moment.
+            box.showValue = function () {
+                showBubble();
+                cancelHideBubble = box.after(BUBBLE_SHOW_TIME, hideBubble);
+            };
+
+            box.setTrackColor = function (color) {
+                box.trackColor = color;
+                box.filledTrack.color = color;
+                box.endDot.color = color;
+            };
+            // USAGE: slider.setTrackColor("orange")
+
+            // *** OBJECT VIEW:
+
+            box.clipContent = 0;                        // WHY: The value bubble stands over the slider, out of its box.
+            box.cursor = "pointer";
+            box.css.touchAction = "pan-y";              // WHY: On a touch screen a sideways drag moves the thumb,
+                                                        //      an up / down drag still scrolls the page.
+
+            // BOX: The filled part of the track, at the left of the thumb
+            box.filledTrack = Box({
+                left: 0,
+                height: box.trackHeight,
+                color: box.trackColor,
+                css: { borderRadius: FILLED_TRACK_ROUND },  // WHY: round gives every corner the same value.
+            });
+            box.filledTrack.center("top");              // center("top"): in the middle, from top to bottom
+
+            // BOX: The empty part of the track, at the right of the thumb
+            box.emptyTrack = startBox({
+                right: 0,
+                height: box.trackHeight,
+                color: box.emptyTrackColor,
+                css: { borderRadius: EMPTY_TRACK_ROUND },
+            });
+            box.emptyTrack.center("top");
+
+                // BOX: A small dot at the right end: where the slider ends
+                box.endDot = Box({
+                    right: DOT_SIZE,
+                    width: DOT_SIZE,
+                    height: DOT_SIZE,
+                    round: DOT_SIZE / 2,
+                    color: box.trackColor,
+                });
+                box.endDot.center("top");
+
+            endBox();
+
+            // BOX: The thumb: the line that is dragged
+            box.thumb = Box({
+                width: LINE_WIDTH,
+                height: box.thumbHeight,
+                round: LINE_WIDTH / 2,
+                color: box.thumbColor,
+            });
+            box.thumb.center("top");
+
+            // LABEL: The value bubble over the thumb
+            box.bubble = Label({
+                text: box.value,
+                color: Black(0.9),
+                textColor: "white",
+                fontSize: 14,
+                padding: [11, 9],
+                round: 16,
+                opacity: 0,
+            });
+            box.bubble.css.transform = BUBBLE_HIDDEN;
+
+            // *** OBJECT INIT CODE:
+
+            // MOTION: a change of these styles takes 0.2 seconds (setValue, the start and the end of a drag).
+            box.filledTrack.setMotion("width 0.2s, opacity 0.2s");
+            box.emptyTrack.setMotion("width 0.2s, opacity 0.2s");
+            box.thumb.setMotion("left 0.2s, width 0.2s");
+            box.bubble.setMotion("left 0.2s, transform 0.2s, opacity 0.2s");
+
+            // DRAG: it starts on the slider. The move and the end are listened on the window.
+            // WHY: The mouse can leave the slider while dragging. listenTo() removes these window events
+            //      with the slider, so the component does not need a remove() of its own.
+            box.on("pointerdown", startDrag);
+            box.listenTo(window, "pointermove", drag);
+            box.listenTo(window, "pointerup", endDrag);
+            box.listenTo(window, "pointercancel", endDrag);    // WHY: The browser took the touch (Ex: to scroll).
+
+            changeValue(box.value, 0, 1);               // the first drawing: at once, without onChange
+
+            return endObject(box);
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

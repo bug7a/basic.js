@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Pixel Face</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        PIXEL FACE
+
+        A picture drawn from data: FACE below is the picture written as text, and every "X" in it becomes a
+        small white Box. Two loops visit the rows and the letters of every row. Then the rows fade in one
+        after the other from the top, in the same order as the loops.
+
+        - FACE[row][column]         -> one letter of the picture: FACE[2][6] is the 7th letter of the 3rd row.
+                                       (The counting starts at 0.)
+        - Box(column * PIXEL_SIZE, row * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE)
+                                    -> a square at the place of its letter.
+        - obj.animate({ opacity: 1 }, 300)
+                                    -> changes the props with a motion of 300 ms. (No setMotion() is needed.)
+                                       It is used here, not setMotion(), because only the fade in has a motion:
+                                       "Draw Again" hides the squares at once.
+        - box.every(ms, fn)         -> runs fn again and again, every ms. It returns a function that stops it.
+        - button.enabled = 0        -> the button can not be clicked (and it looks paler).
+
+        TRY: change PIXEL_SIZE to 4 or 10, or change some "." to "X" in FACE to draw something new.
+
+        */
+
+        // *** VARIABLES:
+
+        const PIXEL_SIZE = 7;               // px: the size of one square of the picture
+        const ROW_TIME = 40;                // ms: a new row starts to fade in every 40 ms
+        const FADE_TIME = 300;              // ms: the fade in of a square
+        const PIXEL_COLOR = "white";
+        const FRAME_COLOR = "black";
+
+        // The picture as text: one string for every row. "X" is a white square, "." is empty.
+        const FACE = [
+            "................................................",
+            "................................................",
+            "......XXXXXX.......................XXXXXX.......",
+            "....XXXXXXXXXX....................XXXXXXXXXX....",
+            "...XXXXX..XXXXX..................XXXXX..XXXXX...",
+            "..XXXX......XXXX................XXXX......XXXX..",
+            "..XXX........XXX................XXX........XXX..",
+            ".XXX..........XXX..............XXX..........XXX.",
+            ".XXX..........XXX..............XXX..........XXX.",
+            ".XXX..........XXX..............XXX..........XXX.",
+            ".XXX..........XXX..............XXX..........XXX.",
+            ".XXX..........XXX..............XXX..........XXX.",
+            ".XXX..........XXX..............XXX..........XXX.",
+            ".XXX..........XXX..............XXX..........XXX.",
+            "..XXX........XXX................XXX........XXX..",
+            "..XXXX......XXXX................XXXX......XXXX..",
+            "...XXXXX..XXXXX..................XXXXX..XXXXX...",
+            "....XXXXXXXXXX....................XXXXXXXXXX....",
+            "......XXXXXX.......................XXXXXX.......",
+            "................................................",
+            "................................................",
+            "................................................",
+            "................................................",
+            "................................................",
+            ".......XXX..........................XXX.........",
+            ".....XXXXXXX......................XXXXXXX.......",
+            "....XXXX..XXXXX.................XXXXX..XXXX.....",
+            "...XXX......XXXXX.............XXXXX......XXX....",
+            "...XX........XXXXXX........XXXXXX........XX.....",
+            "..............XXXXXXXXXXXXXXXXXX................",
+            "...............XXXXXXXXXXXXXXXX.................",
+            "................XXXXXXXXXXXXXX..................",
+            ".................XXXXXXXXXXXX...................",
+            "...................XXXXXXXX.....................",
+            ".....................XXXX.......................",
+            "................................................",
+            "................................................",
+        ];
+
+        let faceFrame, btnDrawAgain;
+        let pixelRows = [];                 // the squares of every row: pixelRows[0] is the list of the first row
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "lightgray";
+
+            // GROUP: Fills the page and puts the picture and the button in its middle, one under the other
+            VGroup({ gap: 24 });
+
+                // BOX: The black frame. The squares are created inside it, so their left and top are counted
+                //      from its top left corner.
+                faceFrame = startBox({
+                    width: FACE[0].length * PIXEL_SIZE,
+                    height: FACE.length * PIXEL_SIZE,
+                    color: FRAME_COLOR,
+                    round: 12,
+                });
+
+                    drawFace();
+
+                endBox();
+
+                // BUTTON: Draws the picture again, row by row
+                btnDrawAgain = Button({
+                    text: "Draw Again",
+                    width: "auto",
+                    padding: [20, 0],
+                    minimal: 1,
+                    color: "white",
+                    round: 8,
+                    fontSize: 18,
+                });
+                btnDrawAgain.on("click", showRowByRow);
+
+            endGroup();
+
+            showRowByRow();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates a white square for every "X" of FACE. The column gives its left, the row gives its top.
+        const drawFace = function () {
+
+            for (let row = 0; row < FACE.length; row++) {
+
+                const rowPixels = [];
+
+                for (let column = 0; column < FACE[row].length; column++) {
+
+                    if (FACE[row][column] !== "X") continue;    // "." -> nothing to draw
+
+                    // BOX: One square of the picture
+                    const pixel = Box(column * PIXEL_SIZE, row * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE, {
+                        color: PIXEL_COLOR,
+                    });
+                    rowPixels.push(pixel);
+
+                }
+
+                pixelRows.push(rowPixels);
+
+            }
+
+        };
+
+        // MOTION: Every square is hidden at once, then the rows fade in one after the other, from the top.
+        const showRowByRow = function () {
+
+            btnDrawAgain.enabled = 0;           // WHY: A click in the middle would start a second drawing over it.
+
+            pixelRows.forEach(hidePixels);      // forEach(fn): fn gets the list of every row, one after the other
+
+            let row = 0;
+
+            // A timer of the frame: it stops by itself when the frame is removed.
+            const stopDrawing = faceFrame.every(ROW_TIME, function () {
+
+                fadeInPixels(pixelRows[row]);
+                row++;
+
+                if (row < pixelRows.length) return;
+
+                stopDrawing();                  // the last row has started: no more rows
+
+                // The button comes back when the last row has faded in.
+                faceFrame.after(FADE_TIME, function () {
+                    btnDrawAgain.enabled = 1;
+                });
+
+            });
+
+        };
+
+        // At once: no motion is set for the opacity of a square.
+        const hidePixels = function (pixels) {
+            pixels.forEach(function (pixel) {
+                pixel.opacity = 0;
+            });
+        };
+
+        const fadeInPixels = function (pixels) {
+            pixels.forEach(function (pixel) {
+                pixel.animate({ opacity: 1 }, FADE_TIME);
+            });
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

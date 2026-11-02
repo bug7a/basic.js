@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Dice v2</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        DICE V2
+
+        ALGORITHM:
+        A dice rolling app: a tap anywhere on the page rolls the two dice.
+
+        WORKING LOGIC:
+        - The two dice are Icons (picture objects) in a transparent Box, in the middle of the page.
+          There is a picture for each number: images/dice1.png ... images/dice6.png.
+        - A click on the page picks two random numbers and a random turn for each die.
+          The turn is a CSS motion (setMotion), so the dice turn slowly, in 1 second.
+        - The text under the dice tells what to do. After the first roll it fades out.
+        - When the size of the page changes, the box goes to the middle again, with a motion.
+
+        */
+
+        // *** VARIABLES:
+
+        const DICE_SIZE = 100;      // px: the width and the height of a die
+        const DICE_SPACE = 20;      // px: from the edges of the box to the dice
+        const MAX_TURN = 90;        // degrees: a rolled die turns between 0 and this
+
+        // The box that carries the dice
+        let boxDice;
+        // The text under the dice
+        let lblInfo;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "lightgray";
+
+            // BOX: The box of the dice, in the middle of the page.
+            // NOTE: Every object created between startBox() and endBox() goes inside the box.
+            boxDice = startBox(0, 0, 300, 150, {
+                color: "transparent",       // the box itself can not be seen
+                border: 0,
+                round: 10,
+            });
+            boxDice.center();
+            // After the first centering, a change of its place is a CSS motion (when the page size changes).
+            boxDice.setMotion("left 0.5s, top 0.5s");
+
+                // ICON: The first die
+                boxDice.imgDice1 = Icon({ left: DICE_SPACE, top: DICE_SPACE, width: DICE_SIZE, height: DICE_SIZE });
+                that.load("images/dice1.png");
+                // A turn of the die is a CSS motion (in 1 second).
+                that.setMotion("transform 1s");
+
+                // ICON: The second die, 20 px from the right edge of the box
+                boxDice.imgDice2 = Icon({ top: DICE_SPACE, right: DICE_SPACE, width: DICE_SIZE, height: DICE_SIZE });
+                that.load("images/dice6.png");
+                that.setMotion("transform 1s");
+
+            endBox();
+
+            // LABEL: The text that tells what to do, under the box
+            lblInfo = Label({
+                text: "Tap to roll the dice.",
+                textAlign: "center",
+                fontSize: 16,
+                textColor: "gray",
+                color: "transparent",
+                width: boxDice.width,       // as wide as the box, so the text is in the middle under it
+            });
+            // 10 px under the box
+            that.aline(boxDice, "bottom", 10);
+            // A change of its opacity or place is a CSS motion.
+            that.setMotion("opacity 0.5s, left 0.5s, top 0.5s");
+
+            // A click anywhere on the page rolls the dice.
+            page.on("click", rollTheDice);
+
+            // When the size of the page changes, centerAgain runs.
+            page.onResize(centerAgain);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Gives both dice a random number and a random turn.
+        const rollTheDice = function () {
+
+            // Two random whole numbers from 1 to 6 (1 and 6 can come too).
+            const number1 = random(1, 6);
+            const number2 = random(1, 6);
+
+            // The picture of a number: "images/dice" + 4 + ".png" -> "images/dice4.png"
+            boxDice.imgDice1.load("images/dice" + number1 + ".png");
+            boxDice.imgDice2.load("images/dice" + number2 + ".png");
+
+            // Turn each die by a random angle, from 0 to 90 degrees.
+            boxDice.imgDice1.rotate = random(0, MAX_TURN);
+            boxDice.imgDice2.rotate = random(0, MAX_TURN);
+
+            // After the first roll, the text fades out.
+            if (lblInfo.opacity == 1) {
+                lblInfo.opacity = 0;
+            }
+
+        };
+
+        // Puts the dice in the middle of the page again.
+        const centerAgain = function () {
+
+            // The box in the middle of the page
+            boxDice.center();
+            // The text under the box
+            lblInfo.aline(boxDice, "bottom", 10);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show the total of the two dice under them, after every roll.
+        - Roll the dice with the Space key of the keyboard too.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -51,6 +51,8 @@ Pek çok nesne `width: "auto"` parametresini destekler. Ayrıca `width: "100%"` 
 - Standart Kutu (`Box`) — `100x100` değerinden başlar.
 - Standart Buton (`Button`) — `130x50` değerlerinden başlar.
 
+**Bir boyutu okumak bir ölçümdür.** `width` / `height` bir metin olduğunda (`"100%"`, `"auto"`, `"calc(...)"`) ya da bir gruptaki nesnenin `left` / `top` değeri okunduğunda, tarayıcı önce sayfayı yeniden yerleştirir. Bir döngüde yazmayı ve okumayı karıştırmayın (yaz, `center()`, yine yaz...): önce bütün değerleri okuyun, sonra yazın. Kendi verdiğiniz sayıları okumak bedavadır.
+
 ---
 
 ## Görünüm ve Stil (Visuals)
@@ -62,7 +64,45 @@ Pek çok nesne `width: "auto"` parametresini destekler. Ayrıca `width: "100%"` 
 - `border` (Integer) — İç alan sınırları çizen kenarlık kalınlığı (`0` ise gizlenir, `1` ise ince siyah çizgi). Objeyi dışarıya taşırmaz. İçeriden çizer.
 - `borderColor` (String) — Kenarlık (border) atandıysa çizginin rengini belirler.
 - `fontSize` / `textColor` / `textAlign` — Nesne metin taşıyorsa onun stili değiştirilir. Standart yazı büyüklüğü `20` px boyutundadır. Hizalama (textAlign) `"center"`, `"right"` vb. olabilir.
-- `rotate` (Integer) — CSS rotate özelliğiyle objeyi çevirir (Derece olarak alır: `90`, `360` vb.).
+- `rotate` (Integer) — Objeyi çevirir (derece olarak: `90`, `360` vb.). CSS `transform` değerinin yalnızca `rotate()` kısmını değiştirir: oradaki bir `translateY()` ya da `scale()` kalır. `setMotion("transform 0.3s")` ile hareketli olur.
+
+---
+
+## Metin: `text` ve `plainText`
+
+- `text` HTML'dir: `Label({ text: "<b>Toplam</b>: 12" })`. Kendi metinleriniz için kullanın.
+- `plainText` hiçbir zaman HTML olarak okunmaz. **Kullanıcıdan ya da sunucudan gelen her metin için onu kullanın** (bir ad, bir mesaj, bir dosya adı): `lblName.plainText = user.name;`. `text`'e verilen `<img onerror=...>` gibi bir metin kod olarak çalışır.
+
+### Metin rengini izleyen bir ikon
+
+Bir Label içindeki SVG'de `stroke="currentColor"` (ya da `fill="currentColor"`) yazın: ikon Label'ın `textColor` rengini alır. Böylece hover yalnızca `textColor`'ı değiştirir, SVG yeniden yazılmaz:
+
+```javascript
+const btnClose = Label({
+    text: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    textColor: "#999",
+    lineHeight: "0",
+    cursor: "pointer",
+});
+btnClose.onHoverChange(function (self, isOver) {
+    self.textColor = (isOver) ? "tomato" : "#999";
+});
+```
+
+---
+
+## Erişilebilirlik: `role`, `aria`, `tabIndex` (v26.10.23)
+
+Bir Label ya da Box bir `<div>`'dir: ekran okuyucu onun bir buton ya da bir sekme olduğunu bilmez. Bunu şu özelliklerle söyleyin (odağı alan elemana yazılırlar, Input'ta `<input>`'a):
+
+- `role` (String) — `"button"`, `"tab"`, `"tree"`, `"dialog"`... `""` kaldırır.
+- `aria` (Object) — `{ label: "Kapat", selected: true, level: 2 }`, `aria-label`, `aria-selected`, `aria-level` yazar. Yalnızca verilen anahtarlar değişir. `true` / `false`, `"true"` / `"false"` olur; `null` özelliği kaldırır. Anahtarlar `aria-` olmadan ARIA adlarıdır (`labelledby`, `activedescendant` ARIA'daki gibi tek kelime).
+- `tabIndex` (Number) — `0`: Tab tuşu nesneye ulaşır; `-1`: yalnızca kodun `elem.focus()`'u; `null`: elemanın varsayılanı.
+
+```javascript
+const btnSave = Label({ text: "Kaydet", role: "button", tabIndex: 0, aria: { label: "Formu kaydet" } });
+btnSave.aria = { disabled: true }; // aria-label kalır
+```
 
 ---
 
@@ -106,6 +146,8 @@ lblName.onResize(function(resizedLabel) {
 - `object.getMotion()` — Atanan String tabanlı hareket komut değerini gösterir.
 - `object.withMotion(fonksiyon)` — İlk değerlerin sıçramaması için hareket işlemini çok kısa bir ertelemeye salan (zaman damgası atanaran) zeki bir fonksiyondur.
 - `object.dontMotion()` — Kural atanmış bir objenin (setMotion yapılmışsa) anlık bir değişikliğinde animasyonu es geçmesine yarayan, duraklama komutudur.
+- **`setMotion()` ile aynı anda yapılan değişiklik hareket etmez** (bilerek: yeni bir nesnenin ilk değerleri uçarak gelmemeli). Değeri sonra değiştirin (bir tıklama, bir zamanlayıcı) ya da hemen hareket etmesi gerekiyorsa `setMotionNow()` kullanın.
+- **Gölgeli, çok sayıda hareketli nesne:** gölgeler her frame'de yeniden boyanır (300 kart: `left` ile de `translate` ile de frame başına ~110 ms). Onlara `css: { willChange: "transform" }` verin: her biri kendi katmanını alır ve 60 fps hareket eder. Gölge yoksa `left` yeterince hızlıdır.
 
 ---
 

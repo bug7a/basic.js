@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Drawing a Complex Shape</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        DRAWING A COMPLEX SHAPE
+
+        ALGORITHM:
+        Many boxes with a thin colored edge are drawn on top of each other, in the middle of the page.
+        Every new box turns one degree more than the one before. Together they draw a round, complex shape.
+
+        WORKING LOGIC:
+        - setLoopTimer(2) in start() makes loop() run every 2 ms (not every second).
+        - Each run of loop() draws one box with drawBox(): a random size, an edge color chosen at random
+          from a list, transparent inside, and faint (a small opacity).
+        - center() puts the box in the middle of the page, and rotate turns it: as many degrees as
+          the number of the boxes drawn so far.
+        - First 1000 big and very faint boxes are drawn, then 1500 small and stronger ones.
+          Then the drawing stops.
+
+        */
+
+        // *** VARIABLES:
+
+        const BIG_BOXES = 1000;     // the first 1000 boxes are big
+        const ALL_BOXES = 2500;     // then small boxes are drawn, until there are 2500 boxes
+
+        // The edge colors. Each box gets one of them, chosen at random.
+        const bigBoxColors = ["seagreen", "lightgray", "steelblue"];
+        const smallBoxColors = ["orangered", "tomato", "gold", "yellow", "steelblue"];
+
+        // How many boxes are drawn so far. The next box turns this many degrees.
+        let drawnBoxes = 0;
+
+        // *** START:
+
+        const start = function () {
+
+            // loop() runs every 2 ms (not every 1000 ms): the shape is drawn fast.
+            setLoopTimer(2);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // basic.js runs it again and again. Each run draws one box.
+        const loop = function () {
+
+            // The first part: big boxes (90 to 620 px), very faint (opacity: 0.1)
+            if (drawnBoxes < BIG_BOXES) {
+                drawBox(random(90, 620), random(90, 620), bigBoxColors, 0.1);
+            }
+
+            // The second part: small boxes (90 to 220 px), a little stronger (opacity: 0.3)
+            if (drawnBoxes >= BIG_BOXES && drawnBoxes < ALL_BOXES) {
+                drawBox(random(90, 220), random(90, 220), smallBoxColors, 0.3);
+            }
+
+            // A third part to try: 20 round boxes of the same size. (Take away the "//" marks.)
+            // if (drawnBoxes >= ALL_BOXES && drawnBoxes < ALL_BOXES + 20) {
+            //     drawBox(300, 300, ["mediumorchid"], 0.3);
+            //     that.round = 60;
+            // }
+
+        };
+
+        // Draws a box in the middle of the page: transparent inside, with a thin edge.
+        // width, height: its size. colorList: its edge color is one of them. opacity: 0 (invisible) to 1.
+        const drawBox = function (width, height, colorList, opacity) {
+
+            // BOX: One of the boxes of the shape
+            const box = Box({
+                width: width,
+                height: height,
+                color: "transparent",
+                border: 1,
+                borderColor: colorList[random(0, colorList.length - 1)],
+                opacity: opacity,
+            });
+            box.center();
+
+            // One more box: it turns one degree more than the one before.
+            drawnBoxes++;
+            box.rotate = drawnBoxes;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Change the colors in the lists, the sizes and the opacity values, and see how the shape changes.
+        - Try the third part: the code in the comment at the end of loop().
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Mini Graph Box</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MINI GRAPH BOX
+
+        Small cards with a bar graph, drawn with plain boxes: every number of the data is one Box, as tall as
+        its part of the biggest number. Move the mouse over the bars to read the number of a day.
+
+        - CARROT_SALES = [32, 41, ...]      -> the data: the carrots sold on each of the last 30 days.
+        - value / maxValue * GRAPH_HEIGHT   -> the height of a bar: the biggest number gets the whole height.
+        - HGroup({ align: "left bottom" })  -> puts the bars side by side, standing on the same bottom line.
+        - three groups in one card          -> the texts, the picture and the bars are in three groups as big as
+                                               the card, on top of each other: each group puts its objects in
+                                               another corner (align).
+        - bar.onHoverChange(fn)             -> the mouse comes on a bar (isOver: 1) or leaves it (isOver: 0).
+
+        TRY: change a number in CARROT_SALES, or GRAPH_HEIGHT, BAR_WIDTH and BAR_GAP.
+
+        */
+
+        // *** VARIABLES:
+
+        const CARD_HEIGHT = 136;
+        const CARD_PADDING = 16;
+        const GRAPH_HEIGHT = 44;            // px: the height of the bar of the biggest number
+        const BAR_WIDTH = 5;
+        const BAR_GAP = 2;                  // px: the space between two bars
+        const MIN_BAR_HEIGHT = 2;           // px: a very small number still gets a bar that can be seen
+
+        // The data: the items sold on each of the last 30 days.
+        const CARROT_SALES = [
+            32, 41, 38, 45, 52, 61, 58, 40, 36, 44, 49, 57, 66, 63, 42,
+            39, 47, 51, 60, 70, 68, 45, 41, 48, 55, 64, 72, 69, 50, 46,
+        ];
+
+        const STRAWBERRY_SALES = [
+            12, 15, 14, 18, 22, 25, 24, 19, 21, 26, 30, 34, 33, 28, 31,
+            35, 39, 44, 42, 37, 40, 45, 49, 53, 51, 47, 50, 56, 60, 58,
+        ];
+
+        const BROCCOLI_SALES = [
+            28, 30, 27, 31, 29, 18, 16, 30, 32, 29, 33, 31, 19, 17, 31,
+            34, 30, 32, 35, 20, 18, 33, 35, 32, 36, 34, 21, 19, 35, 37,
+        ];
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // GROUP: Fills the page and puts its objects in the middle, one under the other
+            VGroup({ gap: 24, padding: 20 });
+
+                // LABEL: What to do
+                Label({ text: "Move the mouse over the bars.", fontSize: 15, textColor: Black(0.5) });
+
+                // GROUP: The cards. wrap: 1 -> when the screen is narrow, a card goes on the next line.
+                // WHY: clipContent: 0 -> the shadows of the cards go out of the group, and a group cuts its content.
+                HGroup({ width: "100%", height: "auto", wrap: 1, gap: 16, clipContent: 0 });
+
+                    createGraphCard({
+                        titleText: "Carrots sold",
+                        iconFile: "assets/carrot.png",
+                        color: "#E8833A",
+                        data: CARROT_SALES,
+                    });
+
+                    createGraphCard({
+                        titleText: "Strawberries sold",
+                        iconFile: "assets/strawberry.png",
+                        color: "indianred",
+                        data: STRAWBERRY_SALES,
+                    });
+
+                    createGraphCard({
+                        titleText: "Broccoli sold",
+                        iconFile: "assets/broccoli.png",
+                        color: "seagreen",
+                        data: BROCCOLI_SALES,
+                    });
+
+                endGroup();
+
+            endGroup();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // A card: a title, the total of the data, a picture and a bar for every number of the data.
+        // params: { titleText, iconFile, color, data }
+        const createGraphCard = function (params) {
+
+            let lblTitle, lblValue;
+
+            const total = getTotal(params.data);
+            const barsWidth = params.data.length * BAR_WIDTH + (params.data.length - 1) * BAR_GAP;
+
+            // Writes the total. (When the mouse is not on a bar.)
+            const showTotal = function () {
+                lblTitle.text = params.titleText;
+                lblValue.text = toShortText(total);
+            };
+
+            // Writes the number of one bar.
+            const showDay = function (dayNumber, value) {
+                lblTitle.text = "Day " + dayNumber;
+                lblValue.text = value;
+            };
+
+            // BOX: The card. It is as wide as its bars, with the padding at the two sides.
+            const card = startBox({
+                width: barsWidth + 2 * CARD_PADDING,
+                height: CARD_HEIGHT,
+                color: "white",
+                round: 12,
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
+            });
+
+                // GROUP: The title and the total, at the top left
+                VGroup({ align: "left top", padding: CARD_PADDING });
+
+                    lblTitle = Label({ fontSize: 13, textColor: Black(0.5) });
+                    lblValue = Label({ fontSize: 24, textColor: Black(0.8) });
+
+                endGroup();
+
+                // GROUP: The picture, at the top right
+                HGroup({ align: "right top", padding: CARD_PADDING });
+
+                    const icon = Icon({ width: 28, height: 28 });
+                    icon.load(params.iconFile);
+
+                endGroup();
+
+                // GROUP: The bars, at the bottom left
+                HGroup({ align: "left bottom", gap: BAR_GAP, padding: CARD_PADDING });
+
+                    createBars(params.data, params.color, showDay);
+
+                endGroup();
+
+            endBox();
+
+            card.on("mouseleave", showTotal);
+            showTotal();
+
+        };
+
+        // One Box for every number of the data. onBarHover(dayNumber, value) runs when the mouse comes on a bar.
+        const createBars = function (data, color, onBarHover) {
+
+            // Math.max(...data): the biggest number of the list
+            const maxValue = Math.max(...data);
+
+            data.forEach(function (value, index) {
+
+                // The biggest number gets the whole GRAPH_HEIGHT, half of it gets half of the height...
+                const barHeight = Math.max(MIN_BAR_HEIGHT, Math.round(value / maxValue * GRAPH_HEIGHT));
+
+                // BOX: One bar
+                const bar = Box({ width: BAR_WIDTH, height: barHeight, color: color, round: 1 });
+
+                // WHY: This function is made in the loop, so it remembers the value and the day of its own bar.
+                bar.onHoverChange(function (self, isOver) {
+                    self.opacity = (isOver) ? 0.5 : 1;
+                    if (isOver) onBarHover(index + 1, value);
+                });
+
+            });
+
+        };
+
+        // The sum of the numbers of a list.
+        const getTotal = function (data) {
+            let total = 0;
+            data.forEach(function (value) {
+                total += value;
+            });
+            return total;
+        };
+
+        // A short text for a number: 1549 -> "1.5K", 852 -> "852"
+        const toShortText = function (number) {
+            if (number < 1000) return String(number);
+            return (number / 1000).toFixed(1) + "K";
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

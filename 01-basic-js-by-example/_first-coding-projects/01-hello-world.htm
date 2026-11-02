@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Hello World</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        HELLO WORLD
+
+        ALGORITHM:
+        When a Button is clicked, "Hello World" is written into a text box.
+
+        WORKING LOGIC:
+        - A text box (Input) and a Button are created at their places on the page.
+        - When the Button named btnWrite is clicked, the function writeMessage() runs.
+        - writeMessage() writes "Hello World" into the text box named txtMessage.
+
+        VIDEO: the project step by step (in Turkish): https://youtu.be/zPOKz3w1YmY
+        The video uses an older basic.js. Old -> new names: createTextBox() -> Input(),
+        createButton() -> Button(), btnWrite.onClick(fn) -> btnWrite.on("click", fn). They do the same.
+
+        */
+
+        // *** VARIABLES:
+
+        // The objects of the program.
+        // NOTE: The first letters of a name tell what the variable holds: txt = a text box, btn = a button.
+        //       So the names are easy to follow in the code.
+        let txtMessage;
+        let btnWrite;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            // TEXTBOX: A box to type in. Its place on the page, in pixels:
+            txtMessage = Input({
+                left: 50,   // from the left edge
+                top: 50,    // from the top edge
+            });
+
+            // BUTTON: Under the text box
+            btnWrite = Button({
+                left: 50,
+                top: 110,
+                text: "Write",
+            });
+
+            // Every time the button is clicked, the function writeMessage runs.
+            btnWrite.on("click", writeMessage);
+
+            // NOTE: writeMessage is written without (): we GIVE the function to the button here.
+            //       writeMessage() with () would RUN it at once.
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Writes the message into the text box.
+        const writeMessage = function () {
+            txtMessage.text = "Hello World";
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTION:
+
+        - Add a second Button that clears the text box.
+          Name it btnClear, and name its function clearMessage().
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

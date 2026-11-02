@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Grade Average</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        GRADE AVERAGE
+
+        ALGORITHM:
+        Grades are added one by one. After every grade, the average of all the grades so far is written.
+
+        WORKING LOGIC:
+        - A grade is typed into a text box (Input) and added with a Button.
+        - Two variables remember the sum of the grades and how many grades were added.
+        - The average is the sum divided by the number of grades. It is written as a whole number.
+        - Every grade adds a new line to the top of a Label: the history of the grades and the averages.
+
+        VIDEO: the project step by step (in Turkish): https://www.youtube.com/watch?v=hyw6IVWV1Tc
+        The video uses an older basic.js. Old -> new names: createTextBox() -> Input(),
+        createButton() -> Button(), createLabel() -> Label(), btnAdd.onClick(fn) -> btnAdd.on("click", fn),
+        num() -> basic.num(). They do the same.
+
+        */
+
+        // *** VARIABLES:
+
+        // The objects of the program
+        let txtGrade;
+        let btnAdd;
+        let lblHistory;
+
+        let totalOfGrades = 0;      // the sum of the grades added so far
+        let gradeCount = 0;         // how many grades were added
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // INPUT: The text box of the new grade. Its title is written above it.
+            txtGrade = Input({
+                left: 50,
+                top: 50,
+                title: "Enter the first grade:",
+            });
+
+            // BUTTON: Adds the grade. At the right of the text box, 10 px away.
+            btnAdd = Button({
+                text: "Add Grade",
+                color: "lightgreen",
+            });
+            btnAdd.aline(txtGrade, "right", 10);
+            btnAdd.on("click", addGrade);
+
+            // LABEL: The history of the grades. 20 px under the text box.
+            lblHistory = Label({
+                text: "",
+                fontSize: 13,
+                textColor: "gray",
+            });
+            lblHistory.aline(txtGrade, "bottom", 20);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Adds the grade in the text box and writes the new average.
+        const addGrade = function () {
+
+            // An empty text box adds nothing.
+            if (txtGrade.text == "") return;
+
+            // Add the number in the text box to the sum, and count it.
+            totalOfGrades = totalOfGrades + basic.num(txtGrade.text);
+            gradeCount++;
+
+            // The title asks for the next grade. Ex: "Enter grade 2:"
+            txtGrade.title = "Enter grade " + (gradeCount + 1) + ":";
+
+            // The average, as a whole number ("integer": the part after the point is dropped).
+            const average = basic.num(totalOfGrades / gradeCount, "integer");
+
+            // The new line goes to the top of the history. "<br>": a new line in a Label.
+            const newLine = gradeCount + " - " + txtGrade.text + ", average: " + average;
+            lblHistory.text = newLine + "<br>" + lblHistory.text;
+
+            // Clear the text box for the next grade.
+            txtGrade.text = "";
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add the grade with the Enter key too: txtGrade.onEnter(addGrade)
+        - Do not add a text that is not a number, or a grade under 0 or over 100.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Input</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        INPUT
+
+        A text field. Type your name: the count under it changes with every letter, and Enter says hello.
+
+        - Input(left, top, width, height, props)
+                                    -> a text field at a place on the page.
+        - title                     -> a text over the field.
+        - placeholder               -> a hint in the field while it is empty.
+        - maxLength                 -> the most letters the field takes.
+        - minimal: 1                -> a flat field: only your own color, round and border.
+        - input.value               -> the text in the field (the same as input.text). It can be set too.
+        - input.on("input", fn)     -> runs fn at every change of the text. Other events: "change" (the
+                                       field is left after a change), "focus", "blur".
+        - input.onEnter(fn)         -> runs fn when Enter is pressed in the field.
+        - input.focus()             -> puts the cursor in the field, so the user can type at once.
+
+        TRY: add inputType: "password" to the props of the field.
+
+        */
+
+        // *** VARIABLES:
+
+        const LEFT = 40;
+        const MAX_LETTERS = 20;
+
+        let inpName, lblLetters, lblGreeting;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // INPUT: Your name
+            inpName = Input(LEFT, 70, 300, 50, {
+                title: "Your name:",
+                placeholder: "Type, then press Enter",
+                maxLength: MAX_LETTERS,
+                minimal: 1,
+                color: "whitesmoke",
+                round: 6,
+            });
+            inpName.on("input", countLetters);
+            inpName.onEnter(sayHello);
+
+            // LABEL: How many letters are in the field
+            lblLetters = Label(LEFT, 128, "auto", "auto", {
+                fontSize: 14,
+                textColor: Black(0.5),
+            });
+
+            // LABEL: The greeting. sayHello() writes it.
+            lblGreeting = Label(LEFT, 170, "auto", "auto", {
+                text: "Hello!",
+                fontSize: 24,
+            });
+
+            countLetters();
+            inpName.focus();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs at every change of the text: a letter typed or deleted, a paste.
+        const countLetters = function () {
+            lblLetters.text = inpName.value.length + " / " + MAX_LETTERS + " letters";
+        };
+
+        // Runs when Enter is pressed in the field.
+        const sayHello = function () {
+
+            const name = inpName.value.trim();
+
+            if (name === "") {
+                lblGreeting.text = "Please type your name.";
+                return;
+            }
+
+            // WHY: The name comes from the user. plainText shows it as it is (text would read "<b>" as HTML).
+            lblGreeting.plainText = "Hello, " + name + "!";
+            println("Name: " + name);
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

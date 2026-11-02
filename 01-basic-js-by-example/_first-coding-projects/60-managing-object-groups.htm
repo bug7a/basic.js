@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Managing Object Groups</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MANAGING OBJECT GROUPS
+
+        ALGORITHM:
+        A row of numbered, colored boxes in the middle of the page. A click on a box removes it,
+        and the "Add Box" button adds a new box at the end of the row.
+
+        WORKING LOGIC:
+        - In many apps, we always see parts that repeat themselves.
+        - These parts can be simple boxes, like in this example, or complex boxes
+          that hold a lot of other information too.
+        - For example, think about the contact list page of a messaging app:
+          each box can have the picture, the first name and the last name of a person,
+          and other information about the last messages.
+        - This example shows how we can control such parts when we design them:
+          - The boxes are in a row: an HGroup (grpRow). The group puts them side by side by itself.
+            Its width is "auto": it is as wide as its boxes. A bigger group around it (as big as
+            the page) keeps it in the middle of the page.
+          - Every new box gets an id (its own number) and is added to an array (boxes).
+          - removeBoxById() removes the box with an id: from the array at once, and from the page softly.
+            The box shrinks (its width goes down to 0, with a motion), and the row closes the gap
+            and gets narrower with it. When the motion ends, the object of the box is removed.
+          - A new box grows from a width of 0 in the same way, so the row gets wider softly.
+
+        A simpler version of this lesson: 59-managing-object-groups-basic.htm
+        Another example project: 37-searchable-list.htm
+
+        */
+
+        // *** VARIABLES:
+
+        const BOX_COUNT = 8;                // the boxes at the start
+        const BOX_SIZE = 40;                // px
+        const SPACE_BETWEEN_BOXES = 2;      // px
+        const ROW_HEIGHT = 44;              // px: a box, and the space over and under it
+        const BUTTON_BOTTOM = 60;           // px: the space under the "Add Box" button
+        const MOTION_TIME = 300;            // ms: how long a box grows or shrinks
+        const colors = ["#689BD2", "tomato", "gold", "seagreen"];
+
+        // The row that carries the boxes (a black group)
+        let grpRow;
+        // The button that adds a new box
+        let btnAddBox;
+
+        // The id of the last box that was created
+        let lastBoxId = 0;
+        // The box objects
+        let boxes = [];
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // GROUP: It has no size, so it is as big as the page, and it puts the row in its middle.
+            HGroup();
+
+                // GROUP: The carrier of the boxes (a black row). It puts its boxes side by side.
+                // width: "auto": it is as wide as its boxes, so it gets wider and narrower with them.
+                grpRow = HGroup({
+                    width: "auto",
+                    height: ROW_HEIGHT,
+                    padding: SPACE_BETWEEN_BOXES,   // the space between the edge of the row and the boxes
+                    gap: SPACE_BETWEEN_BOXES,       // the space between two boxes
+                    color: "black",
+                    round: 3,
+                });
+                endGroup();
+
+                // NOTE: It lets us move the boxes together, as a group.
+
+            endGroup();
+
+            // Create 8 boxes.
+            for (let i = 0; i < BOX_COUNT; i++) {
+                createNumberBox();
+            }
+
+            // GROUP: A strip as wide as the page, 60 px over its bottom. It puts the button in its middle.
+            HGroup({
+                bottom: BUTTON_BOTTOM,
+                width: "100%",
+                height: "auto",
+            });
+
+                // BUTTON: The button that adds a new box
+                btnAddBox = Button({
+                    text: "Add Box",
+                    color: "lightgray",
+                    minimal: 1,
+                });
+                btnAddBox.on("click", addBox);
+
+            endGroup();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates a new box at the end of the row, and gives it back.
+        const createNumberBox = function () {
+
+            // The id of the new object
+            lastBoxId++;
+
+            // createIn(): the objects created in the function go into grpRow (the row), at its end.
+            // It gives back what the function returns: here, the new box.
+            const newBox = createIn(grpRow, function () {
+
+                // GROUP: The new box, with a random color from the array colors. It puts its label in its middle.
+                const box = HGroup({
+                    width: BOX_SIZE,
+                    height: BOX_SIZE,
+                    color: colors[random(0, colors.length - 1)],
+                    round: 3,
+                    cursor: "pointer",  // The mouse shows a hand over it: it can be clicked.
+                });
+
+                    // LABEL: The number in the box. It has no size: it is as big as its text.
+                    box.lblNumber = Label({
+                        text: basic.str(lastBoxId),
+                        textColor: "rgba(0, 0, 0, 0.6)",
+                        bold: 1,
+                    });
+
+                endGroup();
+
+                return box;
+
+            });
+
+            // id: a variable whose name we chose ourselves. It keeps the number of the box.
+            newBox.id = lastBoxId;
+            newBox.on("click", removeBox);
+            // A change of its width (and its opacity) is made softly, in MOTION_TIME.
+            newBox.setMotion("width " + MOTION_TIME + "ms, opacity " + MOTION_TIME + "ms");
+            // Give the boxes random widths:
+            // newBox.width = random(40, 100);
+
+            // Add the box object to the array.
+            boxes.push(newBox);
+
+            return newBox;
+
+        };
+
+        // The "Add Box" button: a new box at the end of the row. It grows from a width of 0.
+        const addBox = function () {
+
+            const newBox = createNumberBox();
+            const boxWidth = newBox.width;
+
+            newBox.width = 0;
+
+            // withMotion(): the change is made a moment later, when the browser has drawn the box with a width of 0.
+            // (A change in the same moment as the creation is not seen as a motion.)
+            newBox.withMotion(function () {
+                newBox.width = boxWidth;
+            });
+
+        };
+
+        // Removes the clicked box. clickedBox: the box itself (basic.js gives it).
+        const removeBox = function (clickedBox) {
+
+            removeBoxById(clickedBox.id);
+
+        };
+
+        // Removes the box with the given id.
+        const removeBoxById = function (id) {
+
+            const newBoxes = [];
+
+            for (let i = 0; i < boxes.length; i++) {
+
+                if (boxes[i].id != id) {
+                    // The boxes that were not clicked are added to a new array.
+                    newBoxes.push(boxes[i]);
+                } else {
+                    // The object of the clicked box leaves the page softly.
+                    removeBoxSoftly(boxes[i]);
+                }
+
+            }
+
+            // The array of the boxes is changed with the new one.
+            boxes = newBoxes;
+
+            println("The box object with the id " + id + " was removed.");
+
+        };
+
+        // The box shrinks and fades (with its motion). The row closes the gap and gets narrower at the same time.
+        const removeBoxSoftly = function (box) {
+
+            // The box can not be clicked again while it shrinks.
+            box.clickable = 0;
+
+            box.width = 0;
+            box.opacity = 0;
+
+            // When the motion ends, remove the object of the box. (Its label goes with it.)
+            box.after(MOTION_TIME, function () {
+                box.remove();
+            });
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Write the number of the boxes in a Label, and update it when a box is added or removed.
+        - Add a "Remove All" button: it removes every box with removeBoxById().
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

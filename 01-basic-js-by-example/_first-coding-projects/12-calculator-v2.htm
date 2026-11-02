@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Calculator V2</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CALCULATOR V2
+
+        ALGORITHM:
+        A classic calculator that can do the four operations.
+
+        WORKING LOGIC:
+        - The keys are Buttons, created with loops: 12 keys for the numbers (with "C" and "=")
+          and 4 keys for the operators (+, -, *, /).
+        - A number key adds its digit to the end of the number that is typed:
+          number1 first, number2 after an operator is selected.
+        - An operator key keeps its operator. The "=" key calculates the result,
+          then clears the numbers and the operator for the next operation.
+
+        */
+
+        // *** VARIABLES:
+
+        const KEY_SIZE = 100;           // px: the width and the height of a key
+        const KEY_STEP = 110;           // px: from the start of a key to the start of the next one (100 + 10 space)
+        const KEY_FONT_SIZE = 50;       // px
+        const KEYS_LEFT = 50;           // px: the place of the first number key
+        const KEYS_TOP = 150;           // px
+        const OPERATOR_WIDTH = 150;     // px
+        const OPERATORS_LEFT = 390;     // px
+
+        // The texts of the operator keys, from the top to the bottom.
+        const OPERATORS = ["+", "-", "*", "/"];
+
+        // The screen of the calculator (a Label). It shows the numbers and the result.
+        let lblScreen;
+        // The first number of the operation, as a text: "1", then "12" after one more key...
+        let number1 = "";
+        // The second number of the operation.
+        let number2 = "";
+        // The operator of the operation: "+", "-", "*" or "/". Empty: the first number is being typed.
+        let operator = "";
+        // The result of the operation.
+        let result = "";
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            // The background color of the page.
+            page.color = "whitesmoke";
+
+            // LABEL: The screen. Parameters: left, top, width, height ("auto": as high as its text), then the props.
+            lblScreen = Label(50, 50, 435, "auto", {
+                text: "0",
+                fontSize: 40,   // px
+            });
+
+            createNumberKeys();
+            createOperatorKeys();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates the 12 keys of the numbers: 4 rows (i), 3 keys in each row (k).
+        const createNumberKeys = function () {
+
+            for (let i = 0; i <= 3; i++) {
+                for (let k = 0; k <= 2; k++) {
+
+                    // The number of the key: 1, 2, 3 in the first row ... 10, 11, 12 in the last row.
+                    const keyNumber = (i * 3) + (k + 1);
+
+                    // BUTTON: A key. Its place comes from its row (i) and its column (k).
+                    const btnKey = Button({
+                        left: KEYS_LEFT + (KEY_STEP * k),
+                        top: KEYS_TOP + (KEY_STEP * i),
+                        width: KEY_SIZE,
+                        height: KEY_SIZE,
+                        fontSize: KEY_FONT_SIZE,
+                        text: keyNumber,
+                        color: "lightgray",
+                    });
+
+                    if (keyNumber < 10) {
+                        // The keys from 1 to 9 type their number.
+                        btnKey.on("click", addDigit);
+
+                    } else if (keyNumber == 10) {
+                        // The 10th key is 0.
+                        btnKey.text = 0;
+                        btnKey.on("click", addDigit);
+
+                    } else if (keyNumber == 11) {
+                        // The 11th key clears everything.
+                        btnKey.text = "C";
+                        btnKey.on("click", clearAll);
+
+                    } else if (keyNumber == 12) {
+                        // The 12th key calculates the result. It is orange.
+                        btnKey.text = "=";
+                        btnKey.color = "orange";
+                        btnKey.on("click", calculateResult);
+                    }
+
+                }
+            }
+
+        };
+
+        // Creates the 4 keys of the operators, one under the other.
+        const createOperatorKeys = function () {
+
+            for (let i = 0; i <= 3; i++) {
+
+                // BUTTON: An operator key. It keeps the default color of a Button.
+                const btnKey = Button({
+                    left: OPERATORS_LEFT,
+                    top: KEYS_TOP + (KEY_STEP * i),
+                    width: OPERATOR_WIDTH,
+                    height: KEY_SIZE,
+                    fontSize: KEY_FONT_SIZE,
+                    text: OPERATORS[i],     // OPERATORS[0] is "+", OPERATORS[1] is "-"...
+                });
+                btnKey.on("click", selectOperator);
+
+            }
+
+        };
+
+        // Adds the digit of the clicked key to the end of the number.
+        // clickedKey: the key itself (basic.js gives it).
+        const addDigit = function (clickedKey) {
+
+            // No operator yet: the first number is being typed.
+            if (operator == "") {
+                number1 = number1 + clickedKey.text;
+                lblScreen.text = number1;
+
+            // After the operator: the second number.
+            } else {
+                number2 = number2 + clickedKey.text;
+                lblScreen.text = number2;
+            }
+
+            // NOTE: The numbers are texts here: "1" + "2" gives "12", like typing 1 and then 2.
+
+        };
+
+        // Keeps the operator of the clicked key, and shows it on the screen.
+        const selectOperator = function (clickedKey) {
+            operator = clickedKey.text;
+            lblScreen.text = clickedKey.text;
+        };
+
+        // Clears the numbers and the operator.
+        const clearAll = function () {
+
+            number1 = "";
+            number2 = "";
+            operator = "";
+
+            // The screen shows 0.
+            lblScreen.text = "0";
+
+        };
+
+        // Calculates the result and shows it on the screen.
+        const calculateResult = function () {
+
+            // The operation depends on the operator.
+            if (operator == "+") {
+                // ADDITION
+                result = basic.num(number1) + basic.num(number2);
+
+                // NOTE: basic.num() turns a text into a number: basic.num("12") gives 12.
+
+            } else if (operator == "-") {
+                // SUBTRACTION
+                result = basic.num(number1) - basic.num(number2);
+
+            } else if (operator == "*") {
+                // MULTIPLICATION
+                result = basic.num(number1) * basic.num(number2);
+
+            } else if (operator == "/") {
+                // DIVISION
+                result = basic.num(number1) / basic.num(number2);
+            }
+
+            // Clear the numbers and the operator, for the next operation.
+            clearAll();
+
+            // Show the result on the screen.
+            lblScreen.text = "= " + result;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTION:
+
+        - Give the calculator your own look.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

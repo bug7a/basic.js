@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Keyboard Keys</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        KEYBOARD KEYS
+
+        ALGORITHM:
+        Some keys of the keyboard are drawn on the page: f, space and the four arrow keys.
+        When one of these keys is pressed on the real keyboard, its key on the page gets dark.
+        When it is released, the key gets light again.
+
+        WORKING LOGIC:
+        - createKey() makes our own key object: a box with its text in the middle.
+          press() paints it dark, release() paints it white.
+        - The keys are in a transparent box (keyboard), in the middle of the page.
+          page.fit(600): on a screen narrower than 600 px, the page is zoomed out, so 600 px always fit.
+        - page.on("keydown", ...) runs a function when a key of the keyboard is pressed,
+          page.on("keyup", ...) when it is released.
+        - event.key is the name of the key: "ArrowUp", " " (space), "f"...
+          A switch finds the key object of that name.
+
+        */
+
+        // *** VARIABLES:
+
+        const PAGE_WIDTH = 600;     // px: this width always fits the screen (page.fit zooms out a narrower page)
+
+        // The keyboard: a transparent box with the key objects in it
+        let keyboard;
+
+        // *** START:
+
+        const start = function () {
+
+            page.fit(PAGE_WIDTH);
+            page.color = "lightgray";
+
+            // BOX: The keyboard, in the middle of the page. The objects until endBox() go into it.
+            keyboard = startBox(0, 0, 560, 180, {
+                color: "transparent",
+            });
+            keyboard.center();
+
+                // KEY: f
+                keyboard.keyF = createKey("f");
+                keyboard.keyF.left = 80;
+                keyboard.keyF.top = 30;
+
+                // KEY: space (240 px wide)
+                keyboard.keySpace = createKey("space", 240);
+                keyboard.keySpace.left = 40;
+                keyboard.keySpace.top = 100;
+
+                // KEY: left arrow, 50 px at the right of the space key
+                keyboard.keyLeft = createKey("left", 60);
+                keyboard.keyLeft.aline(keyboard.keySpace, "right", 50);
+
+                // KEY: down arrow, at the right of the left arrow
+                keyboard.keyDown = createKey("down", 60);
+                keyboard.keyDown.aline(keyboard.keyLeft, "right", 8);
+
+                // KEY: up arrow, over the down arrow
+                keyboard.keyUp = createKey("up", 60);
+                keyboard.keyUp.aline(keyboard.keyDown, "top", 8);
+
+                // KEY: right arrow, at the right of the down arrow
+                keyboard.keyRight = createKey("right", 60);
+                keyboard.keyRight.aline(keyboard.keyDown, "right", 8);
+
+            endBox();
+
+            // When the size of the page changes, pageResized runs.
+            page.onResize(pageResized);
+
+            // When a key of the keyboard is pressed, and when it is released:
+            // NOTE: true -> these functions run first, before the other key events of the page (capture).
+            page.on("keydown", keyPressed, true);
+            page.on("keyup", keyReleased, true);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // The size of the page changed: fit it again, and put the keyboard in the middle again.
+        const pageResized = function () {
+
+            page.fit(PAGE_WIDTH);
+            keyboard.center();
+
+        };
+
+        // A key of the keyboard is pressed. event.key: the name of the key.
+        const keyPressed = function (self, event) {
+
+            println(event.key);
+
+            // Do nothing if the event was already handled.
+            if (event.defaultPrevented) {
+                return;
+            }
+
+            switch (event.key) {
+                case "ArrowDown":
+                    keyboard.keyDown.press();
+                    break;
+                case "ArrowUp":
+                    keyboard.keyUp.press();
+                    break;
+                case "ArrowLeft":
+                    keyboard.keyLeft.press();
+                    break;
+                case "ArrowRight":
+                    keyboard.keyRight.press();
+                    break;
+                case " ":
+                    keyboard.keySpace.press();
+                    break;
+                case "f":
+                case "F":
+                    keyboard.keyF.press();
+                    break;
+                case "Enter":
+                    // Write here what the Enter key does.
+                    break;
+                case "Escape":
+                    // Write here what the Escape key does.
+                    break;
+                default:
+                    return; // A key that this page does not use: nothing is done.
+            }
+
+            // Cancel the default action of the browser for this key (Ex: the space key scrolls),
+            // so the key is not handled twice.
+            event.preventDefault();
+
+        };
+
+        // A key of the keyboard is released.
+        const keyReleased = function (self, event) {
+
+            // Do nothing if the event was already handled.
+            if (event.defaultPrevented) {
+                return;
+            }
+
+            switch (event.key) {
+                case "ArrowDown":
+                    keyboard.keyDown.release();
+                    break;
+                case "ArrowUp":
+                    keyboard.keyUp.release();
+                    break;
+                case "ArrowLeft":
+                    keyboard.keyLeft.release();
+                    break;
+                case "ArrowRight":
+                    keyboard.keyRight.release();
+                    break;
+                case " ":
+                    keyboard.keySpace.release();
+                    break;
+                case "f":
+                case "F":
+                    keyboard.keyF.release();
+                    break;
+                default:
+                    return; // A key that this page does not use: nothing is done.
+            }
+
+            // Cancel the default action of the browser for this key, so the key is not handled twice.
+            event.preventDefault();
+
+        };
+
+        // *** OUR OWN OBJECT:
+
+        // Makes a key object: a box with its text in the middle. width: 50 px when it is not given.
+        const createKey = function (text, width = 50) {
+
+            // BOX: The key (its background)
+            // NOTE: startObject() ... endObject() make our own object: the objects made between them go into it.
+            const box = startObject({
+                width: width,
+                height: 50,
+                color: "whitesmoke",
+                round: 6,
+            });
+
+            // LABEL: The text of the key
+            box.lblText = Label({
+                left: 0,
+                top: 0,
+                text: text,
+            });
+
+            // When the size of the text is known (or changes), the text goes to the middle of the key.
+            box.lblText.onResize(function (self) {
+                self.center();
+            });
+
+            // Shows the key as pressed: dark, with a light text.
+            box.press = function () {
+                box.color = basic.DARK_BACKGROUND_COLOR;
+                box.lblText.textColor = "rgba(255, 255, 255, 0.85)";
+            };
+
+            // Shows the key as released: white, with the normal text color.
+            box.release = function () {
+                box.color = "white";
+                box.lblText.textColor = basic.TEXT_COLOR;
+            };
+
+            // endObject() closes the box and makes it "that" (the last object made).
+            return endObject(box);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add more keys to the page and to the switch. Ex: w, a, s, d
+        - Move a box with the arrow keys (or the rocket of project 13).
+        - Think about what else can be added; design it and write it.
+
+        REFERENCES:
+
+        KeyboardEvent.key:
+        https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

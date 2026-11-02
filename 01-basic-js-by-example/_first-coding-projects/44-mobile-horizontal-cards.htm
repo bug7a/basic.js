@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Mobile Horizontal Cards</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../basic/scroll-bar.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MOBILE HORIZONTAL CARDS
+
+        ALGORITHM:
+        The rooms of a smart home are shown as cards in a row. The row scrolls left and right,
+        like the card lists of mobile apps.
+
+        WORKING LOGIC:
+        - The rooms are in an array: the name of the room and the file name of its picture.
+        - A Box scrolls left and right (scrollX: 1). In it, an HGroup puts the cards side by side:
+          gap is the space between two cards, padding is the space around them.
+        - hug: 1 -> the group is as big as its cards. It is wider than the box, so the box can scroll.
+          No left of a card and no width of the group is calculated in the code: the group does it.
+        - createCard() makes one card: a Box with a picture in it. Over the picture, a VGroup puts the
+          title and the description one under the other.
+        - A ScrollBar object (basic/scroll-bar.js) draws the bar under the cards.
+
+        */
+
+        // *** VARIABLES:
+
+        const CARD_AREA_WIDTH = 560;    // px: the box that scrolls
+        const CARD_AREA_HEIGHT = 350;   // px
+        const CARD_SPACE = 10;          // px: between two cards, and around the cards
+        const CARD_WIDTH = 200;         // px
+        const CARD_HEIGHT = CARD_AREA_HEIGHT - (CARD_SPACE * 2) - 10;   // px: 10 px more space under the cards, for the bar
+
+        // The box that scrolls
+        let boxContent;
+
+        // The rooms. image: the file name of the picture in images/44/
+        const rooms = [
+            { name: "Living Room", image: "room1.jpeg" },
+            { name: "Kitchen", image: "room2.jpeg" },
+            { name: "Bathroom", image: "room3.jpeg" },
+            { name: "Bedroom", image: "room4.jpeg" },
+            { name: "Kids' Room", image: "room5.jpeg" },
+        ];
+
+        // *** START:
+
+        const start = function () {
+
+            // The page is zoomed to fit 600 px, but it is never zoomed for more than 650 px.
+            page.fit(600, 650);
+
+            // BOX: The outer box. It scrolls left and right.
+            // NOTE: The objects created between startBox() and endBox() go inside it.
+            boxContent = startBox(20, 60, CARD_AREA_WIDTH, CARD_AREA_HEIGHT, {
+                color: "whitesmoke",
+                round: 13,
+                scrollX: 1,
+            });
+
+                // GROUP: The row of the cards. The cards created until endGroup() go into it, side by side.
+                // hug: 1 -> it is as wide as all the cards together (wider than the box), so the box can scroll.
+                boxContent.boxCards = HGroup({
+                    hug: 1,
+                    gap: CARD_SPACE,
+                    padding: CARD_SPACE,
+                    align: "left top",
+                });
+
+                    for (let i = 0; i < rooms.length; i++) {
+
+                        // A random number of the devices that are on, from 0 to 2
+                        const deviceText = "Devices on: " + random(0, 2);
+
+                        // No left and no top: the group puts the card after the one before it.
+                        createCard(rooms[i].name, deviceText, rooms[i].image);
+
+                    }
+
+                endGroup();
+
+            endBox();
+
+            // SCROLL BAR: Our own bar for the box that scrolls (the one of the browser is hidden by basic.css).
+            ScrollBar({
+                scrollableBox: boxContent,
+                bar_padding: 6,             // px: between the bar and the bottom of the box
+                // The look of the bar: a dark bar, darker under the mouse, without dots at its ends.
+                bar_color: "#141414",
+                bar_opacity: 0.6,
+                bar_mouseOverColor: "#141414",
+                bar_mouseOverOpacity: 0.6,
+                bar_mouseOverWidth: 8,      // px: the bar gets thicker under the mouse
+                showDots: 0,
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates one card: a picture with a title and a description on it.
+        const createCard = function (name, desc, image) {
+
+            // BOX: The card. The objects created until endBox() go inside it.
+            // (It is in a group, so it needs only its size: the group gives it its place.)
+            const card = startBox({
+                width: CARD_WIDTH,
+                height: CARD_HEIGHT,
+                color: "lightgray",
+                round: 13,
+            });
+
+                // ICON: The picture behind. Without a width and a height, it has the size of its file.
+                card.imgBack = Icon(0, 0);
+                card.imgBack.load("images/44/" + image);
+
+                // GROUP: The texts over the picture, one under the other. A group can be placed in a box
+                // with left and top, like any other object.
+                card.texts = VGroup({
+                    left: 10,
+                    top: 20,
+                    hug: 1,
+                    gap: 4,
+                    align: "left top",
+                });
+
+                    // LABEL: The title of the card
+                    card.lblTitle = Label({
+                        text: name,
+                        fontSize: 22,
+                        color: "rgba(255, 255, 255, 0.7)",
+                        round: 13,
+                        spaceX: 8,      // the space at the left and at the right of the text
+                        spaceY: 3,      // the space above and under the text
+                    });
+
+                    // LABEL: The description of the card
+                    card.lblDesc = Label({
+                        text: desc,
+                        textColor: "white",
+                        color: "rgba(0, 0, 0, 0.3)",
+                        fontSize: 16,
+                        round: 13,
+                        spaceX: 8,
+                        spaceY: 3,
+                    });
+
+                endGroup();
+
+            endBox();
+
+            return card;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Make the cards clickable: a click on a card writes the name of its room (println).
+        - Add a sixth room. The row of the cards gets wider by itself.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

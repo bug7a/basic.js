@@ -129,3 +129,4 @@ window.onload = function() {
 - In basic.js, interface transitions are carried out via CSS `transition` and are most triggered with the `.setMotion` method.
 - `.withMotion()` should be used after DOM changes to solve performance and flickering issues in the browser.
 - `.dontMotion()` structures are used only on objects that need to jump instantly (e.g., tracking an element when scroll position is detected, etc.).
+- A motion that takes an object past the edge of its box (a jump, a lift, a scale, a slide in) is cut by that box: every Box and group cuts by default. Give the boxes around it `clipContent: 0` (see Box: "Content that moves out of its box").

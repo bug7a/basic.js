@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Math Game</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MATH GAME
+
+        ALGORITHM:
+        The program asks a math question and checks the answer.
+
+        WORKING LOGIC:
+        - makeAQuestion() picks two random numbers and a random operation (+, - or x).
+          It keeps the correct answer in a variable and writes the question over the text box (its title).
+        - A click on "Check" compares the typed answer with the correct answer.
+        - A click on "New" asks a new question.
+
+        VIDEO: the project step by step (in Turkish): https://www.youtube.com/watch?v=BmzSq53Y61k
+        The video uses an older basic.js. Old -> new names: createTextBox() -> Input(),
+        createButton() -> Button(), that.onClick(fn) -> that.on("click", fn). They do the same.
+
+        */
+
+        // *** VARIABLES:
+
+        const MAX_NUMBER = 20;      // the numbers of a question are from 1 to this
+        const BUTTON_SPACE = 10;    // px: between the two buttons
+
+        // The objects
+        let txtAnswer;              // the answer is typed here; its title shows the question
+        let btnNewQuestion;
+        let btnCheckAnswer;
+
+        // The question
+        let number1;
+        let number2;
+        let operationNumber;        // 1: addition, 2: subtraction, 3: multiplication
+        let correctAnswer;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // TEXTBOX: The answer. Parameters: left, top
+            txtAnswer = Input(50, 50);
+
+            // BUTTON: A new question. Parameters: left, top, then the props.
+            btnNewQuestion = Button(50, 110, {
+                text: "New",
+                color: "lightgray",
+            });
+            // When it is clicked, the function makeAQuestion runs.
+            btnNewQuestion.on("click", makeAQuestion);
+
+            // BUTTON: Checks the answer.
+            btnCheckAnswer = Button({ text: "Check" });
+            // Its place: at the right of btnNewQuestion, with a space of 10 px.
+            btnCheckAnswer.aline(btnNewQuestion, "right", BUTTON_SPACE);
+            // When it is clicked, the function checkAnswer runs.
+            btnCheckAnswer.on("click", checkAnswer);
+
+            // The first question, at the start.
+            makeAQuestion();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Makes a new question.
+        const makeAQuestion = function () {
+
+            // Clear the text box.
+            txtAnswer.text = "";
+
+            // Two random numbers from 1 to 20 (1 and 20 can come too).
+            number1 = random(1, MAX_NUMBER);
+            number2 = random(1, MAX_NUMBER);
+
+            // A random operation: 1, 2 or 3.
+            operationNumber = random(1, 3);
+
+            const questionText = " What is the result?";
+
+            // Calculate the correct answer, and write the question over the text box.
+            if (operationNumber == 1) {
+                // Addition
+                correctAnswer = number1 + number2;
+                txtAnswer.title = number1 + " + " + number2 + questionText;
+
+            } else if (operationNumber == 2) {
+                // Subtraction
+                correctAnswer = number1 - number2;
+                txtAnswer.title = number1 + " - " + number2 + questionText;
+
+            } else if (operationNumber == 3) {
+                // Multiplication
+                correctAnswer = number1 * number2;
+                txtAnswer.title = number1 + " x " + number2 + questionText;
+            }
+
+        };
+
+        // Compares the typed answer (txtAnswer.text) with the correct answer (correctAnswer).
+        const checkAnswer = function () {
+
+            if (txtAnswer.text == correctAnswer) {
+                txtAnswer.text = "The answer is correct.";
+
+            } else {
+                txtAnswer.text = "Try again.";
+            }
+
+            // NOTE: The typed answer is a text ("12"), correctAnswer is a number (12).
+            //       == compares their values, so "12" == 12 is true.
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a small box (50 x 50) next to the text box.
+          Paint it "green" after a correct answer and "red" after a wrong one.
+        - Show the number of correct and wrong answers on the screen. They increase by themselves.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

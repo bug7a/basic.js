@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Animated Panel</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        ANIMATED PANEL
+
+        A panel that comes in from the right side of the page with a motion, and goes back out.
+        The next page (24-animated-panel.htm) makes a component of it, with panels on three sides.
+
+        - obj.setMotion("transform 0.3s, opacity 0.3s")
+                                    -> after this line, a change of the transform or the opacity of the object is
+                                       not at once: it takes 0.3 seconds (a CSS transition).
+        - obj.css.transform = "scale(0.8) translateX(250px)"
+                                    -> makes the object smaller and moves it, without changing its place in the
+                                       layout. basic.js has no prop for it, so it is written as raw CSS (obj.css).
+        - setPanelOpen(isOpen)      -> one function writes every value of a state. The motion goes from the values
+                                       of now to the new ones, also when a click comes in the middle of a motion.
+
+        TRY: change "0.3s" in setMotion() to "2s" to see the motion slowly, or CLOSED_TRANSFORM to "translateY(100%)".
+
+        */
+
+        // *** VARIABLES:
+
+        const PANEL_WIDTH = 500;
+        const OPEN_TRANSFORM = "scale(1) translateX(0px)";
+        const CLOSED_TRANSFORM = "scale(0.8) translateX(250px)";   // smaller, and half of its width to the right
+
+        // The look of the buttons. (...BUTTON_LOOK copies these props into a props object.)
+        const BUTTON_LOOK = {
+            textColor: Black(0.5),
+            border: 1,
+            borderColor: Black(0.2),
+            minimal: 1,
+            width: "auto",
+            padding: [20, 0],
+        };
+
+        let panel;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "lightgray";
+
+            // GROUP: Fills the page and puts the button in its middle
+            AutoLayout();
+
+                // BUTTON: Open Panel
+                Button({ text: "Open Panel", color: "#8FC7B9", ...BUTTON_LOOK });
+                that.on("click", openPanel);
+
+            endGroup();
+
+            createPanel();
+
+        };
+
+        // *** VIEW:
+
+        const createPanel = function () {
+
+            // BOX: The panel, at the right side of the page
+            panel = startBox({
+                right: 0,
+                top: 0,
+                width: PANEL_WIDTH,
+                height: "100%",
+                color: "white",
+                border: 1,
+                borderColor: Black(0.2),
+                css: { maxWidth: "100%" },     // WHY: On a phone the panel is as wide as the page.
+            });
+
+                // GROUP: Fills the panel and puts its objects in the middle, one under the other
+                VGroup({ gap: 20, padding: 30 });
+
+                    // LABEL: Title
+                    Label({ text: "Hello!", fontSize: 24, bold: 1 });
+
+                    // LABEL: What happened
+                    Label({
+                        text: "This panel was waiting at the right side: transparent, a little smaller and moved " +
+                            "to the right. The click changed its opacity and its transform, and setMotion() made " +
+                            "the change take 0.3 seconds.",
+                        width: "100%",
+                        fontSize: 16,
+                        textColor: Black(0.6),
+                        textAlign: "center",
+                    });
+
+                    // BUTTON: Close Panel
+                    panel.btnClose = Button({ text: "Close Panel", color: "#D57056", ...BUTTON_LOOK });
+                    panel.btnClose.on("click", closePanel);
+
+                endGroup();
+
+            endBox();
+
+            // The panel starts closed. (No motion yet: setMotion() comes after this line.)
+            setPanelOpen(0);
+
+            // MOTION: From now on, a change of these two styles takes 0.3 seconds.
+            panel.setMotion("transform 0.3s, opacity 0.3s");
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Writes every value of a state. isOpen: 1 -> open, 0 -> closed.
+        const setPanelOpen = function (isOpen) {
+
+            panel.opacity = (isOpen) ? 1 : 0;
+            panel.css.transform = (isOpen) ? OPEN_TRANSFORM : CLOSED_TRANSFORM;
+
+            // WHY: A closed panel can not be seen, but it is still there: it must let the clicks go through
+            //      to the page under it. An open panel catches them (the page under it is not clicked).
+            panel.clickable = isOpen;
+            panel.btnClose.clickable = isOpen;
+
+        };
+
+        const openPanel = function () {
+            setPanelOpen(1);
+        };
+
+        const closePanel = function () {
+            setPanelOpen(0);
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

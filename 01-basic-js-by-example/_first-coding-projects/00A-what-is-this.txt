@@ -1,0 +1,74 @@
+
+WHAT IS THIS?
+
+Object-based projects for programming beginners, written in JavaScript with basic.js:
+a small JavaScript library for developing dynamic user interfaces.
+
+
+WHO CAN BENEFIT?
+
+- Middle school, high school, and university students.
+- Those who want to write code as a hobby.
+- Beginners in programming.
+- Teachers and parents who want to use it as educational content.
+
+
+WHAT WILL YOU LEARN?
+
+- Basic units used in programming languages.
+- Using the JavaScript programming language.
+- Object-based programming logic.
+- To be able to develop a project by dividing it into small parts.
+- Ability to manage information and create dynamic interfaces.
+- To be able to create new and unique objects by combining basic objects.
+- Being able to develop better algorithms with practice.
+
+
+ADDITIONAL EXPLANATION:
+
+- The first 10 projects are specifically designed to help you learn software development logic.
+- HTML and CSS codes are written automatically by the library. Thus, students can initially focus only on algorithm development.
+- It is built on five basic objects: Box, Label, Button, Input (a text box) and Icon (an image).
+- It is designed with an object-based logic close to desktop and mobile application development experience.
+- It makes other programming languages easier to learn later: C, C++, C#, Java, Python, Swift, PHP, ASP.NET...
+- It has the same positioning logic as interface design tools, so a design is easy to turn into an application.
+- With these techniques, fully customizable and dynamic applications can be developed.
+- The programming language used is JavaScript. Projects can be run in the browser or WebView.
+** WebView: Object used to display web content in programming languages.
+
+
+WHY DO I USE JAVASCRIPT:
+
+- The syntax of the programming language is simple. This makes learning easier.
+- There are many resources: you will probably find an example or a library for the project you want to make.
+- In my opinion, it has the most mature technology for drawing interfaces (HTML and CSS).
+- It is for general use: with the same knowledge, software can be developed in different fields.
+
+
+USAGE AREAS:
+
+1. Web applications.
+2. Mobile applications.
+    - Assistive technology: https://cordova.apache.org/
+3. Desktop applications.
+    - Assistive technology: https://www.electronjs.org/
+4. Two-Dimensional or simple three-dimensional games.
+    - Assistive technology: https://threejs.org/
+5. Websites.
+
+
+CONTACT:
+
+Developer: Bugra OZDEN
+Email: bugra.ozden@gmail.com
+Personal Site: https://bug7a.github.io/
+Project Site: https://bug7a.github.io/basic.js/
+
+
+LICENSE:
+
+Copyright 2020-2024 Bugra Ozden <bugra.ozden@gmail.com>
+Licensed under the Apache License, Version 2.0
+
+
+I wish you to see its benefits.

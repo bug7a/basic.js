@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Custom Scroll Bar</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, then scroll-bar.js, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../basic/scroll-bar.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CUSTOM SCROLL BAR
+
+        A list of 10 buttons in a box that has room for 5. The box scrolls, and a thin bar shows
+        where you are in the list.
+
+        basic.css hides the scroll bar of the browser. A box with scrollY: 1 still scrolls with the
+        wheel or a finger, but nothing shows how long the list is. ScrollBar (basic/scroll-bar.js)
+        draws a bar over the box.
+
+        - Box({ scrollY: 1 })                 -> the box scrolls up and down when its content is taller
+                                                 than the box. (scrollX: 1 -> sideways)
+        - ScrollBar({ scrollableBox: box })   -> a bar for that box. Create it after the box: it is put
+                                                 over the box, so it does not scroll with the rows.
+        - neverHide: 0                        -> the bar hides 2 seconds after the scrolling stops, and
+                                                 comes back with the mouse.
+        - bar_width, bar_color...             -> the look of the bar. All of them are written below.
+        - obj.onHoverChange(fn)               -> fn(self, isOver): isOver is 1 when the mouse comes on the
+                                                 object, 0 when it leaves.
+
+        TRY: bar_mouseOverWidth: 8 (a thicker bar under the mouse) or neverHide: 1 (always seen).
+        More: custom-scrollbar-usage-2.htm (a list in a group), custom-scrollbar-usage-3.htm (every setting).
+
+        */
+
+        // *** VARIABLES:
+
+        const ROW_COUNT = 10;
+        const VISIBLE_ROW_COUNT = 5;    // The box is as high as 5 rows. The others are seen by scrolling.
+        const ROW_HEIGHT = 50;
+        const LIST_WIDTH = 200;
+        const LIST_ROUND = 4;
+
+        // A thin line at the top and at the bottom of the row under the mouse.
+        // WHY: inset: the lines are drawn inside the row, so the row keeps its size and its text does not move.
+        const HOVER_LINES = "inset 0 1px 0 " + Black(0.2) + ", inset 0 -1px 0 " + Black(0.2);
+
+        let listBox;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // GROUP: Fills the page and puts the list in its middle, the hint under it
+            VGroup({ align: "center", gap: 16 });
+
+                // BOX: Holds the list, its border and its scroll bar
+                startBox({ width: LIST_WIDTH, height: ROW_HEIGHT * VISIBLE_ROW_COUNT, color: "transparent" });
+
+                    // BOX: The rows scroll in this box
+                    listBox = startBox(0, 0, "100%", "100%", {
+                        color: "whitesmoke",
+                        round: LIST_ROUND,
+                        scrollY: 1,
+                        // WHY: Firefox does not read the ::-webkit-scrollbar rule of basic.css and draws its
+                        //      own bar next to ours. scrollbarWidth: "none" hides it there.
+                        css: { scrollbarWidth: "none" },
+                    });
+
+                        createRows();
+
+                    endBox();
+
+                    // BOX: The border, a box over the list
+                    // WHY: A border of basic.js is inside the size of its box: on the list box, it would push the
+                    //      rows 1 px in. A box does not catch the clicks (unless it is clickable), so the rows
+                    //      under it can still be clicked.
+                    Box(0, 0, "100%", "100%", {
+                        color: "transparent",
+                        border: 1,
+                        borderColor: Black(0.2),
+                        round: LIST_ROUND,
+                    });
+
+                    // SCROLL BAR: For the list box. Every value is the default one, except neverHide.
+                    ScrollBar({
+                        scrollableBox: listBox,
+                        neverHide: 0,                  // 1 (default): the bar is always seen
+                        showDots: 1,                   // a small dot at the two ends of the way of the bar
+                        bar_width: 4,                  // the thickness of the bar (px)
+                        bar_mouseOverWidth: 4,         // its thickness under the mouse
+                        bar_color: "#373836",
+                        bar_mouseOverColor: "#373836",
+                        bar_opacity: 0.4,
+                        bar_mouseOverOpacity: 0.9,
+                        bar_round: 3,
+                        bar_padding: 2,                // the space between the bar and the edge of the box
+                        bar_border: 0,
+                        bar_borderColor: "black",
+                        bar_minLength: 16,             // the shortest bar (for a very long list)
+                    });
+
+                endBox();
+
+                // LABEL: How to scroll
+                Label({
+                    text: "Scroll with the wheel or a finger, or drag the bar.",
+                    fontSize: 14,
+                    textColor: Black(0.5),
+                });
+
+            endGroup();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // The rows are placed by hand: in a Box, every object stands at its own left and top.
+        const createRows = function () {
+
+            for (let i = 0; i < ROW_COUNT; i++) {
+
+                // BUTTON: One row of the list
+                const row = Button(0, i * ROW_HEIGHT, "100%", ROW_HEIGHT, {
+                    text: "Button " + (i + 1),
+                    minimal: 1,
+                    color: "transparent",
+                    round: 0,
+                });
+                row.onHoverChange(paintRow);
+
+            }
+
+        };
+
+        // The row under the mouse is white, with a line at its top and bottom.
+        const paintRow = function (row, isOver) {
+            row.color = isOver ? "white" : "transparent";
+            row.boxShadow = isOver ? HOVER_LINES : "none";
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

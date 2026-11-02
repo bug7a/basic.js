@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Date and Time</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        DATE AND TIME
+
+        ALGORITHM:
+        Today's date and the time of now are read, and written in different ways.
+
+        WORKING LOGIC:
+        - basic.date gives the date: basic.date.year, basic.date.monthNumber, basic.date.dayOfMonth,
+          basic.date.dayOfWeek... basic.time gives the time: basic.time.hour, basic.time.minute, basic.time.second.
+        - Two lists (arrays) turn the numbers into names: the names of the days and of the months.
+        - A Label shows the texts, each one on a new line. A new function, addText(), is added to the Label for it.
+
+        */
+
+        // *** VARIABLES:
+
+        // The names of the days.
+        // NOTE: basic.date.dayOfWeek is 0 on Sunday, 1 on Monday... so the list starts with Sunday.
+        const days = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ];
+
+        // The names of the months.
+        // NOTE: basic.date.monthNumber is 1 in January, but the first element of a list is number 0:
+        //       so the name of the month is months[basic.date.monthNumber - 1].
+        const months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ];
+
+        // The Label that shows the information
+        let lblToday;
+
+        // *** START:
+
+        const start = function () {
+
+            const monthName = months[basic.date.monthNumber - 1];
+
+            // 25/7/2021
+            const date1 = basic.date.dayOfMonth + "/" + basic.date.monthNumber + "/" + basic.date.year;
+
+            // 25 July 2021
+            const date2 = basic.date.dayOfMonth + " " + monthName + " " + basic.date.year;
+
+            // Today is day 25 of July.
+            const date3 = "Today is day " + basic.date.dayOfMonth + " of " + monthName + ".";
+
+            // And it is Sunday.
+            const date4 = "And it is " + days[basic.date.dayOfWeek] + ".";
+
+            // Time: 12:30:0
+            const time1 = "Time: " + basic.time.hour + ":" + basic.time.minute + ":" + basic.time.second;
+
+            // LABEL: The information. Its height is "auto": it grows with its text.
+            lblToday = Label(30, 30, 350, "auto", {
+                text: date1,
+            });
+
+            // A new function on the Label object: it adds a text on a new line.
+            lblToday.addText = function (text) {
+
+                this.text = this.text + "<br>" + text;
+
+                // NOTE: "this" is the object that the function belongs to: here, lblToday.
+                //       So lblToday.text could be written in place of this.text too.
+
+            };
+
+            lblToday.addText(date2);
+            lblToday.addText(date3);
+            lblToday.addText(date4);
+            lblToday.addText(time1);
+
+            // Other uses: basic.js has the names of the months and of the days (in English) too.
+            lblToday.addText("<br><span style='font-family:opensans-bold;color:#000000;'>Other uses:</span>");
+            lblToday.addText(basic.date.monthName + " / " + basic.date.monthNumber);
+            lblToday.addText(basic.date.dayName + " / " + basic.date.dayOfWeek);
+
+            // The date and the time with two digits: 05/07/2021 09:03:08
+            const day = basic.twoDigitFormat(basic.date.dayOfMonth);
+            const month = basic.twoDigitFormat(basic.date.monthNumber);
+            const hour = basic.twoDigitFormat(basic.time.hour);
+            const minute = basic.twoDigitFormat(basic.time.minute);
+            const second = basic.twoDigitFormat(basic.time.second);
+
+            lblToday.addText(day + "/" + month + "/" + basic.date.year);
+
+            // Not on a new line: next to the last text.
+            lblToday.text = lblToday.text + " " + hour + ":" + minute + ":" + second;
+
+            // NOTE: basic.twoDigitFormat(number) puts a 0 in front of a number under 10, so it has two digits.
+            //       Like the time 02:05:30.
+            //       What it gives back is not a number any more but a text: 5 goes in, "05" comes out.
+            //       To see how it does it, search for twoDigitFormat in the code of basic.js.
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show the time in a second Label and write it again every second, in a loop() function.
+        - Write the date like this too: "Sunday, 25 July 2021".
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

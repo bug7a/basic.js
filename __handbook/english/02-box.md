@@ -61,6 +61,34 @@ The main properties that can be assigned to a `Box()` object are:
 - `scrollX` (boolean) — Horizontal scrollbar active state.
 - `scrollY` (boolean) — Vertical scrollbar active state.
 
+### Content that moves out of its box (clipContent: 0)
+
+**Every Box cuts what goes past its edges, and so does every group** (`HGroup`, `VGroup`, `AutoLayout` are boxes too). It is the default (`clipContent: 1`, CSS `overflow: hidden`), and it is easy to forget, because nothing is cut while the content stays inside.
+
+Content goes outside when it moves, grows or shines:
+- a button that lifts under the mouse (`transform: translateY(-2px)`) or grows (`scale(1.05)`),
+- a picture or a card that grows under the mouse,
+- a shadow (`boxShadow`), a glow or a focus outline around a button,
+- an object that slides or bounces with motion.
+
+In a group whose height is its content (`height: "auto"`, `hug: 1`), the lifted button touches the edge at once: its top is cut, and the button looks broken. Give the box or the group that holds such objects `clipContent: 0`:
+
+```javascript
+// GROUP: Buttons that lift under the mouse
+HGroup({ width: "auto", height: "auto", gap: 12, clipContent: 0 }); // WHY: their lift and shadow must not be cut
+
+    Button({ text: "Play", width: 120, height: 44 });
+    that.elem.style.transition = "transform 0.15s";
+    that.on("mouseover", function (self) { self.elem.style.transform = "translateY(-2px)"; });
+    that.on("mouseout", function (self) { self.elem.style.transform = ""; });
+
+endGroup();
+```
+
+- Check every box between the object and the page: one box that cuts is enough to cut it.
+- Keep `clipContent: 1` where cutting is the point: a picture with round corners, a background picture larger than its box, a list that scrolls (`scrollY: 1` cuts anyway).
+- Label has the same property: `clipContent: 0` shows the letters that go out of the line (g, ş, ğ in a big font).
+
 ---
 
 ## Adding Objects to the Box (.add() and .in())

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Custom Component</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CUSTOM COMPONENT FROM DATA
+
+        A list made from data. PlantItem is our own component: a box with a picture and two texts.
+        One PlantItem is created for every plant in PLANT_LIST. Click a plant to select it.
+
+        - PLANT_LIST                -> the data: plain objects, like the ones JSON.parse() makes from
+                                       the JSON text of a server.
+        - PlantItemDefaults         -> the default values of the component. Every value becomes a
+                                       property of its box: item.nameText, item.selected...
+        - mergeIntoIfMissing(params, PlantItemDefaults)
+                                    -> the params that were not given get their default values.
+        - startObject(params) ... endObject(box)
+                                    -> the box of the component: the objects created between them go
+                                       into it. endObject() returns the box: that is the component.
+        - box.setSelected(value)    -> a public function: the page changes the component with it.
+        - item.on("click", fn)      -> a component is a box, so on(), remove(), width... work on it too.
+        - plainText                 -> the names come from the data: plainText shows them as they are
+                                       (text would read them as HTML).
+
+        TRY: add a plant to PLANT_LIST (assets/olives.png is there too).
+
+        */
+
+        // *** VARIABLES:
+
+        // The data. Each plant becomes one PlantItem.
+        const PLANT_LIST = [
+            { id: "broccoli", name: "Broccoli", type: "Vegetable", image: "assets/broccoli.png" },
+            { id: "strawberry", name: "Strawberry", type: "Fruit", image: "assets/strawberry.png" },
+            { id: "carrot", name: "Carrot", type: "Vegetable", image: "assets/carrot.png" },
+            { id: "blueberries", name: "Blueberries", type: "Fruit", image: "assets/blueberries.png" },
+        ];
+
+        const itemList = [];            // the PlantItems on the page
+
+        let lblSelected;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // BOX: The page never scrolls, this box does. (The list can be taller than the window.)
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                // GROUP: The content, in the middle, from the top
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 16, padding: [16, 40] });
+
+                    // GROUP: The list. hug: 1 makes it as big as its items.
+                    VGroup({ hug: 1, color: "white", round: 13 });
+
+                        PLANT_LIST.forEach(createItem);
+
+                    endGroup();
+
+                    // LABEL: The names of the selected plants
+                    lblSelected = Label({
+                        fontSize: 16,
+                        textColor: Black(0.6),
+                    });
+
+                endGroup();
+
+            endBox();
+
+            showSelected();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // One PlantItem for one plant of the data.
+        const createItem = function (plant) {
+
+            const item = PlantItem({
+                key: plant.id,
+                nameText: plant.name,
+                typeText: plant.type,
+                iconFile: plant.image,
+            });
+            item.on("click", toggleItem);
+
+            itemList.push(item);
+
+        };
+
+        // item: the clicked PlantItem
+        const toggleItem = function (item) {
+
+            item.setSelected(item.selected ? 0 : 1);
+            showSelected();
+
+            if (item.selected) println("Selected: " + item.key);
+
+        };
+
+        const showSelected = function () {
+
+            const selectedNames = itemList
+                .filter(function (item) { return item.selected; })
+                .map(function (item) { return item.nameText; });
+
+            if (selectedNames.length === 0) {
+                lblSelected.text = "Click a plant to select it.";
+                return;
+            }
+
+            lblSelected.plainText = "Selected: " + selectedNames.join(", ");
+
+        };
+
+        // *** COMPONENT: PlantItem
+        // (In a bigger project a component is in its own file, Ex: plant-item.js, loaded with <script src>.)
+
+        // The default values. Every value becomes a property of the box: item.nameText, item.selected...
+        // WHY: Names like nameText, not text or color: those are basic.js props of every box.
+        const PlantItemDefaults = {
+            key: "",                    // your own name for the item, Ex: the id in the data
+            width: 300,
+            height: 94,
+            nameText: "",
+            typeText: "",
+            iconFile: "",
+            selected: 0,
+            hoverColor: "#F6F6EC",
+            selectedColor: "#EAF4E2",
+            selectedBorderColor: "#9CCC65",
+        };
+
+        const PlantItem = function (params = {}) {
+
+            mergeIntoIfMissing(params, PlantItemDefaults);
+
+            // BOX: The box of the component. The objects created until endObject() go into it.
+            const box = startObject(params);
+
+            // *** PRIVATE VARIABLES:
+
+            let isHover = 0;
+
+            // *** PRIVATE FUNCTIONS:
+
+            // The colors of the state: selected, under the mouse, or normal.
+            const paint = function () {
+
+                if (box.selected) {
+                    box.background.color = box.selectedColor;
+                    box.background.borderColor = box.selectedBorderColor;
+                    return;
+                }
+
+                box.background.color = isHover ? box.hoverColor : "white";
+                box.background.borderColor = Black(0.04);
+
+            };
+
+            // *** PUBLIC FUNCTIONS:
+
+            box.setSelected = function (value) {
+                box.selected = value;
+                paint();
+            };
+            // USAGE: item.setSelected(1)
+
+            // *** OBJECT VIEW:
+
+            // BOX: The background, a little smaller than the item: a space between the items
+            box.background = Box(4, 2, box.width - 8, box.height - 4, {
+                round: 13,
+                border: 1,
+            });
+            box.background.setMotion("background-color 0.3s, border-color 0.3s");
+
+            // ICON: The picture
+            box.icon = Icon(30, 12, 70, 70);
+            box.icon.load(box.iconFile);
+
+            // LABEL: The name
+            box.lblName = Label(120, 25, 160, "auto", {
+                plainText: box.nameText,
+                ellipsis: 1,
+            });
+
+            // LABEL: The type
+            box.lblType = Label(120, 49, 160, "auto", {
+                plainText: box.typeText,
+                fontSize: 14,
+                textColor: "gray",
+                ellipsis: 1,
+            });
+
+            // *** OBJECT INIT CODE:
+
+            box.cursor = "pointer";
+            box.onHoverChange(function (self, isOver) {
+                isHover = isOver;
+                paint();
+            });
+            paint();
+
+            return endObject(box);
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

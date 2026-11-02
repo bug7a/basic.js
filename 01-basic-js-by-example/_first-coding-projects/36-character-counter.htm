@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Character Counter</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CHARACTER COUNTER
+
+        ALGORITHM:
+        While a sentence is typed, the number of its characters is written under it.
+
+        WORKING LOGIC:
+        - A white card (a Box) in the middle of the page holds a text box (Input) and a Label.
+        - Every time a key is released in the text box, the length of its text is counted.
+        - The number goes into a sentence pattern ("{value}" is replaced by the number) and the Label shows it.
+        - When the size of the page changes, the card is centered again.
+
+        */
+
+        // *** VARIABLES:
+
+        // The card (a Box)
+        let box;
+
+        // The sentence of the Label. "{value}" is replaced by the number of characters.
+        const LABEL_FORMAT = "The sentence has {value} characters.";
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // BOX: The card. The objects created between startBox() and endBox() go inside it.
+            box = startBox(0, 0, 360, 180, {
+                color: "white",
+                round: 14,
+                border: 2,
+                borderColor: "rgba(0, 0, 0, 0.1)",
+            });
+            // In the middle of the page
+            box.center();
+
+                // INPUT: The text box of the sentence. Its title is written above it.
+                box.txtText = Input(0, 60, {
+                    title: "Enter a sentence:",
+                });
+                // In the middle of the card, only from left to right ("left"): its top stays 60.
+                box.txtText.center("left");
+
+                // Every time a key is released in the text box, showCharacterCount runs.
+                box.txtText.on("keyup", showCharacterCount);
+
+                // LABEL: The number of characters. 10 px under the text box.
+                box.lblTextCount = Label({
+                    text: LABEL_FORMAT.replace("{value}", "0"),
+                    fontSize: 16,
+                    textColor: "gray",
+                });
+                box.lblTextCount.aline(box.txtText, "bottom", 10);
+
+            endBox();
+
+            // When the size of the page changes, centerCard runs.
+            page.onResize(centerCard);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Writes the number of characters of the sentence into the Label.
+        const showCharacterCount = function () {
+
+            // .length: the number of characters of a text (the spaces count too).
+            const characterCount = box.txtText.text.length;
+
+            box.lblTextCount.text = LABEL_FORMAT.replace("{value}", characterCount);
+
+        };
+
+        // Runs when the size of the page changes: the card goes back to the middle.
+        const centerCard = function () {
+            box.center();
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Count the words of the sentence too. Hint: text.split(" ") gives a list of the words.
+        - Show the number in red when the sentence is longer than 50 characters.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

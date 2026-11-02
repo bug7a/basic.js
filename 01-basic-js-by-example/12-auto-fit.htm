@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Auto Fit</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        AUTO FIT
+
+        The page is drawn for one size, 1280 x 720 (like a game or a slide). page.autoFit() zooms the
+        whole page, so that size fits in the window and keeps its shape. Change the size of the window:
+        everything gets bigger or smaller together, and the squares stay in the corners.
+
+        - page.autoFit(width, height)
+                                    -> sets page.zoom, so an area of width x height fits in the window.
+        - page.zoom                 -> how big the page is drawn: 1 is its own size, 0.5 is half.
+        - page.onResize(fn)         -> runs fn when the size of the window changes: fitPage() fits again.
+        - startBox({ width: 1280, height: 720 }) ... endBox()
+                                    -> the stage: every place in it is in its own px, whatever the zoom.
+
+        TRY: change STAGE_WIDTH to 720 and STAGE_HEIGHT to 1280 (a phone screen).
+
+        */
+
+        // *** VARIABLES:
+
+        const STAGE_WIDTH = 1280;
+        const STAGE_HEIGHT = 720;
+        const CORNER_SIZE = 80;
+
+        let lblZoom;
+
+        // *** START:
+
+        const start = function () {
+
+            page.autoFit(STAGE_WIDTH, STAGE_HEIGHT);
+
+            // GROUP: Fills the page with a dark color and puts the stage in its middle
+            HGroup({
+                color: "#141414",
+            });
+
+                // BOX: The stage: always 1280 x 720
+                startBox({
+                    width: STAGE_WIDTH,
+                    height: STAGE_HEIGHT,
+                    color: "white",
+                });
+
+                    // BOX: A square in every corner of the stage
+                    Box(0, 0, CORNER_SIZE, CORNER_SIZE, { color: "orangered" });
+                    Box(STAGE_WIDTH - CORNER_SIZE, 0, CORNER_SIZE, CORNER_SIZE, { color: "gold" });
+                    Box(0, STAGE_HEIGHT - CORNER_SIZE, CORNER_SIZE, CORNER_SIZE, { color: "steelblue" });
+                    Box(STAGE_WIDTH - CORNER_SIZE, STAGE_HEIGHT - CORNER_SIZE, CORNER_SIZE, CORNER_SIZE, { color: "seagreen" });
+
+                    // GROUP: The texts, in the middle of the stage
+                    VGroup({ gap: 8 });
+
+                        Label({
+                            text: STAGE_WIDTH + " x " + STAGE_HEIGHT,
+                            fontSize: 64,
+                            bold: 1,
+                        });
+
+                        // LABEL: showZoom() writes the zoom in it
+                        lblZoom = Label({
+                            fontSize: 28,
+                            textColor: Black(0.5),
+                        });
+
+                    endGroup();
+
+                endBox();
+
+            endGroup();
+
+            showZoom();
+            page.onResize(fitPage);
+
+        };
+
+        // *** FUNCTIONS:
+
+        const fitPage = function () {
+            page.autoFit(STAGE_WIDTH, STAGE_HEIGHT);
+            showZoom();
+        };
+
+        const showZoom = function () {
+            lblZoom.text = "The same stage in every window. page.zoom: " + page.zoom.toFixed(2);
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

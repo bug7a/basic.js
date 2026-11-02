@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>HTML Template and CSS</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- CSS: the look of the HTML template of a plant row (see getPlantHtml below) -->
+        <style>
+
+        .plant-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 24px;
+            border-radius: 13px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            background-color: white;
+            transition: background-color 0.2s;
+        }
+
+        /* CSS does the hover by itself: no mouse events in the code. */
+        .plant-row:hover {
+            background-color: #EEF5F2;
+        }
+
+        .plant-row img {
+            width: 70px;
+            height: 70px;
+        }
+
+        .plant-name {
+            font-size: 20px;
+            color: #4A4A4A;
+        }
+
+        .plant-type {
+            font-size: 14px;
+            color: gray;
+        }
+
+        </style>
+
+        <script>
+
+        /*
+
+        HTML TEMPLATE AND CSS
+
+        Another way to draw a part of the page: the inside of a basic.js Box can be plain HTML,
+        and a <style> tag can give it its look. Here every plant row is a Box: basic.js places it in
+        the list and catches its click. The picture and the texts inside it are an HTML template,
+        styled by the CSS in the <style> above (the hover too).
+
+        When to use it: you already have HTML and CSS (from a designer, a server or a text editor),
+        you show a long formatted text, or you want a CSS feature like :hover. For everything else,
+        basic.js objects are simpler: they have props, events and setters.
+
+        - box.html = "<div>...</div>"   -> puts HTML inside a Box (the same as box.text).
+        - `Hi ${name}`                  -> a template string of JavaScript: ${...} puts a value in the text.
+        - basic.escapeHtml(text)        -> makes a text safe to put in HTML: a "<" in it is shown, not read as a tag.
+                                           (For a Label, .plainText does the same: .text is HTML too.)
+        - box.on("click", fn)           -> the click of the whole row. It also makes the box clickable,
+                                           so the mouse reaches the HTML in it and :hover works.
+
+        NOTE: The HTML inside a Box is not made of basic.js objects. To change it, write box.html again.
+
+        TRY: add a plant to PLANTS (the pictures are in assets/), or change .plant-row:hover in the <style>.
+
+        */
+
+        // *** VARIABLES:
+
+        const PLANTS = [
+            { name: "Broccoli", type: "Vegetable", iconFile: "assets/broccoli.png" },
+            { name: "Strawberry", type: "Fruit", iconFile: "assets/strawberry.png" },
+            { name: "Carrot", type: "Vegetable", iconFile: "assets/carrot.png" },
+            { name: "Blueberries", type: "Fruit", iconFile: "assets/blueberries.png" },
+        ];
+
+        const LIST_WIDTH = 420;
+
+        let lblMessage;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // BOX: The page never scrolls, this box does. (The list can be taller than the window.)
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                // GROUP: The message and the rows, one under the other
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 8, padding: [16, 30] });
+
+                    // LABEL: Shows the clicked plant
+                    lblMessage = Label({
+                        text: "Click a plant.",
+                        fontSize: 16,
+                        textColor: Black(0.6),
+                    });
+
+                    PLANTS.forEach(createPlantRow);
+
+                endGroup();
+
+            endBox();
+
+        };
+
+        // *** VIEW:
+
+        // One row: a basic.js Box with an HTML template inside it
+        const createPlantRow = function (plant) {
+
+            // BOX: As wide as the list (at most LIST_WIDTH). height: "auto" -> as high as its HTML.
+            const boxRow = Box({
+                width: "100%",
+                height: "auto",
+                color: "transparent",
+                cursor: "pointer",
+                css: { maxWidth: LIST_WIDTH + "px" },
+            });
+            boxRow.html = getPlantHtml(plant);
+
+            boxRow.on("click", function () {
+                lblMessage.plainText = "You clicked: " + plant.name + " (" + plant.type + ")";
+            });
+
+        };
+
+        // The HTML of one row. Its look is in the <style> at the top of the page.
+        const getPlantHtml = function (plant) {
+
+            // WHY: The values go into HTML. escapeHtml() keeps a "<" or "&" in them as a letter (Ex: "Salt & Pepper").
+            const name = basic.escapeHtml(plant.name);
+            const type = basic.escapeHtml(plant.type);
+            const iconFile = basic.escapeHtml(plant.iconFile);
+
+            return `
+                <div class="plant-row">
+                    <img src="${iconFile}" alt="">
+                    <div>
+                        <div class="plant-name">${name}</div>
+                        <div class="plant-type">${type}</div>
+                    </div>
+                </div>
+            `;
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

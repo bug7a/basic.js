@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Center and Aline</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CENTER AND ALINE
+
+        Objects placed by code, not by numbers: the gray box is in the middle of the page, the red box
+        and the orange circle are placed next to it. Change the size of the window: they follow.
+
+        - obj.center()              -> puts the object in the middle of its container (the page, or the
+                                       box it is in). center("left"): only across. center("top"): only
+                                       up and down.
+        - obj.aline(target, direction, space, secondDirection)
+                                    -> puts the object next to the target object.
+                                       direction: "left", "right", "top" or "bottom" of the target.
+                                       space: the px between them.
+                                       secondDirection (optional): "top", "center" or "bottom" next to a
+                                       left / right direction; "left", "center" or "right" next to a
+                                       top / bottom one. Without it, their top (or left) edges are on
+                                       one line.
+        - page.onResize(fn)         -> runs fn when the size of the window changes. center() and aline()
+                                       calculate only when they are called, so placeBoxes() calls them again.
+
+        TRY: change "right" to "left" for the red box, or "center" to "right" for the orange circle.
+
+        */
+
+        // *** VARIABLES:
+
+        const BOX_SIZE = 120;
+
+        let boxGray, boxRed, boxOrange;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // BOX: Gray. placeBoxes() puts it in the middle of the page.
+            boxGray = startBox(0, 0, BOX_SIZE, BOX_SIZE, {
+                color: "lightgray",
+            });
+
+                // LABEL: center() works in a box too: the middle of the gray box
+                Label({ text: "center()", fontSize: 14 });
+                that.center();
+
+            endBox();
+
+            // BOX: Red. placeBoxes() puts it at the right of the gray box.
+            boxRed = startBox(0, 0, BOX_SIZE, BOX_SIZE, {
+                color: "orangered",
+            });
+
+                Label({ text: "aline()", fontSize: 14, textColor: "white" });
+                that.center();
+
+            endBox();
+
+            // BOX: An orange circle. placeBoxes() puts it under the gray box.
+            boxOrange = Box(0, 0, 40, 40, {
+                color: "orange",
+                round: 20,
+                border: 6,
+                borderColor: Black(0.2),
+            });
+
+            placeBoxes();
+            page.onResize(placeBoxes);
+
+        };
+
+        // *** FUNCTIONS:
+
+        const placeBoxes = function () {
+            boxGray.center();
+            boxRed.aline(boxGray, "right", 4);                  // at its right, 4 px away
+            boxOrange.aline(boxGray, "bottom", 20, "center");   // under it, 20 px away, in the middle of it
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>New Features</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        NEW FEATURES
+
+        What came in basic.js v26.09.18 and after it. One card for every feature: what it is for,
+        its code, and a live demo under it. Read the page card by card: every card is one function
+        below, in the same order as on the page.
+
+            Demo.textCard()       -> bold, italic, lineHeight, ellipsis, selectable, css, props()
+            Demo.plainTextCard()  -> plainText, basic.escapeHtml(): a text without HTML
+            Demo.sizeCard()       -> sizes as strings: "120", "50%", "calc(...)"
+            Demo.showHideCard()   -> show(), hide(), toggle(), once()
+            Demo.animateCard()    -> animate() with await, setSize(), setPosition()
+            Demo.inputCard()      -> Input: placeholder, inputType, maxLength, onEnter()
+            Demo.groupCard()      -> groups: hug, wrap, justify
+            Demo.growCard()       -> grow and shrink in a group
+            Demo.createInCard()   -> createIn(), children, isRemoved
+            Demo.frontCard()      -> bringToFront(), contains(), basic.objectOf()
+            Demo.iconCard()       -> Icon: imageFit, alt
+            Demo.pageCard()       -> page.on(), page.title
+            Demo.basicCard()      -> basic.version, clamp(), lerp(), storage.loadOr(), sleep()
+            Demo.timerCard()      -> every(), after(), listenTo(): remove() stops them
+            Demo.hoverCard()      -> onHoverChange(), Alpha()
+
+        Demo.card({ title, version, about, code, build }) makes one card: build() creates the demo
+        objects, and they go into the card. The full list is in basic/basic-what-is-new.md.
+
+        */
+
+        // *** VARIABLES:
+
+        const ACCENT = "#5B6CD9";
+        const SOFT = "#F3F4F8";
+        const CARD_MAX_WIDTH = "760px";
+        const VISITS_KEY = "basic-samples-new-features-visits";
+
+        // WHY: The page helpers are in one object, so their names can not clash with basic.js.
+        const Demo = {};
+
+        // Props that many objects use. ...TEXT in a props object copies them in: Label({ text: "Hi", ...TEXT })
+        const TEXT = { fontSize: 15, textColor: Black(0.75) };
+
+        const SMALL_BUTTON = {
+            width: "auto",
+            height: 36,
+            padding: [14, 0],
+            round: 8,
+            minimal: 1,
+            color: "#E8EAF3",
+            textColor: Black(0.75),
+            fontSize: 14,
+        };
+
+        // A small round label in the accent color.
+        const CHIP = {
+            fontSize: 14,
+            textColor: "white",
+            color: ACCENT,
+            round: 14,
+            padding: [12, 4],
+        };
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#E9EBF2";
+            page.title = "New in basic.js " + basic.version;
+
+            // BOX: The page never scrolls, this box does.
+            startBox(0, 0, "100%", "100%", { color: "transparent", scrollY: 1 });
+
+                // GROUP: The title, then the cards, one under the other
+                VGroup({ width: "100%", height: "auto", align: "center top", gap: 16, padding: [16, 32] });
+
+                    // LABEL: The title
+                    Label({ text: "New in basic.js " + basic.version, fontSize: 28, bold: 1, textColor: Black(0.8) });
+                    Label({
+                        text: "Every card: what it is for, its code, then a live demo.",
+                        ...TEXT,
+                        textColor: Black(0.5),
+                        textAlign: "center",
+                    });
+
+                    Demo.textCard();
+                    Demo.plainTextCard();
+                    Demo.sizeCard();
+                    Demo.showHideCard();
+                    Demo.animateCard();
+                    Demo.inputCard();
+                    Demo.groupCard();
+                    Demo.growCard();
+                    Demo.createInCard();
+                    Demo.frontCard();
+                    Demo.iconCard();
+                    Demo.pageCard();
+                    Demo.basicCard();
+                    Demo.timerCard();
+                    Demo.hoverCard();
+
+                endGroup();
+
+            endBox();
+
+        };
+
+        // *** HELPERS:
+
+        // A card. card: { title, version, about, code, build }
+        //   version: the basic.js version that brought the feature.   about: what it is for.
+        //   code: the lines of the example code.   build(): creates the demo objects (they go into the card).
+        Demo.card = function (card) {
+
+            // GROUP: The card
+            VGroup({
+                width: "100%",
+                height: "auto",
+                gap: 12,
+                padding: 20,
+                align: "left top",
+                color: "white",
+                round: 14,
+                css: { maxWidth: CARD_MAX_WIDTH },
+            });
+
+                // GROUP: The title and the version
+                HGroup({ width: "100%", height: "auto", gap: 10, wrap: 1, align: "left center" });
+
+                    Label({ text: card.title, fontSize: 18, bold: 1, textColor: Black(0.8) });
+                    Label({
+                        text: card.version,
+                        fontSize: 12,
+                        padding: [8, 2],
+                        round: 10,
+                        color: Alpha(ACCENT, 0.12),
+                        textColor: ACCENT,
+                    });
+
+                endGroup();
+
+                // LABEL: What it is for
+                Label({ text: card.about, width: "100%", fontSize: 14, textColor: Black(0.55) });
+
+                // LABEL: The code. selectable: 1 -> it can be copied.
+                Label({
+                    plainText: card.code.join("\n"),
+                    width: "100%",
+                    padding: [12, 10],
+                    fontSize: 13,
+                    fontFamily: "monospace",
+                    lineHeight: "1.5",
+                    textColor: "#3A3F58",
+                    color: SOFT,
+                    round: 8,
+                    selectable: 1,
+                    // WHY: pre-wrap keeps the spaces and the line breaks of the code, and wraps a line
+                    //      that is longer than a narrow screen.
+                    css: { whiteSpace: "pre-wrap" },
+                });
+
+                // GROUP: The demo area
+                VGroup({ width: "100%", height: "auto", gap: 10, align: "left top", clipContent: 0 });
+                    card.build();
+                endGroup();
+
+            endGroup();
+
+        };
+
+        // A line of result text. Returns the label, so the demo can change it.
+        Demo.output = function (text = "") {
+            return Label({ text: text, ...TEXT, textColor: ACCENT, fontFamily: "monospace", fontSize: 14 });
+        };
+
+        // A row of small buttons. buttonList: [{ text, onClick }]
+        Demo.buttons = function (buttonList) {
+
+            // GROUP: The buttons
+            HGroup({ hug: 1, gap: 8, wrap: 1, clipContent: 0 });
+
+                buttonList.forEach(function (item) {
+                    Button({ text: item.text, ...SMALL_BUTTON });
+                    that.on("click", item.onClick);
+                });
+
+            endGroup();
+
+        };
+
+        // *** CARDS:
+
+        Demo.textCard = function () {
+
+            Demo.card({
+                title: "Text properties",
+                version: "v26.09.18",
+                about: "One prop for each look of a text: bold, italic, the space between the lines, one line "
+                    + "that ends with \"...\", a text that can be selected. css: { } sets any other CSS.",
+                code: [
+                    'Label({ text: "Title", bold: 1, italic: 1, lineHeight: 28, ellipsis: 1,',
+                    '        selectable: 1, cursor: "pointer", css: { letterSpacing: "2px" } });',
+                    'Label().props({ text: "props() returns the object" }).props({ bold: 1 });',
+                ],
+                build: function () {
+
+                    Label({ text: "bold: 1", bold: 1, ...TEXT });
+                    Label({ text: "italic: 1", italic: 1, ...TEXT });
+                    Label({
+                        text: "ellipsis: 1 -> This line is longer than its 260 px width, so it ends with dots.",
+                        width: 260,
+                        ellipsis: 1,
+                        ...TEXT,
+                    });
+                    Label({
+                        text: "lineHeight: 28 -> The lines of this text<br>have more space between them.",
+                        lineHeight: 28,
+                        ...TEXT,
+                    });
+                    Label({
+                        text: "css: { letterSpacing, textTransform }",
+                        ...TEXT,
+                        css: { letterSpacing: "2px", textTransform: "uppercase" },
+                    });
+                    Label({
+                        text: "selectable: 1 -> Select and copy this text. (basic.css turns it off.)",
+                        selectable: 1,
+                        ...TEXT,
+                    });
+
+                    // props() returns the object, so another props() (or a method) can follow it.
+                    Label().props({ text: "props() returns the object, so props() can follow it.", ...TEXT })
+                        .props({ textColor: ACCENT, bold: 1 });
+
+                },
+            });
+
+        };
+
+        Demo.plainTextCard = function () {
+
+            const userText = "<b>Hello</b> <i>world</i>";
+
+            Demo.card({
+                title: "plainText and basic.escapeHtml()",
+                version: "v26.09.18",
+                about: "label.text is HTML: the tags in it work. label.plainText shows a text as it is, so a "
+                    + "text from a user or a server can not change the page.",
+                code: [
+                    'const userText = "<b>Hello</b> <i>world</i>";',
+                    'label.text = userText;                    // innerHTML: the tags work',
+                    'label.plainText = userText;               // textContent: the tags are shown',
+                    'label.text = basic.escapeHtml(userText);  // the same, with .text',
+                ],
+                build: function () {
+
+                    Label({ text: "text: " + userText, ...TEXT });
+                    Label({ plainText: "plainText: " + userText, ...TEXT });
+                    Label({ text: "escapeHtml: " + basic.escapeHtml(userText), ...TEXT });
+
+                    Label({
+                        text: "Use plainText for everything that comes from a user or a server.",
+                        ...TEXT,
+                        fontSize: 13,
+                        textColor: Black(0.5),
+                    });
+
+                },
+            });
+
+        };
+
+        Demo.sizeCard = function () {
+
+            const EXAMPLES = [
+                { width: 120, caption: "120" },
+                { width: "120", caption: "\"120\"" },
+                { width: "50%", caption: "\"50%\"" },
+                { width: "calc(100% - 80px)", caption: "\"calc(100% - 80px)\"" },
+            ];
+
+            Demo.card({
+                title: "Sizes and positions as strings",
+                version: "v26.09.18",
+                about: "left, top, width and height take a number (px), or a string: a number, a percent "
+                    + "or any CSS length.",
+                code: [
+                    'Box({ width: 120 });                  // a number: 120 px',
+                    'Box({ width: "120" });                // a number in a string: 120 px too',
+                    'Box({ width: "50%" });                // half of the box it is in',
+                    'Box({ width: "calc(100% - 80px)" });  // any CSS length',
+                ],
+                build: function () {
+
+                    EXAMPLES.forEach(function (example) {
+
+                        // BOX: A bar as wide as the example, with its value in it
+                        startBox({ width: example.width, height: 30, color: ACCENT, round: 6 });
+                            Label({ text: example.caption, left: 10, top: 5, fontSize: 13, textColor: "white" });
+                        endBox();
+
+                    });
+
+                },
+            });
+
+        };
+
+        Demo.showHideCard = function () {
+
+            let target, onceOutput;
+            let clickCount = 0;
+
+            // once(): the function runs one time, then the event is removed.
+            const waitForOneClick = function () {
+                onceOutput.text = "Waiting for one click on the box...";
+                target.once("click", function () {
+                    clickCount++;
+                    onceOutput.text = "once() ran " + clickCount + " time(s). Click again: nothing.";
+                });
+            };
+
+            Demo.card({
+                title: "show(), hide(), toggle(), once()",
+                version: "v26.09.18",
+                about: "show() and hide() are short for visible = 1 and visible = 0. once() is an event "
+                    + "that runs only the first time.",
+                code: [
+                    'box.show();  box.hide();  box.toggle();   // they return the object',
+                    'box.once("click", function (self, event) { ... });   // runs one time',
+                ],
+                build: function () {
+
+                    // GROUP: The box and the buttons
+                    HGroup({ hug: 1, gap: 16, align: "left center", clipContent: 0 });
+
+                        // BOX: The box to hide, show and click
+                        target = Box({ width: 60, height: 60, round: 12, color: ACCENT, cursor: "pointer" });
+
+                        Demo.buttons([
+                            { text: "hide()", onClick: function () { target.hide(); } },
+                            { text: "show()", onClick: function () { target.show(); } },
+                            { text: "toggle()", onClick: function () { target.toggle(); } },
+                            { text: "once() again", onClick: waitForOneClick },
+                        ]);
+
+                    endGroup();
+
+                    onceOutput = Demo.output();
+                    waitForOneClick();
+
+                },
+            });
+
+        };
+
+        Demo.animateCard = function () {
+
+            const TRACK_HEIGHT = 60;
+            const BALL_SIZE = 44;
+            const BALL_MARGIN = 8;          // The space between the ball and the edge of the track.
+
+            let track, ball, playButton;
+
+            // WHY: Every animate() waits for the one before it (await). No setTimeout chain.
+            const playAnimation = async function () {
+
+                playButton.enabled = 0;
+                putBallBack();
+
+                const rightEnd = track.width - BALL_SIZE - BALL_MARGIN;
+                await ball.animate({ left: rightEnd }, 700, "ease-in-out");
+                await ball.animate({ opacity: 0.25 }, 300);
+                await ball.animate({ left: BALL_MARGIN, opacity: 1 }, 700, "ease-in-out");
+
+                playButton.enabled = 1;
+
+            };
+
+            // setSize() and setPosition() return the object, so they can be chained.
+            const putBallBack = function () {
+                ball.setSize(BALL_SIZE, BALL_SIZE).setPosition(BALL_MARGIN, BALL_MARGIN);
+                ball.round = BALL_SIZE / 2;
+            };
+
+            const jumpToRandomPlace = function () {
+                const size = random(20, BALL_SIZE);
+                const left = random(BALL_MARGIN, track.width - BALL_SIZE - BALL_MARGIN);
+                const top = (TRACK_HEIGHT - size) / 2;
+                ball.setSize(size, size).setPosition(left, top);
+                ball.round = size / 2;
+            };
+
+            Demo.card({
+                title: "animate(), setSize(), setPosition()",
+                version: "v26.09.18",
+                about: "animate() changes props slowly, in the time you give, and tells when it is done: it "
+                    + "returns a Promise, so await waits for it. setSize() and setPosition() set two values at once.",
+                code: [
+                    'await ball.animate({ left: 300 }, 600, "ease-in-out");   // a Promise',
+                    'await ball.animate({ opacity: 0.3 }, 300);',
+                    'ball.setSize(30, 30).setPosition(10, 15);                // chaining',
+                ],
+                build: function () {
+
+                    // BOX: The track of the ball
+                    track = startBox({ width: "100%", height: TRACK_HEIGHT, color: SOFT, round: TRACK_HEIGHT / 2 });
+                        ball = Box(BALL_MARGIN, BALL_MARGIN, BALL_SIZE, BALL_SIZE, {
+                            round: BALL_SIZE / 2,
+                            color: ACCENT,
+                        });
+                    endBox();
+
+                    // GROUP: The buttons
+                    HGroup({ hug: 1, gap: 8, clipContent: 0 });
+
+                        playButton = Button({ text: "Play animate()", ...SMALL_BUTTON });
+                        playButton.on("click", playAnimation);
+
+                        Button({ text: "setSize() + setPosition()", ...SMALL_BUTTON });
+                        that.on("click", jumpToRandomPlace);
+
+                    endGroup();
+
+                },
+            });
+
+        };
+
+        Demo.inputCard = function () {
+
+            let input, output;
+
+            const switchInputType = function (self) {
+                input.inputType = (input.inputType === "text") ? "password" : "text";
+                self.text = "inputType: " + input.inputType;
+                input.focus();
+            };
+
+            Demo.card({
+                title: "Input: placeholder, inputType, maxLength, onEnter()",
+                version: "v26.09.18",
+                about: "A gray hint in an empty Input (placeholder), its type (text, password, email...), "
+                    + "a length limit, and a function for the Enter key.",
+                code: [
+                    'const input = Input({ placeholder: "Write here", inputType: "password",',
+                    '                      maxLength: 20 });',
+                    'input.onEnter(function (self) { println(self.value); self.select(); });',
+                ],
+                build: function () {
+
+                    // GROUP: The input and its button
+                    HGroup({ width: "100%", height: 42, gap: 8 });
+
+                        input = Input({
+                            width: 10,
+                            height: 42,
+                            grow: 1,
+                            fontSize: 15,
+                            round: 8,
+                            borderColor: Black(0.15),
+                            placeholder: "Write something and press Enter",
+                            maxLength: 20,
+                        });
+
+                        Button({ text: "inputType: text", ...SMALL_BUTTON, height: 42 });
+                        that.on("click", switchInputType);
+
+                    endGroup();
+
+                    output = Demo.output("maxLength: 20 -> no more than 20 characters.");
+
+                    input.onEnter(function (self) {
+                        output.plainText = "onEnter(): \"" + self.value + "\"";
+                        self.select();
+                    });
+
+                },
+            });
+
+        };
+
+        Demo.groupCard = function () {
+
+            const JUSTIFY_VALUES = ["left", "center", "right", "space-between", "space-evenly"];
+            const FRUITS = ["Apple", "Banana", "Cherry", "Grape", "Lemon", "Mango", "Orange", "Peach",
+                "Plum", "Kiwi", "Melon", "Pear", "Fig"];
+
+            let chips, output;
+            let justifyIndex = 0;
+
+            const showGroupValues = function () {
+                output.text = "justify: \"" + chips.justify + "\"  wrap: " + chips.wrap;
+            };
+
+            const nextJustify = function () {
+                justifyIndex = (justifyIndex + 1) % JUSTIFY_VALUES.length;
+                chips.justify = JUSTIFY_VALUES[justifyIndex];
+                showGroupValues();
+            };
+
+            const toggleWrap = function () {
+                chips.wrap = chips.wrap ? 0 : 1;
+                showGroupValues();
+            };
+
+            Demo.card({
+                title: "Groups: hug, wrap, justify",
+                version: "v26.09.18",
+                about: "hug: 1 -> the group is as big as its content. wrap: 1 -> the objects go on the next "
+                    + "line when there is no room. justify -> where they stand on the line.",
+                code: [
+                    'HGroup({ hug: 1 });                   // "hug" is the new name of "fit"',
+                    'HGroup({ wrap: 1, justify: "space-between" });',
+                    'group.wrap = 0;  group.justify = "center";   // setters',
+                ],
+                build: function () {
+
+                    // GROUP: The chips
+                    chips = HGroup({
+                        width: "100%",
+                        height: "auto",
+                        gap: 8,
+                        wrap: 1,
+                        justify: "left",
+                        padding: 10,
+                        color: SOFT,
+                        round: 10,
+                    });
+
+                        FRUITS.forEach(function (name) {
+                            Label({ text: name, ...CHIP });
+                        });
+
+                    endGroup();
+
+                    Demo.buttons([
+                        { text: "Next justify", onClick: nextJustify },
+                        { text: "Toggle wrap", onClick: toggleWrap },
+                    ]);
+
+                    output = Demo.output();
+                    showGroupValues();
+
+                },
+            });
+
+        };
+
+        Demo.growCard = function () {
+
+            const CELL_HEIGHT = 44;
+
+            // The props of every cell. (lineHeight as high as the cell: the text is in its middle.)
+            const cell = {
+                height: CELL_HEIGHT,
+                lineHeight: CELL_HEIGHT,
+                textAlign: "center",
+                round: 8,
+                fontSize: 13,
+                textColor: "white",
+            };
+
+            Demo.card({
+                title: "grow and shrink",
+                version: "v26.09.18",
+                about: "In a group, grow shares the free space: grow: 2 takes twice as much as grow: 1. "
+                    + "shrink: 1 lets an object get narrower than its width when there is no room.",
+                code: [
+                    'HGroup({ gap: 8 });',
+                    '    Label({ width: 80 });              // fixed',
+                    '    Label({ width: 10, grow: 1 });     // 1 part of the free space',
+                    '    Label({ width: 10, grow: 2 });     // 2 parts',
+                    'endGroup();',
+                ],
+                build: function () {
+
+                    // GROUP: The three cells
+                    HGroup({ width: "100%", height: CELL_HEIGHT, gap: 8 });
+                        Label({ text: "80 px", width: 80, color: "#9AA3C7", ...cell });
+                        Label({ text: "grow: 1", width: 10, grow: 1, color: ACCENT, ...cell });
+                        Label({ text: "grow: 2", width: 10, grow: 2, color: "#3E4A9E", ...cell });
+                    endGroup();
+
+                    Label({
+                        text: "Make the window narrower: the fixed one keeps its width.",
+                        ...TEXT,
+                        fontSize: 13,
+                        textColor: Black(0.5),
+                    });
+
+                },
+            });
+
+        };
+
+        Demo.createInCard = function () {
+
+            let list, output;
+            let chipNumber = 0;
+
+            const showChildCount = function (extraText = "") {
+                output.text = "list.children.length = " + list.children.length + extraText;
+            };
+
+            // createIn(): the new chip goes into the list, which was created before.
+            const addChip = function () {
+                chipNumber++;
+                createIn(list, function () {
+                    Label({ text: "#" + chipNumber, ...CHIP });
+                });
+                showChildCount();
+            };
+
+            const removeLastChip = function () {
+                const children = list.children;
+                if (children.length === 0) return;
+                const last = children[children.length - 1];
+                last.remove();
+                showChildCount(",  last.isRemoved = " + last.isRemoved);
+            };
+
+            Demo.card({
+                title: "createIn(), children, isRemoved",
+                version: "v26.09.18",
+                about: "createIn(box, fn) creates objects in a box that was made before (Ex: a row added to a "
+                    + "list later). box.children: the objects in a box. obj.isRemoved: 1 after remove().",
+                code: [
+                    'createIn(list, function () { Label({ text: "New" }); });   // into an existing box',
+                    'list.children;          // the basic.js objects in it',
+                    'last.remove();  last.isRemoved;   // 1',
+                ],
+                build: function () {
+
+                    // GROUP: The list. (minHeight: it does not get flat when it is empty.)
+                    list = HGroup({
+                        width: "100%",
+                        height: "auto",
+                        gap: 8,
+                        wrap: 1,
+                        padding: 10,
+                        color: SOFT,
+                        round: 10,
+                        css: { minHeight: "52px" },
+                    });
+                    endGroup();
+
+                    Demo.buttons([
+                        { text: "Add with createIn()", onClick: addChip },
+                        { text: "Remove last", onClick: removeLastChip },
+                    ]);
+
+                    output = Demo.output();
+                    showChildCount();
+
+                },
+            });
+
+        };
+
+        Demo.frontCard = function () {
+
+            const CARD_COLORS = ["#9AA3C7", ACCENT, "#3E4A9E"];
+            const CARD_STEP_X = 60;         // Every card is a bit to the right of the one before...
+            const CARD_STEP_Y = 25;         // ...and a bit lower.
+
+            let area, output;
+
+            // basic.objectOf(): the basic.js object of an HTML element (here: the one under the mouse).
+            const bringClickedCardToFront = function (self, event) {
+
+                const card = basic.objectOf(event.target);
+
+                if (card === area) {
+                    output.text = "objectOf() -> the area itself";
+                    return;
+                }
+
+                card.bringToFront();
+                output.text = "zIndex = " + card.zIndex + ",  area.contains(card) = " + area.contains(card);
+
+            };
+
+            Demo.card({
+                title: "bringToFront(), contains(), basic.objectOf()",
+                version: "v26.09.18",
+                about: "bringToFront() puts an object over the other objects of its box. contains() asks if an "
+                    + "object is inside another one. basic.objectOf(element) finds the object of an element.",
+                code: [
+                    'area.on("click", function (self, event) {',
+                    '    const card = basic.objectOf(event.target);   // the basic.js object under the mouse',
+                    '    if (card !== area) card.bringToFront();',
+                    '});',
+                ],
+                build: function () {
+
+                    // BOX: The area with the cards
+                    area = startBox({ width: "100%", height: 160, color: SOFT, round: 10, clickable: 1 });
+
+                        CARD_COLORS.forEach(function (color, index) {
+
+                            // BOX: A card. clickable: 1 -> it is the target of the click, not the area under it.
+                            startBox(20 + index * CARD_STEP_X, 20 + index * CARD_STEP_Y, 150, 80, {
+                                color: color,
+                                round: 10,
+                                clickable: 1,
+                                cursor: "pointer",
+                                boxShadow: "0 4px 10px " + Black(0.15),
+                            });
+                                Label({
+                                    text: "Card " + (index + 1),
+                                    left: 12,
+                                    top: 10,
+                                    fontSize: 14,
+                                    textColor: "white",
+                                });
+                            endBox();
+
+                        });
+
+                    endBox();
+
+                    output = Demo.output("Click a card.");
+
+                    area.on("click", bringClickedCardToFront);
+
+                },
+            });
+
+        };
+
+        Demo.iconCard = function () {
+
+            Demo.card({
+                title: "Icon: imageFit, alt",
+                version: "v26.09.18",
+                about: "imageFit: how a picture fills its box (cover, contain, fill). alt: what the picture "
+                    + "shows, in words (screen readers read it).",
+                code: [
+                    'Icon(0, 0, 120, 70, { imageFit: "cover", alt: "Strawberry" });',
+                    'that.load("assets/strawberry.png");',
+                ],
+                build: function () {
+
+                    // GROUP: The three pictures
+                    HGroup({ hug: 1, gap: 12, wrap: 1 });
+
+                        ["cover", "contain", "fill"].forEach(function (fit) {
+
+                            // GROUP: A picture and its imageFit value
+                            VGroup({ hug: 1, gap: 4 });
+                                Icon(0, 0, 120, 70, { imageFit: fit, alt: "Strawberry", color: SOFT, round: 8 });
+                                that.load("assets/strawberry.png");
+                                Label({ text: "\"" + fit + "\"", ...TEXT, fontSize: 13 });
+                            endGroup();
+
+                        });
+
+                    endGroup();
+
+                },
+            });
+
+        };
+
+        Demo.pageCard = function () {
+
+            let output, listenButton;
+            let removeListener = null;
+
+            // page.on() returns a function that removes the event.
+            const startListening = function () {
+                removeListener = page.on("keydown", function (self, event) {
+                    output.text = "keydown: " + event.code;
+                });
+                output.text = "Press a key...";
+                listenButton.text = "Stop listening";
+            };
+
+            const stopListening = function () {
+                removeListener();
+                removeListener = null;
+                output.text = "Not listening.";
+                listenButton.text = "Listen again";
+            };
+
+            const toggleListening = function () {
+                if (removeListener) {
+                    stopListening();
+                } else {
+                    startListening();
+                }
+            };
+
+            const changeTitle = function () {
+                page.title = "Title " + random(100, 999);
+                output.text = "page.title = \"" + page.title + "\"";
+            };
+
+            Demo.card({
+                title: "page.on(), page.title",
+                version: "v26.09.18",
+                about: "page.on() listens to an event of the window (a key, a resize...) and returns the "
+                    + "function that stops it. page.title is the title in the browser tab.",
+                code: [
+                    'const remove = page.on("keydown", function (self, event) { ... });   // window events',
+                    'remove();                 // or page.off("keydown", fn)',
+                    'page.title = "My App";    // document.title',
+                ],
+                build: function () {
+
+                    output = Demo.output();
+
+                    // GROUP: The buttons
+                    HGroup({ hug: 1, gap: 8, clipContent: 0 });
+
+                        listenButton = Button({ text: "", ...SMALL_BUTTON });
+                        listenButton.on("click", toggleListening);
+
+                        Button({ text: "Change page.title", ...SMALL_BUTTON });
+                        that.on("click", changeTitle);
+
+                    endGroup();
+
+                    startListening();
+
+                },
+            });
+
+        };
+
+        Demo.basicCard = function () {
+
+            let countdown;
+
+            // A counter that stays after a reload.
+            const visits = basic.storage.loadOr(VISITS_KEY, 0) + 1;
+            basic.storage.save(VISITS_KEY, visits);
+
+            // await works only in an async function. basic.sleep(ms) waits without stopping the page.
+            const countDown = async function (self) {
+                self.enabled = 0;
+                for (let i = 3; i > 0; i--) {
+                    countdown.text = i + "...";
+                    await basic.sleep(1000);
+                }
+                countdown.text = "Go!";
+                self.enabled = 1;
+            };
+
+            Demo.card({
+                title: "basic.* helpers",
+                version: "v26.09.18",
+                about: "Small helpers under basic.*: the version, numbers between two limits, a value kept "
+                    + "in the browser, and waiting in an async function.",
+                code: [
+                    'basic.version;  basic.isReady;',
+                    'basic.clamp(150, 0, 100);   basic.lerp(0, 200, 0.25);',
+                    'basic.storage.loadOr("visits", 0);',
+                    'await basic.sleep(1000);    await basic.nextFrame();',
+                ],
+                build: function () {
+
+                    Demo.output("basic.version = \"" + basic.version + "\",  basic.isReady = " + basic.isReady);
+                    Demo.output("basic.clamp(150, 0, 100) = " + basic.clamp(150, 0, 100)
+                        + ",  basic.lerp(0, 200, 0.25) = " + basic.lerp(0, 200, 0.25));
+                    Demo.output("basic.storage.loadOr(): you opened this page " + visits + " time(s).");
+
+                    // GROUP: The button and the countdown
+                    HGroup({ hug: 1, gap: 12, align: "left center", clipContent: 0 });
+
+                        Button({ text: "Count down with basic.sleep()", ...SMALL_BUTTON });
+                        that.on("click", countDown);
+
+                        countdown = Label({ text: "", ...TEXT, bold: 1, textColor: ACCENT });
+
+                    endGroup();
+
+                },
+            });
+
+        };
+
+        Demo.timerCard = function () {
+
+            const NOTE_DELAY = 3000;        // ms
+
+            let holder, clockBox, clockLabel, noteLabel, output;
+            let tickCount = 0;
+
+            // The timers and the window event belong to the box: its remove() stops them all.
+            const createClockBox = function () {
+
+                tickCount = 0;
+
+                createIn(holder, function () {
+
+                    // GROUP: The box
+                    clockBox = VGroup({
+                        hug: 1,
+                        gap: 4,
+                        padding: [16, 12],
+                        align: "left top",
+                        color: SOFT,
+                        round: 10,
+                    });
+                        clockLabel = Label({ text: "", ...TEXT, bold: 1, textColor: ACCENT });
+                        noteLabel = Label({ text: "after(" + NOTE_DELAY + "): waiting...", ...TEXT, fontSize: 13 });
+                    endGroup();
+
+                });
+
+                clockBox.every(1000, function () {
+                    tickCount++;
+                    output.text = "every() ran " + tickCount + " time(s).";
+                    showClock();
+                });
+
+                clockBox.after(NOTE_DELAY, function () {
+                    noteLabel.text = "after(" + NOTE_DELAY + "): " + (NOTE_DELAY / 1000) + " seconds have passed.";
+                });
+
+                clockBox.listenTo(window, "resize", showClock);
+
+                showClock();
+
+            };
+
+            const showClock = function () {
+                clockLabel.text = new Date().toLocaleTimeString() + "   (the window is " + page.width + " px wide)";
+            };
+
+            // self: the clicked button
+            const toggleClockBox = function (self) {
+
+                if (clockBox) {
+                    clockBox.remove();
+                    clockBox = null;
+                    output.text = "The box is removed: every() stopped at " + tickCount + ".";
+                    self.text = "Create the box again";
+                    return;
+                }
+
+                createClockBox();
+                self.text = "Remove the box";
+
+            };
+
+            Demo.card({
+                title: "every(), after(), listenTo()",
+                version: "v26.10.23",
+                about: "Timers and window events that belong to an object: when the object is removed, they stop "
+                    + "too. (A setInterval() goes on until you stop it yourself.)",
+                code: [
+                    'const stop = box.every(1000, function (self) { ... });   // again and again',
+                    'box.after(3000, function (self) { ... });                 // one time',
+                    'box.listenTo(window, "resize", function (self, event) { ... });',
+                    'stop();          // stops that timer',
+                    'box.remove();    // stops all its timers and removes its events',
+                ],
+                build: function () {
+
+                    // GROUP: The clock box is created in it (and created again after a remove)
+                    holder = HGroup({ hug: 1 });
+                    endGroup();
+
+                    Demo.buttons([
+                        { text: "Remove the box", onClick: toggleClockBox },
+                    ]);
+
+                    output = Demo.output();
+                    createClockBox();
+
+                },
+            });
+
+        };
+
+        Demo.hoverCard = function () {
+
+            const PERCENTS = [1, 0.6, 0.3, 0.1];
+            const DARK_ACCENT = "#2E3770";
+
+            // White text on a strong color, a dark text on a light one.
+            const textColorOn = function (percent) {
+                return (percent >= 0.8) ? "white" : DARK_ACCENT;
+            };
+
+            const paintChip = function (chip, percent) {
+                chip.color = Alpha(ACCENT, percent);
+                chip.textColor = textColorOn(percent);
+            };
+
+            Demo.card({
+                title: "onHoverChange(), Alpha()",
+                version: "v26.10.23, v26.10.25",
+                about: "onHoverChange(fn): one function for the mouse that comes on an object (isOver: 1) and "
+                    + "leaves it (0). Alpha(color, percent): any color made transparent, like Black(0.5).",
+                code: [
+                    'chip.onHoverChange(function (self, isOver) {',
+                    '    self.color = isOver ? ACCENT : Alpha(ACCENT, 0.3);',
+                    '});',
+                    'Alpha("#5B6CD9", 0.3);   // "rgba(91,108,217,0.3)"',
+                ],
+                build: function () {
+
+                    // GROUP: A chip for every percent
+                    HGroup({ hug: 1, gap: 8, wrap: 1, clipContent: 0 });
+
+                        PERCENTS.forEach(function (percent) {
+
+                            // LABEL: A chip in the accent color at this percent. Under the mouse: at 100%.
+                            const chip = Label({
+                                text: "Alpha(ACCENT, " + percent + ")",
+                                fontSize: 13,
+                                round: 8,
+                                padding: [12, 8],
+                            });
+                            paintChip(chip, percent);
+
+                            chip.onHoverChange(function (self, isOver) {
+                                paintChip(self, isOver ? 1 : percent);
+                            });
+
+                        });
+
+                    endGroup();
+
+                    Demo.output("Move the mouse on the chips.");
+
+                },
+            });
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Sliding Panels</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SLIDING PANELS
+
+        Panels that slide in from a side of the page: right, left or bottom. One component function (PANEL
+        COMPONENT, at the bottom) makes all of them: every panel is one call with its own params.
+        ESC or a click on the dark backdrop closes the open panel. Only one panel is open at a time.
+
+        - Panel({ side: "left", ... })      -> the component: startObject() ... endObject(), as in 14-dialog-comp.htm.
+        - obj.css.transform = "translateX(420px)"
+                                            -> a closed panel waits out of the page; "translate(0px, 0px)" brings it in.
+        - setMotion("transform 300ms, opacity 300ms")
+                                            -> a change of these styles takes 300 ms: the panel slides.
+        - withMotion(fn)                    -> runs fn a moment later, when the browser has drawn the panel at its
+                                               closed place. Then the change to the open place is seen as a motion.
+        - box.after(ms, fn)                 -> hides the panel when its motion has ended.
+        - box.onPageResize(fn)              -> keeps the panel on its side when the window changes its size.
+
+        TRY: make a fourth panel: Panel({ side: "bottom", panelSize: 150, titleText: "Small" }) and a button for it.
+
+        */
+
+        // *** VARIABLES:
+
+        const BACKDROP_DURATION = 300;      // ms
+
+        // The look of the buttons. (...BUTTON_LOOK copies these props into a props object.)
+        const BUTTON_LOOK = {
+            textColor: Black(0.5),
+            border: 1,
+            borderColor: Black(0.2),
+            minimal: 1,
+            width: "auto",
+            padding: [20, 0],
+        };
+
+        let rightPanel, leftPanel, bottomPanel;
+        let backdrop;                       // The dark layer behind the open panel.
+        let openedPanel = null;             // The panel that is open now. (Only one.)
+        let lblStatus;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "lightgray";
+
+            createBackdrop();
+
+            // GROUP: Fills the page and puts its objects in the middle, one under the other
+            VGroup({ gap: 16 });
+
+                // LABEL: Title
+                Label({ text: "Sliding Panels", fontSize: 24, bold: 1, textColor: Black(0.7) });
+
+                // GROUP: One button for every panel. wrap: 1 -> on a narrow screen a button goes on the next line.
+                // WHY: A group cuts what goes out of it. The hover effect lifts a button and draws a shadow
+                //      around it, so this group must not cut. (clipContent: 0 -> overflow: visible)
+                HGroup({ width: "100%", height: "auto", wrap: 1, gap: 12, padding: [16, 0], clipContent: 0 });
+                    createOpenButton("Open Right", "#8FC7B9", function () { openPanel(rightPanel); });
+                    createOpenButton("Open Left", "#8FB9C7", function () { openPanel(leftPanel); });
+                    createOpenButton("Open Bottom", "#C7B98F", function () { openPanel(bottomPanel); });
+                endGroup();
+
+                // LABEL: What happened last. (onOpen and onClose of the panels write it.)
+                lblStatus = Label({
+                    text: "ESC or a click outside closes a panel.",
+                    fontSize: 14,
+                    textColor: Black(0.45),
+                });
+
+            endGroup();
+
+            // PANELS: The same function, three different params.
+            rightPanel = Panel({
+                side: "right",
+                titleText: "Right Panel",
+                bodyText: "side: \"right\"\n\nThis panel slides in from the right edge and is as tall as the screen.",
+                onOpen: showStatus,
+                onClose: showStatus,
+            });
+
+            leftPanel = Panel({
+                side: "left",
+                panelSize: 340,
+                titleText: "Left Panel",
+                bodyText: "side: \"left\"\n\nThe same function, a narrower panel on the other side.",
+                onOpen: showStatus,
+                onClose: showStatus,
+            });
+
+            bottomPanel = Panel({
+                side: "bottom",
+                panelSize: 280,
+                color: "#2E3A38",
+                textColor: White(0.9),
+                titleText: "Bottom Panel",
+                bodyText: "side: \"bottom\"\n\nA sheet that slides up from the bottom edge.",
+                onOpen: showStatus,
+                onClose: showStatus,
+            });
+
+            // KEY: ESC closes the open panel. (page.on: an event of the window)
+            page.on("keydown", function (self, event) {
+                if (event.key === "Escape") closePanel();
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        // BOX: The dark layer behind the open panel. A click on it closes the panel.
+        const createBackdrop = function () {
+
+            backdrop = Box(0, 0, "100%", "100%", {
+                color: Black(0.35),
+                opacity: 0,
+                visible: 0,
+                clickable: 1,
+                zIndex: 5,                  // over the page, under the panels (zIndex: 10)
+            });
+            backdrop.setMotion("opacity " + BACKDROP_DURATION + "ms");
+            backdrop.on("click", closePanel);
+
+        };
+
+        // Opens one panel and closes the one that is already open.
+        const openPanel = function (panel) {
+
+            if (openedPanel === panel) return;
+            if (openedPanel) openedPanel.close();
+
+            openedPanel = panel;
+
+            // WHY: The backdrop was hidden (visible: 0). withMotion() changes the opacity a moment later, when it
+            //      is drawn, so it fades in. (Shown and changed in the same moment, it would appear at once.)
+            backdrop.visible = 1;
+            backdrop.withMotion(function (self) {
+                if (openedPanel) self.opacity = 1;      // WHY: Not when the panel was closed in that moment.
+            });
+
+            panel.open();
+
+        };
+
+        const closePanel = function () {
+
+            if (!openedPanel) return;
+
+            openedPanel.close();
+            openedPanel = null;
+
+            // The backdrop fades out, then it is hidden. (Unless a panel was opened again in the meantime.)
+            backdrop.opacity = 0;
+            backdrop.after(BACKDROP_DURATION, function () {
+                if (!openedPanel) backdrop.visible = 0;
+            });
+
+        };
+
+        // onOpen and onClose of the panels. self: the panel
+        const showStatus = function (self) {
+            const stateText = (self.isOpen) ? " is open." : " is closed.";
+            lblStatus.text = self.titleText + stateText;
+        };
+
+        // A button that lifts a little under the mouse.
+        const createOpenButton = function (text, color, onClick) {
+
+            const button = Button({ text: text, color: color, ...BUTTON_LOOK });
+
+            button.setMotion("transform 0.15s, box-shadow 0.15s");
+
+            // onHoverChange: isOver is 1 when the mouse comes on the button, 0 when it leaves.
+            button.onHoverChange(function (self, isOver) {
+                self.css.transform = (isOver) ? "translateY(-2px)" : "translateY(0px)";
+                self.boxShadow = (isOver) ? "0 6px 14px rgba(0, 0, 0, 0.18)" : "none";
+            });
+
+            // Pressed: a little down and smaller. Released: up again.
+            button.on("mousedown", function (self) {
+                self.css.transform = "translateY(1px) scale(0.98)";
+            });
+
+            button.on("mouseup", function (self) {
+                self.css.transform = "translateY(-2px)";
+            });
+
+            button.on("click", onClick);
+
+            return button;
+
+        };
+
+        // *** PANEL COMPONENT:
+
+        // Every param with its default value. (Each one becomes a property of the panel.)
+        const PanelDefaults = {
+            side: "right",                  // "right", "left" or "bottom"
+            panelSize: 420,                 // px: the width of a side panel, the height of a bottom panel
+            duration: 300,                  // ms: the length of the motion
+            color: "white",                 // the background of the panel (the box of the component)
+            textColor: Black(0.75),
+            titleText: "Panel",
+            bodyText: "",
+            onOpen: function (self) {},
+            onClose: function (self) {},
+        };
+
+        const Panel = function (params = {}) {
+
+            mergeIntoIfMissing(params, PanelDefaults);
+
+            // BOX: The panel. The objects created from here to endObject() go into it.
+            let box = startObject(params);
+
+            // *** PRIVATE VARIABLES:
+
+            const FREE_SPACE = 60;          // px: a panel never covers the whole screen, this much stays free
+            let size = box.panelSize;       // the size that is really used (layout() makes it smaller on a phone)
+
+            // *** PUBLIC VARIABLES:
+
+            box.isOpen = 0;
+
+            // *** PRIVATE FUNCTIONS:
+
+            // Puts the panel on its side and keeps it inside the screen.
+            const layout = function () {
+
+                const isBottom = (box.side === "bottom");
+                const screenSize = (isBottom) ? page.height : page.width;
+
+                // WHY: A 420 px panel does not fit on a phone.
+                size = Math.min(box.panelSize, screenSize - FREE_SPACE);
+
+                if (isBottom) {
+                    box.props({ left: 0, bottom: 0, width: "100%", height: size });
+                } else if (box.side === "left") {
+                    box.props({ left: 0, top: 0, width: size, height: "100%" });
+                } else {
+                    box.props({ right: 0, top: 0, width: size, height: "100%" });
+                }
+
+                // A closed panel waits out of the screen.
+                if (!box.isOpen) box.css.transform = getClosedTransform();
+
+            };
+
+            // Where a closed panel waits: one panel size out of the screen, on its side.
+            const getClosedTransform = function () {
+                if (box.side === "bottom") return "translateY(" + size + "px)";
+                if (box.side === "left") return "translateX(" + -size + "px)";
+                return "translateX(" + size + "px)";
+            };
+
+            // *** PUBLIC FUNCTIONS:
+
+            box.open = function () {
+
+                if (box.isOpen) return;
+                box.isOpen = 1;
+
+                box.visible = 1;
+                box.css.transform = getClosedTransform();      // It starts out of the screen...
+
+                // WHY: The panel was hidden (visible: 0), so the browser has not drawn it at its closed place yet.
+                //      withMotion() makes the change a moment later: then it is seen as a motion.
+                box.withMotion(function () {
+                    if (!box.isOpen) return;                    // WHY: It was closed again in that moment.
+                    box.css.transform = "translate(0px, 0px)";  // ...and slides in.
+                    box.opacity = 1;
+                });
+
+                box.onOpen(box);
+
+            };
+
+            box.close = function () {
+
+                if (!box.isOpen) return;
+                box.isOpen = 0;
+
+                box.css.transform = getClosedTransform();
+                box.opacity = 0;
+
+                // WHY: The panel is hidden only when its motion has ended. (A timer of the box: box.after)
+                box.after(box.duration, function () {
+                    if (!box.isOpen) box.visible = 0;
+                });
+
+                box.onClose(box);
+
+            };
+
+            // *** OBJECT VIEW:
+
+            // GROUP: The content of the panel
+            VGroup({ align: "left top", gap: 14, padding: 30 });
+
+                // LABEL: Title
+                Label({ text: box.titleText, fontSize: 20, bold: 1, textColor: box.textColor });
+
+                // LABEL: Text. whiteSpace "pre-line" keeps the line breaks ("\n") of bodyText.
+                Label({
+                    text: box.bodyText,
+                    width: "100%",
+                    fontSize: 15,
+                    textColor: box.textColor,
+                    opacity: 0.75,
+                    css: { whiteSpace: "pre-line" },
+                });
+
+                // BUTTON: Close Panel
+                Button({ text: "Close Panel", color: "#D57056", ...BUTTON_LOOK });
+                that.on("click", closePanel);
+
+            endGroup();
+
+            // *** OBJECT INIT CODE:
+
+            box.props({ border: 1, borderColor: Black(0.2), opacity: 0, zIndex: 10 });
+            box.setMotion("transform " + box.duration + "ms, opacity " + box.duration + "ms");
+
+            layout();
+            box.onPageResize(layout);       // WHY: Removed with the panel. (page.onResize would stay.)
+
+            box.visible = 0;                // closed: hidden until open()
+
+            return endObject(box);
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

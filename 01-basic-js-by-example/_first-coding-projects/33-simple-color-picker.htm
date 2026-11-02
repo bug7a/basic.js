@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Simple Color Picker</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SIMPLE COLOR PICKER
+
+        A design made in Figma (or in another interface design tool) works well with basic.js:
+        the places and the sizes in the design are written into the code as they are.
+        This example shows how a design becomes a working app. It is good for beginners.
+
+        ALGORITHM:
+        A click on one of the three color buttons shows that color in a big circle,
+        with its name and its color code.
+
+        WORKING LOGIC:
+        - A card (a Box) in the middle of the page holds all the other objects.
+        - Each color button is a round Box. It keeps the name of its color in its own property (colorName).
+        - One function, selectColor(), runs for every color button: it shows the color and the name
+          of the clicked button, and moves a ring (another round Box) behind the button to mark it.
+        - When the size of the page changes, the card is centered again.
+
+        VIDEO: the project step by step (in Turkish): https://www.youtube.com/watch?v=pM-iAn7DE7w
+        The video uses an older basic.js. Old -> new names: createBox() -> Box(), createLabel() -> Label(),
+        b1.add(that) -> the objects are created between startBox() and endBox(),
+        that.onClick(fn) -> that.on("click", fn). They do the same.
+
+        */
+
+        // *** VARIABLES:
+
+        const COLOR_BUTTON_TOP = 192;   // px: the place of the color buttons in the card (from the design)
+        const COLOR_BUTTON_SIZE = 35;   // px
+        const RING_SPACE = 4;           // px: between a color button and the ring around it
+        const RING_SIZE = COLOR_BUTTON_SIZE + (RING_SPACE * 2);   // 43 px
+
+        // The card that holds the objects of the picker (a Box)
+        let boxPicker;
+
+        // *** START:
+
+        const start = function () {
+
+            // BOX: The card. Its size comes from the design.
+            // NOTE: The objects created between startBox() and endBox() go inside this box.
+            boxPicker = startBox({
+                width: 377,
+                height: 246,
+                round: 13,
+            });
+            // In the middle of the page
+            boxPicker.center();
+
+                // BOX: The circle that shows the selected color
+                boxPicker.boxSelectedColor = Box(143, 18, 90, 90, {
+                    color: "white",
+                    border: 3,
+                    borderColor: "#141414",
+                    round: 45,      // half of its size: a circle
+                });
+
+                // LABEL: The name of the selected color. As wide as the card, its text in the middle.
+                boxPicker.lblSelectedColorName = Label(0, 117, boxPicker.width, "auto", {
+                    text: "white",
+                    fontSize: 25,
+                    textAlign: "center",
+                });
+
+                // LABEL: The hexadecimal (HEX) code of the selected color
+                boxPicker.lblSelectedColorCode = Label(0, 146, boxPicker.width, "auto", {
+                    text: "#FFFFFF",
+                    fontSize: 16,
+                    textAlign: "center",
+                    opacity: 0.7,
+                });
+
+                // BOX: The ring that marks the selected button. Hidden until a color is selected.
+                // NOTE: It is created before the buttons, so it stays behind them.
+                boxPicker.boxSelectedButtonBack = Box(0, 0, RING_SIZE, RING_SIZE, {
+                    color: "transparent",
+                    border: 2,
+                    borderColor: "#FE5D49",
+                    round: 22,
+                    visible: 0,
+                });
+
+                // BOX: The color buttons. createColorButton(left, color, colorName) is written below.
+                boxPicker.boxColor1 = createColorButton(72, "#FE5D49", "red");
+                boxPicker.boxColor2 = createColorButton(171, "#588ABE", "blue");
+                boxPicker.boxColor3 = createColorButton(270, "#5ABB9F", "green");
+
+                /*
+
+                NOTE: The same lines were written for each color button, so they became a function (createColorButton).
+                Without the function, every button would need these lines:
+
+                boxPicker.boxColor1 = Box(72, 192, 35, 35, {
+                    round: 18,
+                    color: "#FE5D49",
+                });
+                that.colorName = "red";
+                that.on("click", selectColor);
+
+                */
+
+            endBox();
+
+            // When the size of the page changes, centerPicker runs.
+            page.onResize(centerPicker);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates one color button and gives it back. It keeps the name of its color in colorName.
+        const createColorButton = function (left, color, colorName) {
+
+            // BOX: A round button
+            const colorButton = Box(left, COLOR_BUTTON_TOP, COLOR_BUTTON_SIZE, COLOR_BUTTON_SIZE, {
+                round: 18,
+                color: color,
+            });
+
+            // Our own information on the button: the name of its color.
+            colorButton.colorName = colorName;
+
+            colorButton.on("click", selectColor);
+
+            return colorButton;
+
+        };
+
+        // Runs when a color button is clicked. clickedButton: the button itself (basic.js gives it).
+        const selectColor = function (clickedButton) {
+
+            // Show the color of the clicked button, its name and its code.
+            boxPicker.boxSelectedColor.color = clickedButton.color;
+            boxPicker.lblSelectedColorName.text = clickedButton.colorName;
+            boxPicker.lblSelectedColorCode.text = clickedButton.color;
+
+            // Move the ring behind the clicked button and show it.
+            boxPicker.boxSelectedButtonBack.left = clickedButton.left - RING_SPACE;
+            boxPicker.boxSelectedButtonBack.top = clickedButton.top - RING_SPACE;
+            boxPicker.boxSelectedButtonBack.visible = 1;
+
+            // The ring gets the color of the button.
+            boxPicker.boxSelectedButtonBack.borderColor = clickedButton.color;
+
+        };
+
+        // Runs when the size of the page changes: the card goes back to the middle.
+        const centerPicker = function () {
+            boxPicker.center();
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a fourth color button. Thanks to createColorButton(), it is only one line.
+        - Write the name of the selected color in its own color (lblSelectedColorName.textColor).
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

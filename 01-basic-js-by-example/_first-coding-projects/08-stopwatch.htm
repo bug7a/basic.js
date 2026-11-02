@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Stopwatch</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        STOPWATCH
+
+        ALGORITHM:
+        A stopwatch that measures how much time has passed.
+
+        WORKING LOGIC:
+        - The clock is made of pictures (one on top of the other): the empty face, the minute hand and the second hand.
+        - A click on the button starts the stopwatch (the button says "Stop"), the next click stops it.
+        - While it runs, loop() (every second) counts the seconds and the minutes,
+          then turns the hands and writes the time on the face.
+
+        */
+
+        // *** VARIABLES:
+
+        const CLOCK_SIZE = 200;     // px: the width and the height of the clock pictures
+        const NUMBERS_TOP = 135;    // px: the place of the numbers, from the top of the clock
+        const BUTTON_SPACE = 25;    // px: between the clock and the button
+
+        // The objects
+        let imgBackground;
+        let imgMinute;
+        let imgSecond;
+        let btnStart;
+        let lblCount;
+
+        // The time that has passed
+        let secondCount = 0;
+        let minuteCount = 0;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "indianred";
+
+            // ICON: The empty face of the clock. Parameters: left, top, width, height
+            imgBackground = Icon(0, 0, CLOCK_SIZE, CLOCK_SIZE);
+            imgBackground.load("images/clock-empty.png");
+            // In the middle of the page.
+            imgBackground.center();
+
+            // NOTE: center() puts an object in the middle of the box it is in (here: the page).
+            //       Only horizontally: center("left"). Only vertically: center("top").
+
+            // LABEL: The time as numbers, on the face of the clock.
+            lblCount = Label({
+                left: imgBackground.left,
+                top: imgBackground.top + NUMBERS_TOP,
+                width: imgBackground.width,
+                text: "00:00",
+                textAlign: "center",
+            });
+
+            // NOTE: The numbers are created before the hands, so the hands are drawn over them.
+            //       The last created object is on top.
+
+            // ICON: The minute hand, at the place and the size of the face.
+            imgMinute = Icon();
+            imgMinute.load("images/clock-minute.png");
+            copyPlaceAndSize(imgMinute, imgBackground);
+
+            // ICON: The second hand
+            imgSecond = Icon();
+            imgSecond.load("images/clock-second.png");
+            copyPlaceAndSize(imgSecond, imgBackground);
+
+            // BUTTON: Starts and stops the stopwatch.
+            btnStart = Button({
+                text: "Start",
+                color: "cadetblue",
+            });
+            // Under the clock, in the middle.
+            btnStart.top = imgBackground.top + imgBackground.height + BUTTON_SPACE;
+            btnStart.left = imgBackground.left + ((imgBackground.width - btnStart.width) / 2);
+            btnStart.on("click", startOrStop);
+
+        };
+
+        // basic.js runs loop() every second, by itself.
+        const loop = function () {
+
+            // Only while the stopwatch runs (the button says "Stop"):
+            if (btnStart.text == "Stop") {
+
+                // One more second.
+                secondCount++;
+
+                // 60 seconds make one minute:
+                if (secondCount == 60) {
+                    secondCount = 0;
+                    minuteCount++;
+                }
+
+                // Show the new time.
+                updateWatch();
+
+            }
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Gives newObject the place and the size of sampleObject.
+        const copyPlaceAndSize = function (newObject, sampleObject) {
+
+            newObject.width = sampleObject.width;
+            newObject.height = sampleObject.height;
+            newObject.top = sampleObject.top;
+            newObject.left = sampleObject.left;
+
+        };
+
+        // Runs when the button is clicked: starts or stops the stopwatch.
+        const startOrStop = function () {
+
+            // If the button says "Start": it becomes a red "Stop" button.
+            if (btnStart.text == "Start") {
+                btnStart.text = "Stop";
+                btnStart.color = "tomato";
+
+            // If the button says "Stop": it becomes a "Start" button again.
+            } else if (btnStart.text == "Stop") {
+                btnStart.text = "Start";
+                btnStart.color = "cadetblue";
+            }
+
+        };
+
+        // Turns the hands and writes the time as numbers.
+        const updateWatch = function () {
+
+            // One second (or one minute) is 6 degrees: 360 / 60
+            imgSecond.rotate = secondCount * 6;
+            imgMinute.rotate = minuteCount * 6;
+
+            lblCount.text = minuteCount + ":" + secondCount;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a reset button.
+        - The time is shown as 0:2, but it should be 00:02: the seconds and the minutes always with two digits.
+          if (x < 10), show "0" + x. (basic.twoDigitFormat(2) does it too: it gives "02".)
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

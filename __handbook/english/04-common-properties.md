@@ -51,6 +51,8 @@ Many objects support the `width: "auto"` parameter. Furthermore, it supports per
 - Standard Box (`Box`) — Starts from `100x100` value.
 - Standard Button (`Button`) — Starts from `130x50` value.
 
+**Reading a size is a measurement.** When `width` / `height` is a string (`"100%"`, `"auto"`, `"calc(...)"`), or `left` / `top` of an object in a group, reading it asks the browser to lay out the page first. In a loop, do not mix writing and reading (write, `center()`, write again...): read all the values first, then write. Numbers that you gave yourself cost nothing to read.
+
 ---
 
 ## Visuals and Style
@@ -62,7 +64,45 @@ Many objects support the `width: "auto"` parameter. Furthermore, it supports per
 - `border` (Integer) — The border thickness defining the inner area boundaries (if `0` it's hidden, if `1` it's a thin black line). It does not overflow the object outward. It draws inwardly.
 - `borderColor` (String) — Determines the color of the line if a border is assigned.
 - `fontSize` / `textColor` / `textAlign` — If the object contains text, its style is modified. The standard font size is `20` px. Alignment (textAlign) can be `"center"`, `"right"`, etc.
-- `rotate` (Integer) — Rotates the object using the CSS rotate property (Takes value in degrees: `90`, `360`, etc.).
+- `rotate` (Integer) — Rotates the object (in degrees: `90`, `360`, etc.). It changes only the `rotate()` part of the CSS `transform`: a `translateY()` or `scale()` there stays. Animate it with `setMotion("transform 0.3s")`.
+
+---
+
+## Text: `text` and `plainText`
+
+- `text` is HTML: `Label({ text: "<b>Total</b>: 12" })`. Use it for your own texts.
+- `plainText` is never read as HTML. **Use it for every text that comes from a user or a server** (a name, a message, a file name): `lblName.plainText = user.name;`. A text like `<img onerror=...>` given to `text` would run as code.
+
+### An icon that follows the text color
+
+Write `stroke="currentColor"` (or `fill="currentColor"`) in an SVG inside a Label: the icon takes the `textColor` of the Label. Then a hover changes only `textColor`, the SVG is not written again:
+
+```javascript
+const btnClose = Label({
+    text: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    textColor: "#999",
+    lineHeight: "0",
+    cursor: "pointer",
+});
+btnClose.onHoverChange(function (self, isOver) {
+    self.textColor = (isOver) ? "tomato" : "#999";
+});
+```
+
+---
+
+## Accessibility: `role`, `aria`, `tabIndex` (v26.10.23)
+
+A Label or a Box is a `<div>`: a screen reader does not know that it is a button or a tab. Tell it with these properties (they go to the element that takes the focus, the `<input>` of an Input):
+
+- `role` (String) — `"button"`, `"tab"`, `"tree"`, `"dialog"`... `""` removes it.
+- `aria` (Object) — `{ label: "Close", selected: true, level: 2 }` writes `aria-label`, `aria-selected`, `aria-level`. Only the given keys change. `true` / `false` become `"true"` / `"false"`; `null` removes the attribute. The keys are the ARIA names without `aria-` (`labelledby`, `activedescendant` are one word, as in ARIA).
+- `tabIndex` (Number) — `0`: the Tab key reaches the object; `-1`: only `elem.focus()` of the code; `null`: the default.
+
+```javascript
+const btnSave = Label({ text: "Save", role: "button", tabIndex: 0, aria: { label: "Save the form" } });
+btnSave.aria = { disabled: true }; // aria-label stays
+```
 
 ---
 
@@ -106,6 +146,8 @@ lblName.onResize(function(resizedLabel) {
 - `object.getMotion()` — Shows the assigned String-based motion command value.
 - `object.withMotion(function)` — It is a smart function that sends the motion process to a very short delay (assigning a timestamp) so that the initial values do not jump.
 - `object.dontMotion()` — The pause command that allows an object assigned a rule (if setMotion is applied) to skip the animation during an instant change.
+- **A change in the same moment as `setMotion()` does not animate** (by design: the first values of a new object must not fly in). Change the value later (a click, a timer), or use `setMotionNow()` when it must animate at once.
+- **Many moving objects with a shadow:** the shadows are painted again on every frame (300 cards: ~110 ms per frame, with `left` and with `translate`). Give them `css: { willChange: "transform" }`: each one gets its own layer and they move at 60 fps. Without shadows, `left` is fast enough.
 
 ---
 

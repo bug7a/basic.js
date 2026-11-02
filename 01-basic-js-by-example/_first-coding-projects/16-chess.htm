@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Chess</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CHESS
+
+        ALGORITHM:
+        A chess board with its pieces. A click selects a piece; a click on another square moves it there.
+
+        WORKING LOGIC:
+        - The board is 8 x 8 Boxes, and the pieces are Icons (picture objects) on them.
+        - Over every square there is a yellow Box that can not be seen (opacity 0). It catches the clicks,
+          and it lights up the square of the selected piece.
+        - Three objects keep what is where, found by a key: pieces (the Icon of every piece),
+          pieceOnSquare (which piece is on which square) and squareLights (the light of every square).
+        - A piece of the other color on the clicked square is taken: it is hidden, and the selected piece goes there.
+        - The rules of chess are not checked: a piece can go to any square.
+
+        */
+
+        // *** VARIABLES:
+
+        const SQUARE_SIZE = 60;     // px: a square of the board
+        const PIECE_SPACE = 6;      // px: the empty space around the picture of a piece
+
+        // The Icon of every piece, found by the key of the piece.
+        // Ex: pieces["rook1-black"] or pieces["bishop2-white"]
+        const pieces = {};
+
+        // Which piece is on which square, found by the key of the square.
+        // Ex: pieceOnSquare["1-1"] is "rook1-black". An empty square: "" (or nothing)
+        const pieceOnSquare = {};
+
+        // NOTE: The top left square is "1-1" (x-y); on a chess board its name is a8.
+        // To the right the first number grows: 2-1, 3-1, 4-1...
+        // Down the second number grows: 1-2, 1-3, 1-4...
+
+        // The light of every square (used to light up the selected square), found by the key of the square.
+        const squareLights = {};
+
+        // When a piece is selected for a move, the keys of the piece and of its square are kept here. ("": none)
+        let selectedPieceKey = "";
+        let selectedSquareKey = "";
+
+        // The names of the columns and of the rows of a chess board
+        const columnNames = ["a", "b", "c", "d", "e", "f", "g", "h"];
+        const rowNames = ["8", "7", "6", "5", "4", "3", "2", "1"];
+
+        // The pieces at the start of the game: the key, the place (x, y), the type and the color.
+        // NOTE: The type and the color make the name of the picture: "images/chess/rook-black.png"
+        const pieceList = [
+
+            // The black pieces
+            { key: "rook1-black", x: 1, y: 1, type: "rook", color: "black" },
+            { key: "knight1-black", x: 2, y: 1, type: "knight", color: "black" },
+            { key: "bishop1-black", x: 3, y: 1, type: "bishop", color: "black" },
+            { key: "queen-black", x: 4, y: 1, type: "queen", color: "black" },
+            { key: "king-black", x: 5, y: 1, type: "king", color: "black" },
+            { key: "bishop2-black", x: 6, y: 1, type: "bishop", color: "black" },
+            { key: "knight2-black", x: 7, y: 1, type: "knight", color: "black" },
+            { key: "rook2-black", x: 8, y: 1, type: "rook", color: "black" },
+            { key: "pawn1-black", x: 1, y: 2, type: "pawn", color: "black" },
+            { key: "pawn2-black", x: 2, y: 2, type: "pawn", color: "black" },
+            { key: "pawn3-black", x: 3, y: 2, type: "pawn", color: "black" },
+            { key: "pawn4-black", x: 4, y: 2, type: "pawn", color: "black" },
+            { key: "pawn5-black", x: 5, y: 2, type: "pawn", color: "black" },
+            { key: "pawn6-black", x: 6, y: 2, type: "pawn", color: "black" },
+            { key: "pawn7-black", x: 7, y: 2, type: "pawn", color: "black" },
+            { key: "pawn8-black", x: 8, y: 2, type: "pawn", color: "black" },
+
+            // The white pieces
+            { key: "rook1-white", x: 1, y: 8, type: "rook", color: "white" },
+            { key: "knight1-white", x: 2, y: 8, type: "knight", color: "white" },
+            { key: "bishop1-white", x: 3, y: 8, type: "bishop", color: "white" },
+            { key: "queen-white", x: 4, y: 8, type: "queen", color: "white" },
+            { key: "king-white", x: 5, y: 8, type: "king", color: "white" },
+            { key: "bishop2-white", x: 6, y: 8, type: "bishop", color: "white" },
+            { key: "knight2-white", x: 7, y: 8, type: "knight", color: "white" },
+            { key: "rook2-white", x: 8, y: 8, type: "rook", color: "white" },
+            { key: "pawn1-white", x: 1, y: 7, type: "pawn", color: "white" },
+            { key: "pawn2-white", x: 2, y: 7, type: "pawn", color: "white" },
+            { key: "pawn3-white", x: 3, y: 7, type: "pawn", color: "white" },
+            { key: "pawn4-white", x: 4, y: 7, type: "pawn", color: "white" },
+            { key: "pawn5-white", x: 5, y: 7, type: "pawn", color: "white" },
+            { key: "pawn6-white", x: 6, y: 7, type: "pawn", color: "white" },
+            { key: "pawn7-white", x: 7, y: 7, type: "pawn", color: "white" },
+            { key: "pawn8-white", x: 8, y: 7, type: "pawn", color: "white" },
+
+        ];
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // The color of the first square (a8)
+            let squareColor = "white";
+
+            // THE BOARD: 8 x 8 squares. row: from top to bottom, column: from left to right (1 to 8).
+            for (let row = 1; row <= 8; row++) {
+                for (let column = 1; column <= 8; column++) {
+
+                    // BOX: A square. Its place comes from its column and its row.
+                    Box({
+                        left: column * SQUARE_SIZE,
+                        top: row * SQUARE_SIZE,
+                        width: SQUARE_SIZE,
+                        height: SQUARE_SIZE,
+                        border: 1,
+                        borderColor: "rgba(0, 0, 0, 0.25)",
+                        color: squareColor,
+                    });
+
+                    // The color changes at every square (white, colored, white...),
+                    // but not at the end of a row: so the next row starts with the color that the row ended with.
+                    if (column < 8) {
+                        if (squareColor == "white") {
+                            squareColor = "cadetblue";
+                        } else {
+                            squareColor = "white";
+                        }
+                    }
+
+                    // NOTE: The squares are not kept in variables, because they are not used again.
+
+                }
+            }
+
+            // THE NAMES OF THE COLUMNS AND OF THE ROWS (a1 - h8)
+            for (let i = 0; i < 8; i++) {
+
+                // LABEL: a, b, c... under the board
+                Label({
+                    text: columnNames[i],
+                    left: SQUARE_SIZE + (i * SQUARE_SIZE) + 20,
+                    top: SQUARE_SIZE + (8 * SQUARE_SIZE) + 10,
+                });
+
+                // LABEL: 8, 7, 6... at the left of the board
+                Label({
+                    text: rowNames[i],
+                    left: 35,
+                    top: SQUARE_SIZE + (i * SQUARE_SIZE) + 15,
+                });
+
+            }
+
+            // THE PIECES: every piece at its place at the start of the game
+            for (let i = 0; i < pieceList.length; i++) {
+
+                const pieceInfo = pieceList[i];
+
+                // ICON: A piece
+                const piece = Icon({
+                    width: SQUARE_SIZE,
+                    height: SQUARE_SIZE,
+                    padding: PIECE_SPACE,
+                    top: SQUARE_SIZE * pieceInfo.y,
+                    left: SQUARE_SIZE * pieceInfo.x,
+                });
+                // The picture: "images/chess/" + "rook" + "-" + "black" + ".png"
+                piece.load("images/chess/" + pieceInfo.type + "-" + pieceInfo.color + ".png");
+
+                // Our own information on the piece: its key, its place, its type and its color.
+                piece.info = pieceInfo;
+
+                // A change of the place of the piece is a CSS motion (it slides in 0.5 seconds).
+                piece.setMotion("left 0.5s, top 0.5s");
+
+                // Keep the piece with its key, to find it later.
+                pieces[pieceInfo.key] = piece;
+
+                // Keep which piece is on which square.
+                const squareKey = pieceInfo.x + "-" + pieceInfo.y;
+                pieceOnSquare[squareKey] = pieceInfo.key;
+
+            }
+
+            // THE LIGHTS: a yellow Box over every square. It lights up a selected square, and it catches the clicks.
+            // NOTE: They are created after the pieces, so they are over the pieces. (An object created later is over the others.)
+            for (let x = 1; x <= 8; x++) {
+                for (let y = 1; y <= 8; y++) {
+
+                    // BOX: A light. It can not be seen (opacity 0) until its square is selected.
+                    const light = Box({
+                        width: SQUARE_SIZE,
+                        height: SQUARE_SIZE,
+                        left: x * SQUARE_SIZE,
+                        top: y * SQUARE_SIZE,
+                        color: "yellow",
+                        opacity: 0,
+                    });
+
+                    // Our own information on the light: the key of its square
+                    light.squareKey = x + "-" + y;
+
+                    // When it is clicked, selectSquare runs.
+                    light.on("click", selectSquare);
+
+                    // Keep the light with the key of its square, to use it later.
+                    squareLights[light.squareKey] = light;
+
+                }
+            }
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs when a square is clicked. clickedSquare: the light of the clicked square (basic.js gives it).
+        const selectSquare = function (clickedSquare) {
+
+            // THE CASES AND THE RULES OF THE ALGORITHM:
+
+                // If there is a piece on the clicked square
+                    // If no piece was selected before
+                        // Select the clicked piece.
+                    // If a piece was selected before
+                        // If it has the same color as the selected piece
+                            // Select the newly clicked piece.
+                        // If its color is different
+                            // Remove the piece and make the move.
+                // If there is no piece on the clicked square
+                    // If a piece was selected before
+                        // Make the move.
+                    // If no piece was selected
+                        // Do nothing.
+
+            const squareKey = clickedSquare.squareKey;
+
+            // If there is a piece on the clicked square
+            if (pieceOnSquare[squareKey]) {
+
+                // If a piece was selected before
+                if (selectedSquareKey) {
+
+                    const oldPieceColor = pieces[pieceOnSquare[selectedSquareKey]].info.color;
+                    const newPieceColor = pieces[pieceOnSquare[squareKey]].info.color;
+
+                    // If it has the same color as the selected piece
+                    if (oldPieceColor == newPieceColor) {
+
+                        // Select the newly clicked piece. (The light of the old one goes off.)
+                        squareLights[selectedSquareKey].opacity = 0;
+                        selectPiece(clickedSquare);
+
+                    // If its color is different
+                    } else {
+
+                        // Remove the piece (hide it), and make the move.
+                        pieces[pieceOnSquare[squareKey]].visible = 0;
+                        pieceOnSquare[squareKey] = "";
+
+                        makeMove(clickedSquare);
+
+                    }
+
+                // If no piece was selected before
+                } else {
+
+                    // Select the clicked piece.
+                    selectPiece(clickedSquare);
+
+                }
+
+            // If there is no piece on the clicked square
+            } else {
+
+                // If a piece was selected before
+                if (selectedSquareKey) {
+
+                    // Make the move.
+                    makeMove(clickedSquare);
+
+                }
+
+                // If no piece was selected: do nothing.
+
+            }
+
+        };
+
+        // Selects the piece on the clicked square.
+        const selectPiece = function (clickedSquare) {
+
+            const squareKey = clickedSquare.squareKey;
+
+            // Light up the square, and keep the keys of the square and of its piece.
+            clickedSquare.opacity = 0.4;
+            selectedSquareKey = squareKey;
+            selectedPieceKey = pieceOnSquare[squareKey];
+
+        };
+
+        // Moves the selected piece to the clicked square.
+        const makeMove = function (clickedSquare) {
+
+            const emptySquareKey = clickedSquare.squareKey;
+
+            // The light of the old square goes off.
+            squareLights[selectedSquareKey].opacity = 0;
+
+            // The piece goes to the place of the clicked square (with its motion).
+            pieces[selectedPieceKey].top = clickedSquare.top;
+            pieces[selectedPieceKey].left = clickedSquare.left;
+
+            // Now the piece is on the new square, and its old square is empty.
+            pieceOnSquare[emptySquareKey] = pieceOnSquare[selectedSquareKey];
+            pieceOnSquare[selectedSquareKey] = "";
+
+            // Nothing is selected now.
+            selectedPieceKey = "";
+            selectedSquareKey = "";
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - A button that takes back the last move can be added.
+        - When a piece is selected, a second click on the same piece should clear the selection.
+        - A selected piece should only move to the squares it can go to.
+          These squares can be shown by lighting them up. (This is a difficult one.)
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

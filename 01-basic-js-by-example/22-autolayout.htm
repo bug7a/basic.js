@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Many Boxes in a Row</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        AUTOLAYOUT: MANY BOXES IN A ROW
+
+        A for loop creates 10 boxes inside an HGroup. The group puts them side by side, with a gap
+        between them: no left or top is written for any box.
+        Click a box: the boxes up to it are filled, like a progress or a rating.
+
+        - HGroup({ gap }) ... endGroup()      -> a row: the objects created between the two lines go into it.
+        - hug: 1                              -> the group is as big as its content (here: the 10 boxes).
+        - for (let i = 0; i < BOX_COUNT; i++) -> runs its code BOX_COUNT times; i is 0, 1, 2 ... 9.
+        - group.children                      -> the objects inside a group, in their order.
+
+        TRY: change BOX_COUNT, BOX_SIZE or GAP; or write VGroup instead of HGroup for the row.
+
+        */
+
+        // *** VARIABLES:
+
+        const BOX_COUNT = 10;
+        const BOX_SIZE = 24;
+        const GAP = 4;
+
+        const COLOR_FILLED = "orangered";
+        const COLOR_EMPTY = "lightgray";
+
+        let filledCount = 7;
+        let grpBoxes, lblCount;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // GROUP: A column in the middle of the page: the boxes, and the count under them
+            VGroup({ gap: 16 });
+
+                // GROUP: The row of boxes
+                grpBoxes = HGroup({ hug: 1, gap: GAP });
+
+                    for (let i = 0; i < BOX_COUNT; i++) {
+                        createStepBox(i);
+                    }
+
+                endGroup();
+
+                // LABEL: How many boxes are filled
+                lblCount = Label({
+                    text: "",
+                    fontSize: 16,
+                    textColor: Black(0.6),
+                });
+
+            endGroup();
+
+            paintBoxes();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // index: 0 for the first box, 1 for the second...
+        const createStepBox = function (index) {
+
+            // BOX: No position: the group places it after the box before it.
+            const box = Box({
+                width: BOX_SIZE,
+                height: BOX_SIZE,
+                round: 4,
+                cursor: "pointer",
+            });
+
+            box.on("click", function () {
+                filledCount = index + 1;
+                paintBoxes();
+            });
+
+        };
+
+        // The boxes before filledCount are filled, the others are empty.
+        const paintBoxes = function () {
+
+            grpBoxes.children.forEach(function (box, index) {
+                box.color = (index < filledCount) ? COLOR_FILLED : COLOR_EMPTY;
+            });
+
+            lblCount.text = filledCount + " / " + BOX_COUNT;
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

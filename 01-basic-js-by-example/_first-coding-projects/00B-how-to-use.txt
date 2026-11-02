@@ -1,0 +1,68 @@
+
+HOW TO USE THIS?
+
+Here are some things you need to know to benefit from these project files.
+
+
+1. DEVELOPMENT ENVIRONMENT:
+
+As a code editor, I recommend Visual Studio Code.
+https://code.visualstudio.com/
+
+Video for installation and use:
+https://www.youtube.com/watch?v=vSt5EFDkhpI
+
+
+2. WHAT THE FILES DO:
+
+- Each numbered HTM file is a software project developed with JavaScript.
+- The projects are numbered from easy to harder.
+- Each project runs in any browser: open its HTM file.
+- Every project starts with a comment that explains it (ALGORITHM, WORKING LOGIC), and ends with
+  DEVELOPMENT SUGGESTIONS: ideas that you can add to it yourself.
+- The projects use the basic.js library. It is in the "basic" folder two folders up from this folder:
+  every project loads it with the path "../../basic/".
+- The "images" folder contains the images of the projects. The "files" folder contains the extra code
+  file of project 37.
+
+
+3. A NEW PROJECT:
+
+- Copy the "00C-empty-project-template.htm" file in this folder and rename the copy (project-name.htm etc.).
+  Keep the copy in this folder: its first lines load the library from "../../basic/".
+- To make a project in another folder: copy the "basic" folder (two folders up) next to your HTM file,
+  then change "../../basic/" to "basic/" in the first lines of the page.
+- Open the folder in the development environment and write your code into start().
+(The narration videos show these stages with an older version, where the "basic" folder was next to the projects.)
+
+
+4. FIRST EXAMPLE PROJECT:
+
+The first example is the project "01-hello-world.htm".
+
+Development video:
+https://youtu.be/zPOKz3w1YmY
+
+
+5. THE VIDEOS:
+
+The narration videos (in Turkish) were made with an older basic.js. Some names have changed since then.
+Ex: createButton() is now Button(), and btn.onClick(fn) is now btn.on("click", fn). They do the same.
+Under the video line of each project, the names that changed on that page are listed.
+
+
+6. DESIGN ENVIRONMENT:
+
+As an interface design tool, I recommend Figma.
+https://www.figma.com/
+
+
+RECOMMENDED WORKING METHOD:
+
+- While watching the narration video of a project, take notes in your notebook, and think about the working logic of the algorithm.
+- Using these notes, write the project again. Then try to improve it with new features that come to your mind.
+- Also note how the codes are used, so that you can use them in your own projects.
+
+
+I wish you to see its benefits.
+

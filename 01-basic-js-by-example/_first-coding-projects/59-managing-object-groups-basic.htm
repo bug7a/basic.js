@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Managing Object Groups (Basic)</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MANAGING OBJECT GROUPS (BASIC)
+
+        ALGORITHM:
+        Eight numbered boxes, one under the other. A click on a box removes it,
+        and the boxes under it move up to fill the gap.
+
+        WORKING LOGIC:
+        - The boxes are created with a loop, inside a VGroup. A VGroup puts its objects one under
+          the other by itself: no top is written for any box.
+        - A box is a small group too: it puts its number in its middle.
+        - Every box is also added to an array variable (boxes), so we can reach the boxes later.
+        - A click on a box takes it out of the array. Then the box shrinks: its height goes down to 0
+          softly (setMotion()). While it shrinks, the group moves the boxes under it up, step by step,
+          so the gap closes softly.
+        - When the motion ends, after() removes the object of the box from the page.
+
+        A fuller version of this lesson: 60-managing-object-groups.htm
+
+        */
+
+        // *** VARIABLES:
+
+        const BOX_COUNT = 8;
+        const BOX_SIZE = 80;                // px
+        const SPACE_BETWEEN_BOXES = 2;      // px
+        const SHRINK_TIME = 300;            // ms: how long a clicked box shrinks
+
+        // The box objects, from the top one to the bottom one
+        let boxes = [];
+
+        // *** START:
+
+        const start = function () {
+
+            // GROUP: The column of the boxes, at the top left of the page.
+            // height: "auto": the group is as high as its boxes.
+            VGroup({
+                width: BOX_SIZE,
+                height: "auto",
+                align: "left top",
+                gap: SPACE_BETWEEN_BOXES,   // the space between two boxes
+            });
+
+                // Create 8 boxes. The group puts every new box under the one before it.
+                for (let i = 0; i < BOX_COUNT; i++) {
+                    createNumberBox(i + 1);
+                }
+
+            endGroup();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates a box with a number, at the end of the column.
+        const createNumberBox = function (number) {
+
+            // GROUP: A box (a piece). It puts its label in its middle.
+            const box = HGroup({
+                width: BOX_SIZE,
+                height: BOX_SIZE,
+                color: "orangered",
+                round: 4,
+            });
+
+                // LABEL: The number in the box. It has no size: it is as big as its text.
+                box.lblNumber = Label({
+                    text: basic.str(number),
+                    textColor: "rgba(255, 255, 255, 0.9)",
+                    bold: 1,
+                });
+
+            endGroup();
+
+            box.on("click", removeBox);
+            // A change of its height (and its opacity) is made softly, in SHRINK_TIME.
+            box.setMotion("height " + SHRINK_TIME + "ms, opacity " + SHRINK_TIME + "ms");
+            // Give the boxes random heights:
+            // box.height = random(50, 100);
+
+            // Add the box object to the array.
+            boxes.push(box);
+
+        };
+
+        // Removes the clicked box softly. clickedBox: the box itself (basic.js gives it).
+        const removeBox = function (clickedBox) {
+
+            const newBoxes = [];
+
+            for (let i = 0; i < boxes.length; i++) {
+
+                // The boxes that were not clicked are added to a new array.
+                if (boxes[i] != clickedBox) {
+                    newBoxes.push(boxes[i]);
+                }
+
+            }
+
+            // The array of the boxes is changed with the new one.
+            boxes = newBoxes;
+
+            // The box can not be clicked again while it shrinks.
+            clickedBox.clickable = 0;
+
+            // The box shrinks and fades (with its motion). The group moves the boxes under it up at the same time.
+            clickedBox.height = 0;
+            clickedBox.opacity = 0;
+
+            // When the motion ends, remove the object of the box. (Its label goes with it.)
+            clickedBox.after(SHRINK_TIME, function () {
+                clickedBox.remove();
+            });
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Give the boxes random heights (the line with random() in createNumberBox()).
+          The group still puts them one under the other.
+        - Use the array: a button that paints every box of the array (boxes) in another color.
+        - Add a button that adds a new box under the others (see 60-managing-object-groups.htm).
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

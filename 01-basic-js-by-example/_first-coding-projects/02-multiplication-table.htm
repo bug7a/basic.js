@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Multiplication Table</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MULTIPLICATION TABLE
+
+        ALGORITHM:
+        A text box asks for a number. When the Button is clicked,
+        the products of that number from 1 to 10 are listed.
+
+        WORKING LOGIC:
+        - A text box (Input), a Button and a Label are created at their places on the page.
+        - When the Button is clicked, the function createTable() runs.
+        - createTable() repeats the same work 10 times (a for loop):
+          each time it adds one line to the Label. Ex: "3 x 8 = 24"
+
+        VIDEO: the project step by step (in Turkish): https://www.youtube.com/watch?v=euFpefGUNYs
+        The video uses an older basic.js. Old -> new names: createTextBox() -> Input(), createButton() -> Button(),
+        createLabel() -> Label(), btnCreate.onClick(fn) -> btnCreate.on("click", fn), num() -> basic.num().
+        They do the same.
+
+        */
+
+        // *** VARIABLES:
+
+        const SPACE = 10;           // px: between the text box and the button
+        const TABLE_SPACE = 30;     // px: between the text box and the table
+
+        let txtNumber;      // the text box for the number
+        let btnCreate;      // the button that creates the table
+        let lblTable;       // the label that lists the table
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // TEXTBOX: The number. "title" is the small text over the box.
+            txtNumber = Input({
+                left: 50,
+                top: 50,
+                width: 130,
+                text: "8",
+                title: "Enter a number:",
+            });
+
+            // BUTTON: Under the text box. Its place is calculated from the text box.
+            btnCreate = Button({
+                left: txtNumber.left,
+                top: txtNumber.top + txtNumber.height + SPACE,
+                text: "Create",
+            });
+
+            // Every time the button is clicked, the function createTable runs.
+            btnCreate.on("click", createTable);
+
+            // LABEL: The table. At the right of the text box, at the same top. Empty at first.
+            lblTable = Label({
+                left: txtNumber.left + txtNumber.width + TABLE_SPACE,
+                top: txtNumber.top,
+                text: "",
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Writes the multiplication table of the number into lblTable.
+        const createTable = function () {
+
+            // Clear the old table.
+            lblTable.text = "";
+
+            // Repeat 10 times: i is 1, then 2, 3 ... 10.
+            for (let i = 1; i <= 10; i++) {
+
+                // The operation as a text. Ex: "1 x 8 = "
+                const operation = i + " x " + txtNumber.text + " = ";
+
+                // The result of the multiplication.
+                // NOTE: A text box always gives a text. basic.num() turns it into a number: basic.num("8") -> 8
+                const result = basic.num(txtNumber.text) * i;
+
+                // Add the line to the end of the label.
+                lblTable.text = lblTable.text + operation + result + "<br>";
+
+                // NOTE: <br> is a word of HTML (HyperText Markup Language): it starts a new line.
+
+            }
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTION:
+
+        - Add a second table at the right of lblTable, for the next number.
+          (Ex: when the number is 8, the second table is the table of 9.)
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

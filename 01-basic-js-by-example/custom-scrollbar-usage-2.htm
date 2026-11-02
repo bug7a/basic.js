@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Scrolling Lists</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, then scroll-bar.js, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../basic/scroll-bar.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SCROLLING LISTS
+
+        Two lists, made by the same function. Each list is a box that scrolls, with its own ScrollBar.
+
+        - createList(title, texts)            -> a function of this page: a title and a list with a row for
+                                                 every text. Call it again for one more list.
+        - In a Box, every object stands at its own left and top (see custom-scrollbar-usage-1.htm).
+          In a group (HGroup, VGroup), the group puts its objects one after the other: no left and top.
+        - VGroup({ height: "auto" })          -> the group is as high as its rows. In a box with scrollY: 1,
+                                                 a group taller than the box scrolls.
+        - ScrollBar({ scrollableBox: box })   -> the bar of one box. A longer list gets a shorter bar.
+
+        TRY: add a few names to FRUITS, or call createList() once more with a list of your own.
+
+        */
+
+        // *** VARIABLES:
+
+        const FRUITS = ["Apple", "Banana", "Cherry", "Grape", "Lemon", "Mango", "Orange", "Peach"];
+        const VEGETABLES = ["Bean", "Broccoli", "Cabbage", "Carrot", "Corn", "Leek", "Lettuce",
+            "Onion", "Pea", "Pepper", "Potato", "Spinach", "Tomato"];
+
+        const LIST_WIDTH = 200;
+        const LIST_HEIGHT = 280;
+        const ROW_HEIGHT = 50;
+
+        // A thin line at the top and at the bottom of the row under the mouse.
+        // WHY: inset: the lines are drawn inside the row, so the row keeps its size and its text does not move.
+        const HOVER_LINES = "inset 0 1px 0 " + Black(0.2) + ", inset 0 -1px 0 " + Black(0.2);
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // GROUP: Fills the page and puts the lists in its middle, side by side.
+            // (wrap: 1 -> on a narrow screen, the second list goes under the first one.)
+            HGroup({ align: "center", gap: 32, wrap: 1 });
+
+                createList("Fruits", FRUITS);
+                createList("Vegetables", VEGETABLES);
+
+            endGroup();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // A title, a box that scrolls with a row for every text, and the scroll bar of the box.
+        const createList = function (title, texts) {
+
+            // GROUP: The title over the list
+            VGroup({ hug: 1, gap: 8, align: "left top" });
+
+                // LABEL: The title
+                Label({ text: title, fontSize: 16, bold: 1 });
+
+                // BOX: The list. scrollY: 1 -> it scrolls when its rows are taller than the box.
+                const listBox = startBox({
+                    width: LIST_WIDTH,
+                    height: LIST_HEIGHT,
+                    color: "whitesmoke",
+                    border: 1,
+                    borderColor: Black(0.2),
+                    round: 4,
+                    scrollY: 1,
+                    // WHY: Firefox does not read the ::-webkit-scrollbar rule of basic.css and draws its
+                    //      own bar next to ours. scrollbarWidth: "none" hides it there.
+                    css: { scrollbarWidth: "none" },
+                });
+
+                    // GROUP: The rows, one under the other
+                    VGroup({ width: "100%", height: "auto", gap: 4, padding: [0, 8], align: "left top" });
+
+                        texts.forEach(createRow);
+
+                    endGroup();
+
+                endBox();
+
+                // SCROLL BAR: Created after the box. It goes over the box, in this group.
+                ScrollBar({ scrollableBox: listBox, neverHide: 0 });
+
+            endGroup();
+
+        };
+
+        // One row: a flat button. The group places it, so it needs no left and top.
+        const createRow = function (text) {
+
+            // BUTTON:
+            const row = Button({
+                text: text,
+                width: "100%",
+                height: ROW_HEIGHT,
+                minimal: 1,
+                color: "transparent",
+                round: 0,
+            });
+            row.onHoverChange(paintRow);
+
+        };
+
+        // The row under the mouse is white, with a line at its top and bottom.
+        const paintRow = function (row, isOver) {
+            row.color = isOver ? "white" : "transparent";
+            row.boxShadow = isOver ? HOVER_LINES : "none";
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

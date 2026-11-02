@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Basic Calculator</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        BASIC CALCULATOR
+
+        ALGORITHM:
+        - Two text boxes ask for two numbers.
+        - Four Buttons do the math operations.
+        - The result of the operation is shown in another text box.
+
+        WORKING LOGIC:
+        - Each button runs its own function: doAddition(), doSubtraction(), doMultiplication() or doDivision().
+        - The function turns the texts of the two boxes into numbers, does its operation
+          and writes the result into the result box (txtResult).
+
+        VIDEO: the project step by step (in Turkish): https://youtu.be/fAMWzewpE1Q
+        The video uses an older basic.js. Old -> new names: createTextBox() -> Input(), createButton() -> Button(),
+        btnSum.onClick(fn) -> btnSum.on("click", fn), num() -> basic.num(), str() -> basic.str(). They do the same.
+
+        */
+
+        // *** VARIABLES:
+
+        const SPACE = 10;           // px: between the buttons
+        const TITLE_SPACE = 40;     // px: over a text box, there is room for its title
+
+        // The text boxes: the two numbers and the result.
+        let txtNumber1;
+        let txtNumber2;
+        let txtResult;
+
+        // The buttons of the operations.
+        let btnSum;
+        let btnMinus;
+        let btnMultiply;
+        let btnDivide;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // TEXTBOX: The first number.
+            txtNumber1 = Input({
+                left: 20,
+                top: 50,
+                text: "0",              // "0" is in quotes: the text of a text box is a text.
+                title: "Number 1:",     // the small text over the box
+            });
+
+            // TEXTBOX: The second number, under the first one.
+            txtNumber2 = Input({
+                left: txtNumber1.left,
+                top: txtNumber1.top + txtNumber1.height + TITLE_SPACE,
+                text: "0",
+                title: "Number 2:",
+            });
+
+            // BUTTON: Addition, under the second text box.
+            btnSum = Button({
+                left: txtNumber1.left,
+                top: txtNumber2.top + txtNumber2.height + SPACE,
+                text: "Sum",
+            });
+            btnSum.on("click", doAddition);
+
+            // BUTTON: Subtraction, at the right of btnSum. Its color is tomato red.
+            btnMinus = Button({
+                left: btnSum.left + btnSum.width + SPACE,
+                top: btnSum.top,
+                text: "Minus",
+                color: "tomato",
+            });
+            btnMinus.on("click", doSubtraction);
+
+            // BUTTON: Multiplication, under btnSum.
+            btnMultiply = Button({
+                left: txtNumber1.left,
+                top: btnSum.top + btnSum.height + SPACE,
+                text: "Multiply",
+                color: "lightgray",
+            });
+            btnMultiply.on("click", doMultiplication);
+
+            // BUTTON: Division. The same left as btnMinus, the same top as btnMultiply.
+            btnDivide = Button({
+                left: btnMinus.left,
+                top: btnMultiply.top,
+                text: "Divide",
+                color: "lightgray",
+            });
+            btnDivide.on("click", doDivision);
+
+            // TEXTBOX: The result, under the buttons.
+            txtResult = Input({
+                left: txtNumber1.left,
+                top: btnMultiply.top + btnMultiply.height + TITLE_SPACE,
+                title: "Result:",
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Addition: writes the sum of the two numbers into the result box.
+        const doAddition = function () {
+
+            txtResult.text = basic.num(txtNumber1.text) + basic.num(txtNumber2.text);
+
+            // NOTE: The text of a text box is always a text (a string), even when it looks like a number:
+            //       "2" + "1" gives "21". So basic.num() turns each text into a number first: 2 + 1 gives 3.
+
+            // EXAMPLES:
+            // basic.num("5") gives 5
+            // basic.num("5.5") gives 5.5
+            // basic.num("5.5", "integer") gives 5 (a whole number)
+            // basic.str(5) gives "5" (the opposite: a number into a text)
+
+        };
+
+        // Subtraction
+        const doSubtraction = function () {
+            txtResult.text = basic.num(txtNumber1.text) - basic.num(txtNumber2.text);
+        };
+
+        // Multiplication
+        const doMultiplication = function () {
+            txtResult.text = basic.num(txtNumber1.text) * basic.num(txtNumber2.text);
+        };
+
+        // Division
+        const doDivision = function () {
+
+            txtResult.text = basic.num(txtNumber1.text) / basic.num(txtNumber2.text);
+
+            // NOTE: From a decimal number to a whole number:
+            // 3 / 2 gives a decimal number: 1.5
+            // basic.num(1.5, "integer") gives a whole number: 1
+            // txtResult.text = basic.num(basic.num(txtNumber1.text) / basic.num(txtNumber2.text), "integer");
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Change the title (.title) of the result box at each click:
+          "Result of the addition:", "Result of the subtraction:"...
+        - Show the whole operation as the result: 2 + 1 = 3
+        - Add a "Continue" button: it writes the result into the first text box
+          and clears the second one.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

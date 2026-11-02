@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Roll the Dice</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        ROLL THE DICE
+
+        ALGORITHM:
+        When the button is clicked, the two dice show two random numbers.
+
+        WORKING LOGIC:
+        - A die is an Icon (an image object).
+        - There is a picture for each number: images/dice1.png ... images/dice6.png.
+        - A click picks two random numbers and loads the pictures of those numbers into the dice.
+          The dice also turn a little, like real dice on a table.
+
+        VIDEO: the project step by step (in Turkish): https://www.youtube.com/watch?v=Ouu2_WYqD9E
+        The video uses an older basic.js. Old -> new names: createImage() -> Icon(),
+        createButton() -> Button(), btnRoll.onClick(fn) -> btnRoll.on("click", fn). They do the same.
+
+        */
+
+        // *** VARIABLES:
+
+        const DICE_SIZE = 100;      // px: the width and the height of a die
+        const MAX_TURN = 90;        // degrees: a rolled die turns between 0 and this
+
+        let imgDice1;
+        let imgDice2;
+        let btnRoll;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // ICON: The first die. left / top: its place, width / height: its size (in pixels).
+            imgDice1 = Icon({
+                left: 175,
+                top: 50,
+                width: DICE_SIZE,
+                height: DICE_SIZE,
+            });
+            imgDice1.load("images/dice1.png");
+
+            // ICON: The second die
+            imgDice2 = Icon({
+                left: 325,
+                top: 50,
+                width: DICE_SIZE,
+                height: DICE_SIZE,
+            });
+            imgDice2.load("images/dice6.png");
+
+            // NOTE: The pictures are files with the .png extension in the "images" folder.
+
+            // BUTTON: Under the dice. Its place is calculated from the first die.
+            btnRoll = Button({
+                left: imgDice1.left + 60,
+                top: imgDice1.top + imgDice1.height + 50,
+                text: "Roll",
+            });
+            btnRoll.on("click", rollTheDice);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Gives both dice a random number and a random turn.
+        const rollTheDice = function () {
+
+            // Two random whole numbers from 1 to 6 (1 and 6 can come too).
+            const number1 = random(1, 6);
+            const number2 = random(1, 6);
+
+            // The picture of a number: "images/dice" + 4 + ".png" -> "images/dice4.png"
+            imgDice1.load("images/dice" + number1 + ".png");
+            imgDice2.load("images/dice" + number2 + ".png");
+
+            // Turn each die by a random angle.
+            imgDice1.rotate = random(0, MAX_TURN);
+            imgDice2.rotate = random(0, MAX_TURN);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show the numbers of the dice in a Label in a corner of the page. Ex: "5 x 6"
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

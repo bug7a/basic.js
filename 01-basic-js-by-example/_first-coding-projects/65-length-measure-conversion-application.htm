@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Length Measure Conversion App</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <style>
+
+            /* A text box with enabled 0 (the calculated length) does not look faded.
+               WHY: basic.js has no property for it: basic.css gives a disabled text box opacity 0.6. */
+            .basic_textbox:disabled {
+                opacity: 1 !important;
+            }
+
+        </style>
+
+        <script>
+
+        /*
+
+        LENGTH MEASURE CONVERSION APP
+
+        ALGORITHM:
+        A length is typed in one unit (km, hm, dam, m, dm, cm, mm) and it is shown in another unit.
+
+        WORKING LOGIC:
+        - The units are in a list, from the biggest one to the smallest one. Each unit is 10 times the next one.
+        - The difference of the order numbers (index) of the two units is the number of zeros:
+          m (3) -> cm (5): 5 - 3 = 2 zeros, so the length is multiplied by 100.
+          To a smaller unit the length is multiplied, to a bigger unit it is divided.
+        - There is a small unit button on each text box. A click on it opens a dialog with the units,
+          and the chosen unit is written on the button.
+        - In the dialog, the unit that is selected now is yellow. The other ones get another color
+          under the mouse and while they are pressed (addMouseColors()).
+        - The arrows button swaps the two units.
+        - The result is calculated again after every key that is typed.
+
+        You can try to package this project as a mobile (Android, iOS), web or desktop app:
+        https://cordova.apache.org/
+
+        */
+
+        // *** VARIABLES:
+
+        const APP_ORIGINAL_WIDTH = 410;     // px: the width the app is designed for
+        const APP_MAX_WIDTH = 410;          // px: the app is never shown wider than this
+        const APP_COLOR = "#FEC108";        // the yellow of the app
+        const UNIT_BUTTON_HEIGHT = 50;      // px: the height of a button in the unit selection dialog
+        const DIALOG_TOP_BOTTOM_SPACE = 10; // px: above the first unit button and under the last one
+
+        // The order number (index) of the default unit of the given length: m
+        const DEFAULT_GIVEN_LENGTH_UNIT_INDEX = 3;
+        // The order number (index) of the default unit of the calculated length: cm
+        const DEFAULT_CALCULATED_LENGTH_UNIT_INDEX = 5;
+
+        // The list of the units of length
+        const lengthMeasurementUnits = [
+            { name: "Kilometer", short: "km" },
+            { name: "Hectometer", short: "hm" },
+            { name: "Decameter", short: "dam" },
+            { name: "Meter", short: "m" },
+            { name: "Decimeter", short: "dm" },
+            { name: "Centimeter", short: "cm" },
+            { name: "Millimeter", short: "mm" },
+        ];
+        // NOTE: index is the order number in the list. 0: km, 1: hm, 2: dam, 3: m, 4: dm, 5: cm, 6: mm
+
+        // The page of the app: a yellow box as big as the screen. It carries the card in the middle.
+        let boxApp;
+
+        // The text box of the given length
+        let txtGivenLength;
+        // The text box of the calculated length
+        let txtCalculatedLength;
+
+        // The small unit buttons on the text boxes (sub: Selected Unit Button)
+        let lblGivenUnit;
+        let lblCalculatedUnit;
+
+        // *** START:
+
+        const start = function () {
+
+            // On a screen narrower than the app, the page zooms out, so the whole app is seen.
+            page.fit(APP_ORIGINAL_WIDTH, APP_MAX_WIDTH);
+
+            // BOX: The page of the app, as big as the screen
+            boxApp = startBox(0, 0, page.width, page.height, {
+                color: APP_COLOR,
+            });
+
+                // BOX: The whitesmoke card in the middle
+                boxApp.boxCard = startBox(0, 0, 370, 470, {
+                    color: "whitesmoke",
+                    round: 13,
+                    boxShadow: "2px 3px 6px rgba(0, 0, 0, 0.2)",
+                });
+                boxApp.boxCard.center();
+
+                    // ICON: The small logo
+                    boxApp.boxCard.imgLogo = Icon(0, 40, 80, 80);
+                    boxApp.boxCard.imgLogo.load("images/65/logo.png");
+                    boxApp.boxCard.imgLogo.center("left");
+
+                    // LABEL: The title
+                    boxApp.boxCard.lblTitle = Label(0, 140, boxApp.boxCard.width, 40, {
+                        text: "Length Measure Conversion",
+                        bold: 1,
+                        textColor: "#141414",
+                        textAlign: "center",
+                    });
+
+                    // BOX: The white box with the text boxes. createConverterBox() makes it.
+                    boxApp.boxCard.boxConverter = createConverterBox();
+
+                endBox();
+
+            endBox();
+
+            // Every time the size of the window changes, pageResized runs.
+            page.onResize(pageResized);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates the white box with the two text boxes, their unit buttons and the swap button, and gives it back.
+        const createConverterBox = function () {
+
+            // BOX: The white box behind the text boxes
+            const boxConverter = startBox(20, 210, 330, 240, {
+                color: "white",
+                boxShadow: "2px 3px 6px rgba(0, 0, 0, 0.05)",
+                round: 13,
+            });
+
+                // INPUT: The text box of the given length
+                boxConverter.txtGivenLength = Input(0, 50, {
+                    title: "Given Length:",
+                    minimal: 1,
+                    color: "#D8D8D8",
+                    inputType: "number",    // only a number can be typed
+                });
+                txtGivenLength = boxConverter.txtGivenLength;
+                txtGivenLength.center("left");
+                // After every key that is typed, calculateLength runs.
+                txtGivenLength.on("keyup", calculateLength);
+
+                // INPUT: The text box of the calculated length. It only shows the result: enabled 0.
+                boxConverter.txtCalculatedLength = Input({
+                    title: "Calculated Length:",
+                    minimal: 1,
+                    color: "#D8D8D8",
+                    enabled: 0,
+                });
+                txtCalculatedLength = boxConverter.txtCalculatedLength;
+                txtCalculatedLength.aline(txtGivenLength, "bottom", 60);
+
+                // LABEL: The small unit button on the text box of the given length
+                boxConverter.lblGivenUnit = createSelectedUnitButton(txtGivenLength);
+                lblGivenUnit = boxConverter.lblGivenUnit;
+                lblGivenUnit.setSelectedIndex(DEFAULT_GIVEN_LENGTH_UNIT_INDEX);
+
+                // LABEL: The small unit button on the text box of the calculated length
+                boxConverter.lblCalculatedUnit = createSelectedUnitButton(txtCalculatedLength);
+                lblCalculatedUnit = boxConverter.lblCalculatedUnit;
+                lblCalculatedUnit.setSelectedIndex(DEFAULT_CALCULATED_LENGTH_UNIT_INDEX);
+
+                // ICON: The button that swaps the two units
+                boxConverter.imgSwitchUnitsButton = Icon(0, 0, 40, 40, {
+                    space: 26,              // the space inside the picture: 26% of its size
+                    round: 13,
+                    rotate: 90,
+                    color: "whitesmoke",
+                    cursor: "pointer",      // the hand shows that it can be clicked
+                });
+                const imgSwitchUnitsButton = boxConverter.imgSwitchUnitsButton;
+                imgSwitchUnitsButton.load("images/65/change.png");
+                // Its right edge is on the right edge of the first text box, 10 px under it.
+                imgSwitchUnitsButton.left = txtGivenLength.left + txtGivenLength.width - imgSwitchUnitsButton.width;
+                imgSwitchUnitsButton.top = txtGivenLength.top + txtGivenLength.height + 10;
+                imgSwitchUnitsButton.on("click", switchUnits);
+
+            endBox();
+
+            return boxConverter;
+
+        };
+
+        // Creates a small unit button on the right end of a text box and gives it back.
+        // It is a Label with its own functions: setSelectedIndex(), getSelectedIndex() and openUnitSelectionDialog().
+        const createSelectedUnitButton = function (txtObject) {
+
+            // LABEL: The unit button. Its width is "auto": it is as wide as its text.
+            const unitButton = Label(0, 0, "auto", 28, {
+                color: "white",
+                textColor: "#4A4A4A",
+                fontSize: 16,
+                round: 13,
+                spaceX: 10,
+                spaceY: 3,
+                bold: 1,
+                cursor: "pointer",
+            });
+
+            // Its place is calculated from the right: so, when its text changes, it gets longer to the left.
+            unitButton.right = txtObject.containerBox.width - txtObject.left - txtObject.width + 10;
+            unitButton.top = txtObject.top + (txtObject.height / 2) - (unitButton.height / 2);
+            // NOTE: The height is given by hand (28 px), so the top can be calculated at once.
+            // NOTE: The width is "auto", but the button is placed from the right, so it does not need
+            //       to be placed again when its size changes. unitButton.onResize() is not needed.
+
+            // Selects the unit with this order number and writes its short name on the button.
+            unitButton.setSelectedIndex = function (index) {
+
+                // The smallest order number
+                if (index < 0) {
+                    index = 0;
+                }
+
+                // The biggest order number
+                if (index > lengthMeasurementUnits.length - 1) {
+                    index = lengthMeasurementUnits.length - 1;
+                }
+
+                unitButton.text = lengthMeasurementUnits[index].short;
+                unitButton.selectedIndex = index;
+
+            };
+
+            unitButton.getSelectedIndex = function () {
+                return unitButton.selectedIndex;
+            };
+
+            unitButton.openUnitSelectionDialog = function () {
+                createUnitSelectionDialog(unitButton, unitButton.getSelectedIndex());
+            };
+
+            unitButton.on("click", unitButton.openUnitSelectionDialog);
+
+            // The first unit is selected at the start.
+            unitButton.setSelectedIndex(0);
+
+            return unitButton;
+
+        };
+
+        // Creates the dialog that shows the units. The chosen unit goes to connectedObject (a unit button).
+        // NOTE: The dialog is created again every time it is opened, and it is removed when a unit is chosen.
+        const createUnitSelectionDialog = function (connectedObject, selectedIndex) {
+
+            // BOX: The dark cover behind the dialog, as big as the page, over everything
+            const dialog = startBox(0, 0, page.width, page.height, {
+                color: "rgba(0, 0, 0, 0.8)",
+            });
+
+                // Runs when a unit button or the invisible box is clicked. self: the clicked object.
+                // NOTE: This function must be written before it is given to on("click", ...) below.
+                dialog.selectUnit = function (self) {
+                    connectedObject.setSelectedIndex(self.index);
+                    calculateLength();
+                    dialog.remove();
+                };
+
+                // BOX: An invisible box as big as the cover: a click on it closes the dialog.
+                dialog.boxOutside = Box(0, 0, page.width, page.height, {
+                    color: "transparent",
+                });
+                // It selects the unit that was selected before, so nothing changes.
+                dialog.boxOutside.index = selectedIndex;
+                dialog.boxOutside.on("click", dialog.selectUnit);
+
+                // BOX: The white box behind the unit buttons. It gets as high as its buttons.
+                dialog.boxUnits = startBox(0, 0, 250, 300, {
+                    color: "white",
+                    round: 13,
+                });
+
+                    for (let i = 0; i < lengthMeasurementUnits.length; i++) {
+                        createUnitButton(dialog, i, selectedIndex);
+                    }
+
+                endBox();
+
+                // The white box goes to the middle of the page.
+                dialog.boxUnits.center();
+
+            endBox();
+
+            // Every time the size of the window changes, the dialog fits the page again.
+            // onPageResize() stops by itself when the dialog is removed.
+            dialog.onPageResize(function () {
+                dialog.width = page.width;
+                dialog.height = page.height;
+                dialog.boxUnits.center();
+            });
+
+        };
+
+        // Creates the button of one unit in the white box of the dialog. index: the order number of the unit
+        const createUnitButton = function (dialog, index, selectedIndex) {
+
+            const unitName = lengthMeasurementUnits[index].name;
+
+            // BUTTON: A unit. Its name in the white box comes from its unit: btnKilometer, btnHectometer ...
+            dialog.boxUnits["btn" + unitName] = Button({
+                left: 0,
+                top: index * UNIT_BUTTON_HEIGHT + DIALOG_TOP_BOTTOM_SPACE,
+                width: dialog.boxUnits.width,
+                height: UNIT_BUTTON_HEIGHT,
+                color: "white",
+                fontSize: 20,
+                round: 0,
+                text: unitName,
+                minimal: 1,
+            });
+            const btnUnit = dialog.boxUnits["btn" + unitName];
+
+            // Our own information on the button: the order number of its unit
+            btnUnit.index = index;
+
+            if (index == selectedIndex) {
+                // The unit that is selected now has the color of the app.
+                btnUnit.color = APP_COLOR;
+            } else {
+                // The other ones change their color softly under the mouse.
+                btnUnit.setMotion("background-color 0.3s");
+                addMouseColors(btnUnit);
+            }
+
+            btnUnit.on("click", dialog.selectUnit);
+
+            // The white box gets as high as its buttons.
+            dialog.boxUnits.height = btnUnit.top + btnUnit.height + DIALOG_TOP_BOTTOM_SPACE;
+
+        };
+
+        // Gives a unit button its colors under the mouse: whitesmoke when the mouse is on it,
+        // lightgray while it is pressed.
+        const addMouseColors = function (btnUnit) {
+
+            // onHoverChange(): isOver is 1 when the mouse comes on the button, 0 when it leaves.
+            btnUnit.onHoverChange(function (self, isOver) {
+                self.color = isOver ? "whitesmoke" : "white";
+            });
+
+            // Pressed: lightgray. Released: whitesmoke again (the mouse is still on it).
+            btnUnit.on("mousedown", function (self) {
+                self.color = "lightgray";
+            });
+
+            btnUnit.on("mouseup", function (self) {
+                self.color = "whitesmoke";
+            });
+
+        };
+
+        // Swaps the units of the two text boxes and calculates again.
+        const switchUnits = function () {
+
+            const oldGivenUnitIndex = lblGivenUnit.getSelectedIndex();
+            lblGivenUnit.setSelectedIndex(lblCalculatedUnit.getSelectedIndex());
+            lblCalculatedUnit.setSelectedIndex(oldGivenUnitIndex);
+
+            calculateLength();
+
+        };
+
+        // Calculates the length in the other unit and shows it.
+        // NOTE: The order numbers (index) of the two units tell how many zeros there are between them.
+        const calculateLength = function () {
+
+            // When the given length is empty, the calculated length is empty too.
+            if (txtGivenLength.text == "") {
+                txtCalculatedLength.text = "";
+                return;
+            }
+
+            // The given length, as a number
+            const givenLength = parseFloat(txtGivenLength.text);
+            // The order numbers of the two units in the list
+            const givenUnitIndex = lblGivenUnit.getSelectedIndex();
+            const calculatedUnitIndex = lblCalculatedUnit.getSelectedIndex();
+
+            let answer = 0;
+            let zeroCount = 0;
+
+            if (givenUnitIndex > calculatedUnitIndex) {
+                // To a bigger unit: divide. Ex: cm (5) -> m (3): 2 zeros, divided by 100.
+                zeroCount = givenUnitIndex - calculatedUnitIndex;
+                answer = givenLength / oneWithZeros(zeroCount);
+
+            } else if (givenUnitIndex < calculatedUnitIndex) {
+                // To a smaller unit: multiply. Ex: m (3) -> cm (5): 2 zeros, multiplied by 100.
+                zeroCount = calculatedUnitIndex - givenUnitIndex;
+                answer = givenLength * oneWithZeros(zeroCount);
+
+            } else {
+                // The same unit: the length does not change.
+                answer = givenLength;
+            }
+
+            // Show the result.
+            txtCalculatedLength.text = answer;
+
+        };
+
+        // Gives the number 1 with this many zeros after it: 1 -> 10, 2 -> 100, 3 -> 1000 ...
+        const oneWithZeros = function (count) {
+
+            let number = "1";
+            for (let i = 0; i < count; i++) {
+                number += "0";
+            }
+
+            // The text "100" becomes the number 100.
+            return basic.num(number, "integer");
+
+        };
+
+        // Runs every time the size of the window changes.
+        const pageResized = function () {
+
+            page.fit(APP_ORIGINAL_WIDTH, APP_MAX_WIDTH);
+
+            boxApp.width = page.width;
+            boxApp.height = page.height;
+            boxApp.boxCard.center();
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show a shorter result: 1.1 m is shown as 110.00000000000001 cm (a computer stores most decimal
+          numbers only nearly). Round the result to a few decimals.
+        - Make the same app for weight: kg, hg, dag, g, dg, cg, mg.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

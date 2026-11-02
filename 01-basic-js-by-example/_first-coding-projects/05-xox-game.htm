@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>XOX Game</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        XOX GAME
+
+        ALGORITHM:
+        On a three by three (3 x 3) board, a click on an empty square puts the "x" or the "o" symbol in it.
+
+        WORKING LOGIC:
+        - Each square is an Icon (an image object).
+        - The clicked square loads the picture of the symbol whose turn it is.
+        - Each square keeps what is in it ("empty", "x" or "o"), so a full square can not change.
+
+        GAME PLAY:
+        - One player uses "x", the other one "o". They play in turn, one symbol on an empty square.
+        - The first player who has three symbols in a row (across, down or corner to corner) wins.
+        - When the board is full and nobody won, it is a draw and the game starts again.
+
+        VIDEO: the project step by step (in Turkish): https://www.youtube.com/watch?v=DQBqankxnUM
+        The video uses an older basic.js. Old -> new names: createImage() -> Icon(),
+        that.onClick(fn) -> that.on("click", fn). They do the same.
+
+        */
+
+        // *** VARIABLES:
+
+        const SQUARE_SIZE = 150;    // px
+        const SQUARE_SPACE = 180;   // px: from the start of a square to the start of the next one
+        const BOARD_MARGIN = 40;    // px: from the edges of the page
+
+        // Whose turn it is: "x" or "o". The first click puts "x".
+        let whoIsNext = "x";
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // Create 3 x 3 squares. y: the row (0, 1, 2), x: the column (0, 1, 2).
+            for (let y = 0; y <= 2; y++) {
+                for (let x = 0; x <= 2; x++) {
+
+                    // ICON: A square. Its place comes from its row and its column.
+                    Icon({
+                        left: BOARD_MARGIN + (SQUARE_SPACE * x),
+                        top: BOARD_MARGIN + (SQUARE_SPACE * y),
+                        width: SQUARE_SIZE,
+                        height: SQUARE_SIZE,
+                    });
+                    that.load("images/xox-empty.svg");
+
+                    // Our own information on the square: what is in it.
+                    that.symbol = "empty";
+
+                    // When it is clicked, putSymbol runs.
+                    that.on("click", putSymbol);
+
+                    // NOTE: "that" is the last object that was created (here: the square above).
+                    //       The 9 squares are not kept in variables: they are found again when clicked.
+
+                }
+            }
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs when a square is clicked. clickedSquare: the square itself (basic.js gives it).
+        const putSymbol = function (clickedSquare) {
+
+            // A square that already has a symbol does not change.
+            if (clickedSquare.symbol != "empty") return;
+
+            // The symbol whose turn it is goes into the square.
+            clickedSquare.load("images/xox-" + whoIsNext + ".svg");
+            clickedSquare.symbol = whoIsNext;
+
+            // Now it is the other player's turn.
+            if (whoIsNext == "x") {
+                whoIsNext = "o";
+            } else {
+                whoIsNext = "x";
+            }
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a "New game" button for the end of a game.
+        - Keep the scores: a Label for each player, and a button that increases them.
+        - (DIFFICULT) Find the winner by code, increase the score and start a new game.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

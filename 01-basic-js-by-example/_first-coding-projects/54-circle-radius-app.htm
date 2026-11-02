@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Circle Radius App</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CIRCLE RADIUS APP
+
+        ALGORITHM:
+        The radius of a circle is typed into a text box. The circle on the page takes that size,
+        and its circumference and its area are written under it.
+
+        WORKING LOGIC:
+        - The circle is a Box. Its width and its height are 2 x the radius, and its round (the radius
+          of its corners) is the radius: so the square box is drawn as a circle.
+        - Every time the text in the text box changes, updateCircle() runs.
+        - updateCircle() keeps the radius between 0 and 400, gives the circle its new size, centers it,
+          and writes its circumference (2 x PI x radius) and its area (PI x radius x radius).
+        - setMotion() makes the changes of the circle soft (1 second).
+        - When the size of the window changes, the objects are centered again without a motion (dontMotion()).
+
+        */
+
+        // *** VARIABLES:
+
+        const PI = 3.14;
+        const MAX_RADIUS = 400;
+
+        // The stage: a box as big as the page. It carries all the objects of the app.
+        let boxStage;
+
+        // *** START:
+
+        const start = function () {
+
+            // BOX: The stage, as big as the page
+            boxStage = startBox(0, 0, page.width, page.height);
+
+                // BOX: The circle in the middle. Its size is given in updateCircle().
+                boxStage.circle = Box(50, 150, {
+                    color: "#FE5D49",
+                });
+                // Add a CSS motion.
+                boxStage.circle.setMotion("left 1s, top 1s, width 1s, height 1s, border-radius 1s");
+
+                // LABEL: The information text under the circle
+                boxStage.lblInfo = Label(0, 0, 300, 40, {
+                    text: "",
+                    fontSize: 13,
+                    textAlign: "center",
+                });
+                boxStage.lblInfo.setMotion("top 1s");
+
+                // TEXTBOX: The text box for the radius of the circle
+                boxStage.txtRadius = Input(50, 50, 150, {
+                    title: "Circle radius:",
+                    text: "100",
+                    textAlign: "center",
+                });
+                // Every time the text changes ("input" event), updateCircle runs.
+                boxStage.txtRadius.on("input", updateCircle);
+
+                // LABEL: The millimeter information, at the right of the text box
+                boxStage.lblUnit = Label(0, 0, 170, 30, {
+                    text: "millimeters (mm)",
+                    fontSize: 17,
+                    textColor: "#00000080",
+                });
+                boxStage.lblUnit.aline(boxStage.txtRadius, "right", 10);
+                boxStage.lblUnit.top += 12;
+
+                // NOTE: The size of lblUnit is given by hand (170 x 30).
+
+                // LABEL: The explanation at the bottom
+                boxStage.lblBottomInfo = Label(0, 0, 246, 42, {
+                    text: "The size of the circle is in pixels (px).<br>The millimeters are symbolic.",
+                    // Black, 60% seen: it looks better on the background.
+                    textColor: "rgba(0, 0, 0, 0.6)",
+                    fontSize: 12,
+                    color: "white",
+                    textAlign: "center",
+                    // A space between the text and the edges: 10 px at the sides, 4 px at the top and the bottom.
+                    padding: [10, 4],
+                    round: 8,
+                    bottom: 30,
+                });
+                boxStage.lblBottomInfo.center("left");
+
+            endBox();
+
+            // Draw the circle.
+            updateCircle();
+
+            // Every time the size of the page changes
+            page.onResize(pageResized);
+
+        };
+
+        // *** FUNCTIONS:
+
+        const pageResized = function () {
+
+            // The stage is as big as the page again.
+            boxStage.width = page.width;
+            boxStage.height = page.height;
+
+            // Turn off the motion for a moment.
+            boxStage.circle.dontMotion();
+            boxStage.circle.center();
+            // Turn off the motion for a moment.
+            boxStage.lblInfo.dontMotion();
+            boxStage.lblInfo.aline(boxStage.circle, "bottom", 10);
+            boxStage.lblInfo.center("left");
+            boxStage.lblBottomInfo.center("left");
+
+            // NOTE: The motion is turned off for a moment, so when the size of the page changes,
+            //       the objects are centered at once, without a motion.
+
+        };
+
+        // Gives the circle the radius in the text box, and writes its circumference and its area.
+        const updateCircle = function () {
+
+            // The text of the text box as a number. Ex: "100" -> 100
+            let radius = basic.num(boxStage.txtRadius.text);
+
+            // The radius can only be from 0 to 400. Another number is changed, in the text box too.
+            if (radius > MAX_RADIUS) {
+                radius = MAX_RADIUS;
+                boxStage.txtRadius.text = basic.str(radius);
+            } else if (radius < 0) {
+                radius = 0;
+                boxStage.txtRadius.text = basic.str(radius);
+            }
+
+            // The size of the circle: 2 x radius. A round as big as the radius makes it a circle.
+            boxStage.circle.width = basic.num(radius * 2);
+            boxStage.circle.height = boxStage.circle.width;
+            boxStage.circle.round = radius;
+            boxStage.circle.center();
+
+            // NOTE: basic.num() also rounds a number to 2 decimals.
+            const circumference = basic.num(2 * PI * radius);
+            const area = basic.num(PI * radius * radius);
+
+            // The text can have HTML: <span> with a bold font, <br> a new line, <sup> a small 2 above.
+            boxStage.lblInfo.text = "<span style='font-family: opensans-bold'>Circumference:</span> " + circumference + " mm<br>";
+            boxStage.lblInfo.text += "<span style='font-family: opensans-bold'>Area:</span> " + area + " mm<sup>2</sup>";
+
+            // Under the circle, in the middle
+            boxStage.lblInfo.top = boxStage.circle.top + boxStage.circle.height + 10;
+            boxStage.lblInfo.center("left");
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Write the diameter (2 x radius) of the circle too.
+        - Use Math.PI instead of 3.14, and see how the results change.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

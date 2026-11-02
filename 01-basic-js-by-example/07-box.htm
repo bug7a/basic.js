@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Box</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        BOX
+
+        A Box is a rectangle with a color, a border and round corners. It can hold other objects.
+        Click the orange box at the bottom: it goes up, and the text in it goes with it.
+
+        - Box(left, top, width, height, props)
+                                    -> a box at a place on the page.
+        - startBox(...) ... endBox()
+                                    -> the objects created between these two lines go into the box.
+                                       Their left and top start at the top left corner of the box.
+        - color, border, borderColor, round, boxShadow
+                                    -> the look of the box.
+        - clipContent               -> 1 (the default): the box cuts what goes past its edges. 0: it does not.
+        - right, bottom             -> a place from the right or the bottom edge. bottom: 0 puts the box
+                                       on the bottom of the page.
+        - box.on("click", fn)       -> runs fn when the box is clicked. fn gets the box (self).
+        - box.clickCount = 0        -> an object can carry your own values and parts too.
+        - box.bottom = 30           -> a prop can be changed at any time: the box moves at once.
+
+        TRY: move the gold circle to Box(270, 20, ...): the card cuts it. Then give the card clipContent: 0.
+
+        */
+
+        // *** VARIABLES:
+
+        const LIFT_STEP = 10;           // px, at every click
+        const MAX_LIFT = 100;           // px: after it, the box goes back down
+
+        let boxBottom;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // BOX: A card. The objects created until its endBox() go into it.
+            startBox(40, 40, 300, 150, {
+                color: "white",
+                round: 12,
+                border: 1,
+                borderColor: Black(0.1),
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
+            });
+
+                // BOX: A circle. Its place (20, 20) starts at the top left corner of the card.
+                Box(20, 20, 48, 48, {
+                    color: "gold",
+                    round: 24,      // half of the width: a circle
+                });
+
+                // LABEL: A text in the card
+                Label(20, 84, 260, "auto", {
+                    text: "A box can hold other objects. Their places start at the corner of the box.",
+                    fontSize: 14,
+                    lineHeight: 21,
+                    textColor: Black(0.6),
+                });
+
+            endBox();
+
+            // BOX: On the bottom of the page, as wide as the page
+            boxBottom = startBox({
+                left: 0,
+                bottom: 0,
+                width: "100%",
+                height: 200,
+                color: "orangered",
+                cursor: "pointer",
+            });
+
+                // LABEL: Kept on the box, so liftBox() can find it there
+                boxBottom.lblClicks = Label(20, 20, "auto", "auto", {
+                    text: "Click Me",
+                    textColor: Black(0.7),
+                });
+
+            endBox();
+
+            boxBottom.clickCount = 0;
+            boxBottom.on("click", liftBox);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // box: the clicked box
+        const liftBox = function (box) {
+
+            box.clickCount++;
+
+            box.bottom = box.bottom + LIFT_STEP;
+            if (box.bottom > MAX_LIFT) box.bottom = 0;
+
+            box.lblClicks.text = "Clicks: " + box.clickCount + ", bottom: " + box.bottom;
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

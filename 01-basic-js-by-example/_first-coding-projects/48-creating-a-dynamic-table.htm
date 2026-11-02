@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Creating a Dynamic Table</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CREATING A DYNAMIC TABLE
+
+        A database can hold many tables. The information in the arrays of this example
+        could come from a database too.
+        In this example, a dynamic table is made from the information we have.
+
+        ALGORITHM:
+        A table is made from a list of titles: the titles tell how many columns there are, how wide they are
+        and which information each one shows. Then its rows are filled from a list of people.
+
+        WORKING LOGIC:
+        - Table() makes the table object (a Box): a title Button for every element of the titles, side by side,
+          and under them a Box for the rows, which scrolls up and down.
+        - The table has its own functions: fill(contents) makes one row for every element of the contents,
+          clean() removes the rows, setHeight(height) changes its height.
+        - A cell finds its text with the contentID of its title: content["name"] is the name of the person.
+        - The table is as wide as all its titles together: change the titles, and the table changes.
+
+        */
+
+        // *** VARIABLES:
+
+        // The titles (the columns) of the table.
+        // name: the text of the title, contentID: the information it shows (a key of the contents)
+        const table1Titles = [
+            { name: "No.", width: 140, textAlign: "center", contentID: "id" },
+            { name: "Name", width: 200, textAlign: "left", contentID: "name" },
+            { name: "E-mail", width: 240, textAlign: "left", contentID: "email" },
+            { name: "Test", width: 60, textAlign: "left", contentID: "id" },
+            { name: "Test2", width: 80, textAlign: "left", contentID: "id" },
+        ];
+
+        // The contents (the rows) of the table
+        const table1Contents = [
+            { id: "001", name: "Aaron", email: "aaron.test@gmail.com" },
+            { id: "002", name: "Martin", email: "martin.test@gmail.com" },
+            { id: "003", name: "Fiona", email: "fiona.test@gmail.com" },
+            { id: "004", name: "Harry", email: "harry.test@gmail.com" },
+            { id: "005", name: "Diana", email: "diana.test@gmail.com" },
+            { id: "006", name: "Alan", email: "alan.test@gmail.com" },
+            { id: "007", name: "Daphne", email: "daphne.test@gmail.com" },
+            { id: "008", name: "Abraham", email: "abe.test@gmail.com" },
+        ];
+
+        // The table object
+        let tblPeople;
+
+        // *** START:
+
+        const start = function () {
+
+            // TABLE: Made from the titles. Table() is written below.
+            tblPeople = Table({
+                left: 10,
+                top: 50,
+                titles: table1Titles,
+                onRowClick: rowClicked,
+            });
+
+            // A new height for the table.
+            // NOTE: The table has a function for it, because its height changes two objects:
+            //       the table and the box of its rows.
+            tblPeople.setHeight(450);
+
+            // The objects of the table can be changed after it is made, too.
+            tblPeople.title0.color = "lightblue";
+
+            // Put the information into the table.
+            tblPeople.fill(table1Contents);
+
+            // The page is zoomed to fit the width of the table, with 20 px of space.
+            page.fit(tblPeople.width + 20, 650);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs when a row is clicked: it writes the name in the row to the console.
+        const rowClicked = function (clickedRow) {
+
+            println(clickedRow.content.name);
+
+        };
+
+        // THE FUNCTION THAT MAKES THE OBJECT:
+        // It could be moved into its own .js file, to use the table on other pages too.
+
+        // The default values of a table. Every one of them becomes a property of the table: tblPeople.titles...
+        const TableDefaults = {
+            height: 190,    // px
+            titles: [],     // [{ name, width, textAlign, contentID }]
+            onRowClick: function (clickedRow) {},
+        };
+
+        // Makes a dynamic table from its titles.
+        const Table = function (params = {}) {
+
+            // The params that are not given get their default values.
+            mergeIntoIfMissing(params, TableDefaults);
+
+            // BOX: The table. The objects created until endObject() go inside it.
+            const box = startObject(params);
+            box.color = "whitesmoke";
+            box.round = 4;
+
+            // *** PRIVATE VARIABLES:
+
+            const TITLE_HEIGHT = 40;    // px
+            const ROW_HEIGHT = 30;      // px
+            const TEXT_SPACE = 15;      // px: before a text that starts at the left
+
+            // The common properties of the titles
+            const titleProps = { color: "white", round: 4 };
+
+            // *** PUBLIC VARIABLES:
+
+            box.rowCount = 0;           // the number of rows in the table
+
+            // *** OBJECT VIEW:
+
+            // The table is as wide as all its titles together.
+            let tableWidth = 0;
+
+            // BUTTON: The titles, next to each other: box.title0, box.title1...
+            for (let i = 0; i < box.titles.length; i++) {
+
+                const titleButton = Button(0, 0, box.titles[i].width, TITLE_HEIGHT, {
+                    text: box.titles[i].name,
+                    cursor: "default",      // no hand cursor over it: it is not clicked
+                });
+                titleButton.props(titleProps);
+
+                // Every title after the first one goes at the right of the title before it.
+                if (i > 0) {
+                    titleButton.aline(box["title" + (i - 1)], "right");
+                }
+
+                box["title" + i] = titleButton;
+                tableWidth = tableWidth + box.titles[i].width;
+
+            }
+
+            box.width = tableWidth;
+
+            // BOX: The box of the rows, under the titles. It scrolls up and down.
+            box.boxRows = Box(0, TITLE_HEIGHT, box.width, box.height - TITLE_HEIGHT, {
+                color: "transparent",
+                scrollY: 1,
+            });
+
+            // *** PUBLIC FUNCTIONS:
+
+            // Removes all the rows.
+            box.clean = function () {
+
+                const rows = box.boxRows.children;
+
+                for (let i = 0; i < rows.length; i++) {
+                    rows[i].remove();
+                }
+
+                box.rowCount = 0;
+
+            };
+
+            // Adds a row at the end of the table. content: one element of the contents. Ex: { id, name, email }
+            box.createRow = function (content) {
+
+                const rowNumber = box.rowCount;
+
+                // NOTE: createIn(box, function) creates the objects of the function inside that box:
+                //       the new row goes into the box of the rows.
+                createIn(box.boxRows, function () {
+
+                    // BOX: The row, under the rows before it
+                    const row = startBox(0, rowNumber * ROW_HEIGHT, box.width, ROW_HEIGHT);
+
+                    // Our own information on the row: its content.
+                    row.content = content;
+                    row.on("click", box.onRowClick);
+
+                    // Every second row is white (the ones whose number can not be divided by 2: 1, 3, 5...).
+                    if (rowNumber % 2) {
+                        row.color = "white";
+                    }
+
+                        // LABEL: The cells of the row, one under each title
+                        for (let j = 0; j < box.titles.length; j++) {
+
+                            const title = box.titles[j];
+                            const titleButton = box["title" + j];
+
+                            // The text of the cell comes from the content: content["name"] is content.name
+                            const cell = Label(titleButton.left, 0, titleButton.width, ROW_HEIGHT, {
+                                textAlign: title.textAlign,
+                                text: content[title.contentID],
+                            });
+
+                            // A text that starts at the left gets 15 px of space before it.
+                            if (title.textAlign == "left") {
+                                cell.left = cell.left + TEXT_SPACE;
+                                cell.width = cell.width - TEXT_SPACE;
+                            }
+
+                            row["lbl" + j] = cell;
+
+                        }
+
+                    endBox();
+
+                });
+
+                box.rowCount++;
+
+            };
+
+            // Fills the table: the old rows are removed, then a row is made for every element of the contents.
+            box.fill = function (contents) {
+
+                box.clean();
+
+                for (let i = 0; i < contents.length; i++) {
+                    box.createRow(contents[i]);
+                }
+
+            };
+
+            // A new height for the table. The box of the rows gets its new height too.
+            box.setHeight = function (height) {
+
+                box.height = height;
+                box.boxRows.height = height - TITLE_HEIGHT;
+
+            };
+
+            // The table is ready: endObject() closes the box and gives it back.
+            return endObject(box);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a sixth title (Ex: the phone number): add it to table1Titles and to the contents.
+        - Sort the rows by the name when the title "Name" is clicked.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

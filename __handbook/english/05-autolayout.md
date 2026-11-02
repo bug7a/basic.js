@@ -100,6 +100,7 @@ The `align` parameter provides two-way alignment:
 - `border` (number) — Border thickness.
 - `borderColor` (string) — Border color.
 - `round` (number) — Corner roundness.
+- `clipContent` (boolean, default: `1`) — A group is a Box: it **cuts** what goes past its edges. A group whose height is its content (`height: "auto"`, `hug: 1`) cuts a button that lifts or grows under the mouse, a shadow or a focus outline at once. Give the groups around such objects `clipContent: 0` (see Box: "Content that moves out of its box").
 
 ---
 

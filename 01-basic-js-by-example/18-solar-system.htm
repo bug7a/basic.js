@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Solar System</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SOLAR SYSTEM
+
+        An animation made with loop(). basic.js calls loop() again and again, and each time every
+        planet moves one small step on its circle. Many small steps, about 60 in a second, look like
+        a smooth motion. Everything is made of Box objects: a round box is a planet.
+
+        - loop()                    -> basic.js calls it again and again (once a second, if nothing else is set).
+        - setLoopTimer(ms)          -> how often loop() runs: 16 ms is about 60 times a second (1000 / 16).
+        - Math.cos(), Math.sin()    -> turn an angle into a place on a circle (x and y, from -1 to 1).
+        - random(1, 3)              -> a whole number from 1 to 3 (the sizes of the stars).
+        - boxShadow: "..."          -> the glow of the sun; "inset ..." is a shadow inside a planet.
+        - obj.center()              -> puts the object in the middle of the box it is in.
+
+        TRY: change the speed of a planet in PLANETS, or FRAME_TIME to 100 to see the single steps.
+
+        */
+
+        // *** VARIABLES:
+
+        const FRAME_TIME = 16;              // ms from one step to the next: about 60 steps in a second
+        const STAR_COUNT = 50;
+        const SUN_SIZE = 80;
+        const SYSTEM_SIZE = 640;            // px: the largest orbit (2 x 300 px) and its planet fit in it
+        const SYSTEM_CENTER = SYSTEM_SIZE / 2;
+
+        // distance: from the sun (px), size: px, speed: how much the angle grows at every step,
+        // angle: where the planet is on its circle (6.28 is a full turn). loop() makes it bigger.
+        const PLANETS = [
+            { distance: 70, size: 10, speed: 0.04, color: "#A6A6A6", angle: 0 },      // Mercury
+            { distance: 100, size: 18, speed: 0.025, color: "#E2C396", angle: 1 },    // Venus
+            { distance: 140, size: 20, speed: 0.02, color: "#4A90E2", angle: 2 },     // Earth
+            { distance: 180, size: 14, speed: 0.015, color: "#E57373", angle: 3 },    // Mars
+            { distance: 240, size: 40, speed: 0.008, color: "#D4A373", angle: 4 },    // Jupiter
+            { distance: 300, size: 34, speed: 0.006, color: "#F4E1A1", angle: 5 },    // Saturn
+        ];
+
+        let boxSystem;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#0B0B15";
+
+            createStars();
+
+            // BOX: The solar system. The objects in it are placed from its top left corner,
+            //      so its middle (SYSTEM_CENTER) is the place of the sun.
+            boxSystem = startBox(0, 0, SYSTEM_SIZE, SYSTEM_SIZE, { color: "transparent" });
+
+                PLANETS.forEach(createOrbit);
+                createSun();
+                PLANETS.forEach(createPlanet);
+
+            endBox();
+
+            centerSystem();
+            page.onResize(centerSystem);
+
+            setLoopTimer(FRAME_TIME);
+
+        };
+
+        // basic.js calls it every FRAME_TIME ms (see setLoopTimer above).
+        const loop = function () {
+            PLANETS.forEach(movePlanet);
+        };
+
+        // *** VIEW:
+
+        const createStars = function () {
+
+            for (let i = 0; i < STAR_COUNT; i++) {
+
+                const size = random(1, 3);
+
+                // BOX: A star. WHY: left and top in %: the stars stay spread when the window changes size.
+                Box(random(0, 100) + "%", random(0, 100) + "%", size, size, {
+                    color: "white",
+                    opacity: random(2, 8) / 10,
+                    round: size,
+                });
+
+            }
+
+        };
+
+        // The line a planet moves on: a circle around the middle
+        const createOrbit = function (planet) {
+
+            const diameter = planet.distance * 2;
+
+            // BOX: round: half of the size -> a circle
+            const orbit = Box(0, 0, diameter, diameter, {
+                color: "transparent",
+                border: 1,
+                borderColor: White(0.1),
+                round: planet.distance,
+            });
+            orbit.center();
+
+        };
+
+        const createSun = function () {
+
+            // BOX:
+            const sun = Box(0, 0, SUN_SIZE, SUN_SIZE, {
+                color: "#FFD700",
+                round: SUN_SIZE / 2,
+                boxShadow: "0 0 40px rgba(255, 215, 0, 0.6)",
+            });
+            sun.center();
+
+        };
+
+        const createPlanet = function (planet) {
+
+            // BOX: Kept in planet.box, so loop() can move it.
+            planet.box = Box(0, 0, planet.size, planet.size, {
+                color: planet.color,
+                round: planet.size / 2,
+                boxShadow: "inset -2px -2px 6px rgba(0, 0, 0, 0.5)",
+            });
+
+            placePlanet(planet);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // One step: the angle grows a little, and the planet goes to its new place.
+        const movePlanet = function (planet) {
+            planet.angle += planet.speed;
+            placePlanet(planet);
+        };
+
+        // cos and sin give the place on a circle of size 1: times the distance, it is the planet's circle.
+        const placePlanet = function (planet) {
+
+            const x = SYSTEM_CENTER + Math.cos(planet.angle) * planet.distance;
+            const y = SYSTEM_CENTER + Math.sin(planet.angle) * planet.distance;
+
+            // WHY: left / top are the top left corner of the box: half of the size back puts its middle on (x, y).
+            planet.box.left = x - (planet.size / 2);
+            planet.box.top = y - (planet.size / 2);
+
+        };
+
+        // The system stays in the middle of the window, also when the window changes size.
+        const centerSystem = function () {
+            boxSystem.center();
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

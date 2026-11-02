@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Mini Message Area</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MINI MESSAGE AREA
+
+        ALGORITHM:
+        A small console on the page: messages are written into it one under the other, in the colors we choose.
+
+        WORKING LOGIC:
+        - MiniConsole() makes the console: a dark Box that scrolls up and down, with a VGroup in it.
+        - The console gets two functions of its own: print(text, color) adds a message on a new line,
+          clean() deletes all the messages.
+        - Every message is a Label of its own, with its own text color. print() creates it at the end of
+          the VGroup (createIn()), and the group puts it under the messages before it.
+        - The height of the VGroup is "auto": it grows with every new message. When it is taller than
+          the Box, the messages can be scrolled.
+        - A loop sends 101 messages to the console, and two of them are colored.
+
+        */
+
+        // *** VARIABLES:
+
+        // The console object that shows the messages
+        let miniConsole;
+
+        // *** START:
+
+        const start = function () {
+
+            // MINI CONSOLE: 350 x 250 px, 10 px from the right and the bottom of the page.
+            // MiniConsole() is written below.
+            miniConsole = MiniConsole({
+                width: 350,
+                height: 250,
+                right: 10,
+                bottom: 10,
+            });
+
+            // Send 101 messages (from 0 to 100) to the console.
+            for (let i = 0; i <= 100; i++) {
+
+                miniConsole.print("Record " + i + ", created by the loop.");
+
+                if (i == 4) {
+                    miniConsole.print("WARNING: A warning text in yellow.", "yellow");
+                }
+
+                if (i == 6) {
+                    miniConsole.print("ERROR: An error text in red.", "red");
+                }
+
+            }
+
+            // Delete all the messages:
+            // miniConsole.clean();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Makes a small console object. params: its place and its size (left, top, right, bottom, width, height).
+        const MiniConsole = function (params = {}) {
+
+            // BOX: The box of the console. The objects created until endObject() go inside it.
+            const box = startObject(params);
+            box.color = "#141414";
+            box.round = 6;
+
+            // The box scrolls up and down: when its content is taller than it,
+            // the content can be scrolled (with the mouse wheel or a finger).
+            box.scrollY = 1;
+
+            // GROUP: The messages, one under the other.
+            // NOTE: Its height is "auto": it grows down with every new message.
+            box.grpMessages = VGroup({
+                width: "100%",
+                height: "auto",
+                align: "left top",
+                padding: 10,    // the space between the edges and the messages
+            });
+            endGroup();
+
+            // A new function of the console: it writes a message on a new line, in the given color.
+            box.print = function (text, color = "white") {
+
+                // createIn(): the label created in the function goes into the group, at its end.
+                createIn(box.grpMessages, function () {
+
+                    // LABEL: One message. Its height is "auto": a long message goes on to a second line.
+                    Label({
+                        width: "100%",
+                        height: "auto",
+                        fontSize: 14,
+                        textColor: color,
+                        opacity: 0.8,
+                        plainText: text,    // the text is shown as it is (it is not read as HTML)
+                    });
+
+                });
+
+            };
+
+            // A new function of the console: it deletes all the messages.
+            box.clean = function () {
+
+                // children: the objects in the group (the labels of the messages).
+                const messages = box.grpMessages.children;
+
+                for (let i = 0; i < messages.length; i++) {
+                    messages[i].remove();
+                }
+
+            };
+
+            // The console is ready: endObject() closes the box and gives it back.
+            return endObject(box);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Scroll the console down after every message, so the newest message is always seen.
+          Hint: box.elem.scrollTop = box.elem.scrollHeight;
+        - Add a Button that cleans the console.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

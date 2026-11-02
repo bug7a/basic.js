@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>3D Solar System</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        3D SOLAR SYSTEM
+
+        The solar system of 18-solar-system.htm, seen a little from the side. There is no 3D in it:
+        three simple tricks make the flat boxes look deep.
+          1. Flat circles: every orbit is drawn lower than it is wide (TILT), an ellipse.
+          2. Near is big: a planet grows when it comes to the front, and gets smaller at the back.
+          3. Near is on top: a planet in front is drawn over the sun, a planet at the back under it.
+
+        - loop() + setLoopTimer(ms)       -> a step of every planet, about 60 times a second (as in 18).
+        - depth = sin(angle) x distance   -> how near the planet is: + is in front, - is at the back.
+        - obj.zIndex = number             -> the object with the bigger number is drawn on top.
+        - css: { borderRadius: "50%" }    -> an ellipse. (round is in px: on a long box it makes a pill.)
+
+        TRY: change TILT to 0.1 or 0.6 to look from another height, or DEPTH_SCALE to 0 to turn trick 2 off.
+
+        */
+
+        // *** VARIABLES:
+
+        const FRAME_TIME = 16;              // ms from one step to the next: about 60 steps in a second
+        const STAR_COUNT = 80;
+        const SUN_SIZE = 80;
+        const SYSTEM_SIZE = 880;            // px: the largest orbit (2 x 400 px) and its planet fit in it
+        const SYSTEM_CENTER = SYSTEM_SIZE / 2;
+
+        const TILT = 0.3;                   // an orbit is drawn 0.3 times as high as it is wide
+        const DEPTH_SCALE = 0.3;            // a planet is 30% bigger at the front, 30% smaller at the back
+        const SUN_LAYER = 1000;             // the zIndex of the sun
+
+        // distance: from the sun (px), size: px, speed: how much the angle grows at every step,
+        // angle: where the planet is on its circle (6.28 is a full turn). loop() makes it bigger.
+        const PLANETS = [
+            { distance: 90, size: 12, speed: 0.04, color: "#A6A6A6", angle: 0 },      // Mercury
+            { distance: 130, size: 20, speed: 0.025, color: "#E2C396", angle: 1 },    // Venus
+            { distance: 180, size: 22, speed: 0.02, color: "#4A90E2", angle: 2 },     // Earth
+            { distance: 230, size: 16, speed: 0.015, color: "#E57373", angle: 3 },    // Mars
+            { distance: 320, size: 45, speed: 0.008, color: "#D4A373", angle: 4 },    // Jupiter
+            { distance: 400, size: 38, speed: 0.006, color: "#F4E1A1", angle: 5 },    // Saturn
+        ];
+
+        let boxSystem;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#0B0B15";
+
+            createStars();
+
+            // BOX: The solar system. The objects in it are placed from its top left corner,
+            //      so its middle (SYSTEM_CENTER) is the place of the sun.
+            boxSystem = startBox(0, 0, SYSTEM_SIZE, SYSTEM_SIZE, { color: "transparent" });
+
+                PLANETS.forEach(createOrbit);
+                createSun();
+                PLANETS.forEach(createPlanet);
+
+            endBox();
+
+            centerSystem();
+            page.onResize(centerSystem);
+
+            setLoopTimer(FRAME_TIME);
+
+        };
+
+        // basic.js calls it every FRAME_TIME ms (see setLoopTimer above).
+        const loop = function () {
+            PLANETS.forEach(movePlanet);
+        };
+
+        // *** VIEW:
+
+        const createStars = function () {
+
+            for (let i = 0; i < STAR_COUNT; i++) {
+
+                const size = random(1, 3);
+
+                // BOX: A star. WHY: left and top in %: the stars stay spread when the window changes size.
+                Box(random(0, 100) + "%", random(0, 100) + "%", size, size, {
+                    color: "white",
+                    opacity: random(2, 8) / 10,
+                    round: size,
+                });
+
+            }
+
+        };
+
+        // Trick 1: the line a planet moves on is a flat circle (an ellipse) around the middle.
+        const createOrbit = function (planet) {
+
+            const orbitWidth = planet.distance * 2;
+            const orbitHeight = orbitWidth * TILT;
+
+            // BOX: WHY: borderRadius 50% (not round) makes an ellipse of a box that is not a square.
+            const orbit = Box(0, 0, orbitWidth, orbitHeight, {
+                color: "transparent",
+                border: 1,
+                borderColor: White(0.08),
+                css: { borderRadius: "50%" },
+            });
+            orbit.center();
+
+        };
+
+        const createSun = function () {
+
+            // BOX: Its zIndex is in the middle: the planets are drawn over it or under it (trick 3).
+            const sun = Box(0, 0, SUN_SIZE, SUN_SIZE, {
+                color: "#FFD700",
+                round: SUN_SIZE / 2,
+                boxShadow: "0 0 50px rgba(255, 215, 0, 0.5)",
+                zIndex: SUN_LAYER,
+            });
+            sun.center();
+
+        };
+
+        const createPlanet = function (planet) {
+
+            // BOX: Kept in planet.box, so loop() can move it.
+            planet.box = Box(0, 0, planet.size, planet.size, {
+                color: planet.color,
+                round: planet.size / 2,
+                boxShadow: "inset -3px -3px 8px rgba(0, 0, 0, 0.6)",
+            });
+
+            placePlanet(planet);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // One step: the angle grows a little, and the planet goes to its new place.
+        const movePlanet = function (planet) {
+            planet.angle += planet.speed;
+            placePlanet(planet);
+        };
+
+        const placePlanet = function (planet) {
+
+            // x: left (-) and right (+). depth: back (-) and front (+). On the screen the front is lower.
+            const x = Math.cos(planet.angle) * planet.distance;
+            const depth = Math.sin(planet.angle) * planet.distance;
+            const y = depth * TILT;
+
+            // Trick 2: at the front (depth = distance) the size is 1 + DEPTH_SCALE times, at the back 1 - DEPTH_SCALE.
+            const scale = 1 + (depth / planet.distance) * DEPTH_SCALE;
+            const size = planet.size * scale;
+
+            planet.box.width = size;
+            planet.box.height = size;
+            planet.box.round = size / 2;
+
+            // WHY: left / top are the top left corner of the box: half of the size back puts its middle on (x, y).
+            planet.box.left = SYSTEM_CENTER + x - (size / 2);
+            planet.box.top = SYSTEM_CENTER + y - (size / 2);
+
+            // Trick 3: a near planet (depth > 0) gets a bigger zIndex than the sun, a far one a smaller one.
+            planet.box.zIndex = SUN_LAYER + Math.round(depth);
+
+        };
+
+        // The system stays in the middle of the window, also when the window changes size.
+        const centerSystem = function () {
+            boxSystem.center();
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

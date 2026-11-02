@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Searchable List</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- THE CODE OF THE SEARCHABLE LIST OBJECT -->
+        <script src="files/37/searchable-list.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SEARCHABLE LIST
+
+        A list object that can be searched, made with the basic objects (Input, Label, Icon, Box).
+
+        THE AIM OF THIS EXAMPLE:
+        - It gives an idea of how a ready-made list object works.
+        - With the same technique, you can make your own special objects.
+
+        ALGORITHM:
+        A list of fruits and vegetables. A text typed into the search box shows only the items
+        that have it in their title or in their description. A click on an item selects it.
+
+        WORKING LOGIC:
+        - The list object is made by SearchableList(), in the file "files/37/searchable-list.js".
+          Open that file to study the object and to develop it.
+        - The items come from an array: every element has a title, a description and the file name of a picture.
+        - list.fill(array) fills the list.
+        - When an item is clicked, the list runs the function given as onItemClick.
+
+        */
+
+        // *** VARIABLES:
+
+        // The page is zoomed to fit this width, but never wider than the max width.
+        const APP_ORIGINAL_WIDTH = 480;     // px
+        const APP_MAX_WIDTH = 480;          // px
+
+        // Fruits and vegetables. logo: the file name of the picture in images/37/
+        const plants = [
+            { title: "Broccoli", desc: "Vegetable", logo: "broccoli.png" },
+            { title: "Strawberry", desc: "Fruit", logo: "strawberry.png" },
+            { title: "Tomato", desc: "Vegetable", logo: "tomato.png" },
+            { title: "Apple", desc: "Fruit", logo: "apple.png" },
+            { title: "Carrot", desc: "Vegetable", logo: "carrot.png" },
+            { title: "Watermelon", desc: "Fruit", logo: "watermelon.png" },
+            { title: "Lemon", desc: "Fruit", logo: "lemon.png" },
+            { title: "Banana", desc: "Fruit", logo: "banana.png" },
+            { title: "Pomegranate", desc: "Fruit", logo: "pomegranate.png" },
+            { title: "Eggplant", desc: "Vegetable", logo: "eggplant.png" },
+            { title: "Blueberry", desc: "Fruit", logo: "blueberries.png" },
+            { title: "Green Pepper", desc: "Vegetable", logo: "green-pepper.png" },
+        ];
+
+        // Chess pieces (for a second list)
+        const chessPieces = [
+            { title: "King", desc: "One piece", logo: "king-white.png" },
+            { title: "Queen", desc: "One piece", logo: "queen-white.png" },
+            { title: "Knight", desc: "Two pieces", logo: "knight-white.png" },
+            { title: "Bishop", desc: "Two pieces", logo: "bishop-white.png" },
+            { title: "Rook", desc: "Two pieces", logo: "rook-white.png" },
+            { title: "Pawn", desc: "Eight pieces", logo: "pawn-white.png" },
+        ];
+
+        // NOTE: All the information is kept in arrays, and the lists are made from them.
+        // - So the algorithm is dynamic: other data makes another list, with the same code.
+        // - The data could also come from a database. (Ex: a PHP and MySQL server, read with fetch())
+
+        // The lists (SearchableList objects)
+        let plantList;
+        // let pieceList;
+
+        // *** START:
+
+        const start = function () {
+
+            page.fit(APP_ORIGINAL_WIDTH, APP_MAX_WIDTH);
+            page.color = "lightblue";
+
+            // SEARCHABLE LIST: The first list. Its place and its size are in the params.
+            plantList = SearchableList({
+                left: 40,
+                top: 20,
+                width: 400,
+                height: 450,
+                onItemClick: listItemClicked,
+            });
+            plantList.fill(plants);
+
+            // SEARCHABLE LIST: A second list, under the first one
+            // pieceList = SearchableList({
+            //     left: 40,
+            //     top: 480,
+            //     width: 300,
+            //     height: 270,
+            // });
+            // pieceList.fill(chessPieces);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs when an item of the list is clicked. It writes the item to the console.
+        // - self: the list that was clicked
+        // - item: the clicked item (an object of the list)
+        // - itemIndex: the number of the item in the array
+        // - itemData: the element of the array: { title, desc, logo }
+        const listItemClicked = function (self, item, itemIndex, itemData) {
+
+            println(itemIndex + "-" + itemData.title);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show the title of the clicked item in a Label above the list.
+        - Show the second list (the chess pieces): remove the // in front of its lines.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

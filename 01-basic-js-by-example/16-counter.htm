@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Counter with Buttons</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        COUNTER WITH BUTTONS
+
+        A number with "-", "+" and "Reset" buttons. The number never goes below 0.
+        The value lives in a variable (count). The buttons only change the variable and call showCount(),
+        and showCount() is the one place that puts the value on the screen.
+
+        - VGroup() ... endGroup()   -> a column: the objects created between these two lines go into it,
+                                       one under the other. With no size it fills the page and centers them.
+        - HGroup({ hug: 1 })        -> a row; hug: 1 makes the group as big as its content.
+        - btn.enabled = 0           -> turns a button off (it is faded and can not be clicked).
+        - that                      -> the object created last. that.on(...) right after Button(...)
+                                       adds the click to that button (used for Reset below).
+
+        TRY: change STEP to 5, or set a MAX_COUNT and turn "+" off at it, like "-" at 0.
+
+        */
+
+        // *** VARIABLES:
+
+        const MIN_COUNT = 0;
+        const STEP = 1;
+        const BUTTON_SIZE = 60;
+        const GAP = 12;
+
+        let count = 0;
+        let lblCount, btnMinus, btnPlus;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // GROUP: A column in the middle of the page
+            VGroup({ gap: 16 });
+
+                // LABEL: The count
+                lblCount = Label({
+                    text: "",
+                    fontSize: 64,
+                    bold: 1,
+                });
+
+                // GROUP: "-" and "+" side by side
+                HGroup({ hug: 1, gap: GAP });
+
+                    // BUTTON: -
+                    btnMinus = Button({
+                        text: "-",
+                        width: BUTTON_SIZE,
+                        height: BUTTON_SIZE,
+                        minimal: 1,
+                        color: "white",
+                        round: 12,
+                        fontSize: 28,
+                    });
+                    btnMinus.on("click", function () {
+                        changeCount(-STEP);
+                    });
+
+                    // BUTTON: +
+                    btnPlus = Button({
+                        text: "+",
+                        width: BUTTON_SIZE,
+                        height: BUTTON_SIZE,
+                        minimal: 1,
+                        color: "white",
+                        round: 12,
+                        fontSize: 28,
+                    });
+                    btnPlus.on("click", function () {
+                        changeCount(STEP);
+                    });
+
+                endGroup();
+
+                // BUTTON: Reset
+                Button({
+                    text: "Reset",
+                    width: (BUTTON_SIZE * 2) + GAP,   // as wide as the row above
+                    height: 44,
+                    minimal: 1,
+                    color: "indianred",
+                    textColor: "white",
+                    round: 12,
+                    fontSize: 16,
+                });
+                that.on("click", resetCount);
+
+            endGroup();
+
+            showCount();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // amount: STEP or -STEP. Math.max() keeps the count at MIN_COUNT or more.
+        const changeCount = function (amount) {
+            count = Math.max(MIN_COUNT, count + amount);
+            showCount();
+        };
+
+        const resetCount = function () {
+            count = MIN_COUNT;
+            showCount();
+        };
+
+        // The screen follows the value: the number, and "-" is off when the count is at its lowest.
+        const showCount = function () {
+            lblCount.text = count;
+            btnMinus.enabled = (count > MIN_COUNT);
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

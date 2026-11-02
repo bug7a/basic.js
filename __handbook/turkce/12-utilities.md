@@ -15,11 +15,11 @@ Konsol log mekanizmasını basitleştirir.
 
 ## 2. Tip Dönüşümü 
 
-- `num(değer_string, tip_secenegi)` — String i metne dönüştürür.
+- `basic.num(değer_string, tip_secenegi)` — String i metne dönüştürür.
     - default: `tip_secenegi = float` varsayılan formatı kullanır. (`3.14` float)
     - `tip_secenegi = integer/int` — sadece tam sayı formatı destekler.
-- `str(sayi_numarasi)` — Sayısal nesneyi formattan ayırmadan basit bir String (metin) değişkenine geçirir. `String($num)` muadilidir.
-- `twoDigitFormat(sayi_numarasi)` — Gönderilen rakam, sadece tek haneden oluşuyorsa (`0` ile `9` arasında ise), başına `'0'` ekleyip 2 haneli döndürür (Tarih ve Saat formatlarında özellikle işlevseldir).
+- `basic.str(sayi_numarasi)` — Sayısal nesneyi formattan ayırmadan basit bir String (metin) değişkenine geçirir. `String($num)` muadilidir.
+- `basic.twoDigitFormat(sayi_numarasi)` — Gönderilen rakam, sadece tek haneden oluşuyorsa (`0` ile `9` arasında ise), başına `'0'` ekleyip 2 haneli döndürür (Tarih ve Saat formatlarında özellikle işlevseldir).
 
 ## 3. Matematiksel Geliştirmeler
 
@@ -32,17 +32,17 @@ let rastgeleSayi = random(0, 100);
 
 ## 4. Cihaz Saptamaları 
 
-- `isMobile()` — Ekranın şu an Mobile (Dokunmatik Cihaz - Tablet, Akıllı Telefon) modundan erişilip erişilmediğini tarar. Eğer Browser destekli bir mobilden girilirse veya mobil uygulama yapısında ise `1` değeri (True) verir; aksi takdirde `0` değeri döner.
+- `basic.isMobile()` — Ekranın şu an Mobile (Dokunmatik Cihaz - Tablet, Akıllı Telefon) modundan erişilip erişilmediğini tarar. Eğer Browser destekli bir mobilden girilirse veya mobil uygulama yapısında ise `1` değeri (True) verir; aksi takdirde `0` değeri döner.
 
 ```javascript
-if ( isMobile() ) {
+if ( basic.isMobile() ) {
     println("Bir mobil cihazdan giriş yapıldı.");
 }
 ```
 
 ## 5. Tarayıcı Eylemleri
 
-- `go(url_adresi, hedef)` — `window.open` mekanizmasının bir arayüzüdür.
+- `basic.go(url_adresi, hedef)` — `window.open` mekanizmasının bir arayüzüdür.
     - `hedef = "_self"` (Varsayılan) aynı sekmede siteyi değişir.
     - `hedef = "_blank"` derseniz farklı sekmede / başka pencere adında oluşturur.
 
@@ -66,7 +66,7 @@ Herhangi bir nesne takıntısı (new vb) olmaksızın anlık saptamaları, hızl
 - `basic.time.second` — 0-59 geçerli saniye formundadır.
 - `basic.time.millisecond` — Anlık milisaniyeyi okur.
 
-> Not: Bu değerlerin önünde duruma göre "0" eklemesi yapmanız istenirse `twoDigitFormat(basic.time.minute)` şeklinde yardımcınızı kolayca entegre edebilirsiniz.
+> Not: Bu değerlerin önünde duruma göre "0" eklemesi yapmanız istenirse `basic.twoDigitFormat(basic.time.minute)` şeklinde yardımcınızı kolayca entegre edebilirsiniz.
 
 ## 8. Hafıza / Veri Saklama (Storage) Kalıcılığı
 

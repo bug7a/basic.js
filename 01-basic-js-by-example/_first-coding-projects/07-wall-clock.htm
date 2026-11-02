@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Wall Clock</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        WALL CLOCK
+
+        ALGORITHM:
+        A wall clock that shows the current time.
+
+        WORKING LOGIC:
+        - Each part of the clock is a picture: the face, the hour hand, the minute hand and the second hand.
+        - The four pictures have the same place and size: one on top of the other, they make the clock.
+        - Every second, the angles of the hands are calculated from the current time.
+
+        */
+
+        // *** VARIABLES:
+
+        const CLOCK_SIZE = 200;     // px: the width and the height of every picture of the clock
+
+        // The 4 pictures (Icons) of the clock.
+        let imgBackground;
+        let imgHour;
+        let imgMinute;
+        let imgSecond;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "tomato";
+
+            // ICON: The face of the clock.
+            imgBackground = Icon({ width: CLOCK_SIZE, height: CLOCK_SIZE });
+            imgBackground.load("images/clock-background.png");
+
+            // Its place is calculated: the free space of the page is shared equally on both sides,
+            // so the clock is in the middle of the page.
+            imgBackground.top = (page.height - imgBackground.height) / 2;
+            imgBackground.left = (page.width - imgBackground.width) / 2;
+
+            // ICON: The hour hand, at the place and the size of the face.
+            imgHour = Icon();
+            imgHour.load("images/clock-hour.png");
+            copyPlaceAndSize(imgHour, imgBackground);
+
+            // ICON: The minute hand
+            imgMinute = Icon();
+            imgMinute.load("images/clock-minute.png");
+            copyPlaceAndSize(imgMinute, imgBackground);
+
+            // ICON: The second hand
+            imgSecond = Icon();
+            imgSecond.load("images/clock-second.png");
+            copyPlaceAndSize(imgSecond, imgBackground);
+
+            // NOTE: The pictures are in the images folder: clock-background.png, clock-hour.png...
+            //       Open them to see how each part is drawn.
+
+        };
+
+        // basic.js runs loop() every second, by itself.
+        const loop = function () {
+
+            // INFORMATION:
+            // A circle is 360 degrees.
+            // The circle of a clock has 12 hours, or 60 minutes, or 60 seconds.
+
+            // QUESTION:
+            // At 12 o'clock, the angle of the hour hand is 0.
+            // What is its angle at 1 o'clock?
+
+            // SOLUTION:
+            // 360 degrees divided by 12 gives the turn of 1 hour.
+
+            // ANSWER:
+            // 1 hour is 30 degrees.
+            // For the minutes and the seconds: 360 / 60 = 6 degrees.
+
+            // Now give the hands their angles from the current time:
+            imgSecond.rotate = basic.time.second * 6;
+            imgMinute.rotate = basic.time.minute * 6;
+            imgHour.rotate = basic.time.hour * 30;
+
+            // NOTE: basic.time gives the current time: basic.time.hour (0 - 23), basic.time.minute, basic.time.second.
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Gives newObject the place and the size of sampleObject.
+        const copyPlaceAndSize = function (newObject, sampleObject) {
+
+            newObject.width = sampleObject.width;
+            newObject.height = sampleObject.height;
+            newObject.top = sampleObject.top;
+            newObject.left = sampleObject.left;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a digital clock under the wall clock, in the 12:09:00 format.
+        - When the page opens, the hands wait at 12 for one second (loop() runs for the first time
+          after one second). Make them show the time at once.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

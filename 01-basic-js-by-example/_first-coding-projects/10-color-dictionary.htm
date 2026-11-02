@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Color Dictionary</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        COLOR DICTIONARY
+
+        ALGORITHM:
+        A dictionary: the Turkish name of a color is typed, and the program finds its English name
+        in a list (an array variable).
+
+        WORKING LOGIC:
+        - wordList is an array: each item of it is a color with its Turkish and its English name.
+        - The button runs translateWord(). It looks at the words of the list one by one:
+          when the Turkish word is the typed word, its English name is written into the second text box.
+        - The English name is also a color name of the browser, so the button is painted with that color.
+
+        */
+
+        // *** VARIABLES:
+
+        const BOX_WIDTH = 150;      // px: the width of the text boxes and of the button
+        const BOX_SPACE = 25;       // px: between the two text boxes
+        const BUTTON_SPACE = 10;    // px: between the Turkish text box and the button
+
+        // The objects
+        let txtTurkish;
+        let txtEnglish;
+        let btnTranslate;
+
+        // The list of the words.
+        // NOTE: The Turkish words are the data of this dictionary: the user types one of them.
+        const wordList = [
+
+            { turkish: "kırmızı", english: "red" },
+            { turkish: "mavi", english: "blue" },
+            { turkish: "yeşil", english: "green" },
+            { turkish: "sarı", english: "yellow" },
+            { turkish: "turuncu", english: "orange" },
+            { turkish: "siyah", english: "black" },
+            { turkish: "beyaz", english: "white" },
+            { turkish: "pembe", english: "pink" },
+            { turkish: "gri", english: "gray" },
+            { turkish: "lacivert", english: "darkblue" },
+            { turkish: "mor", english: "purple" },
+            { turkish: "kahverengi", english: "brown" },
+
+        ];
+
+        // NOTE: wordList is an array (a list), and each item of it is an object.
+        //       Each object has two values of its own: turkish and english. Ex: wordList[0].english is "red".
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "white";
+
+            // TEXTBOX: The Turkish word. Parameters: left, top, width, then the props.
+            txtTurkish = Input(50, 50, BOX_WIDTH, {
+                text: "yeşil",          // "green" in Turkish
+                title: "Turkish:",
+                minimal: 1,             // a simple look: no border and no shade
+                color: "lightgray",
+            });
+
+            // TEXTBOX: The English word. Only the program writes into it.
+            txtEnglish = Input({
+                width: BOX_WIDTH,
+                title: "English:",
+                minimal: 1,
+                color: "lightgray",
+                enabled: 0,             // nobody can type into it
+            });
+            // Its place: at the right of txtTurkish, with a space of 25 px.
+            txtEnglish.aline(txtTurkish, "right", BOX_SPACE);
+
+            // BUTTON: Translate
+            btnTranslate = Button({
+                width: BOX_WIDTH,
+                text: "Translate",
+                color: "lightgray",
+            });
+            // Its place: under txtTurkish, with a space of 10 px.
+            btnTranslate.aline(txtTurkish, "bottom", BUTTON_SPACE);
+            // When it is clicked, the function translateWord runs.
+            btnTranslate.on("click", translateWord);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Finds the English name of the typed word.
+        const translateWord = function () {
+
+            // Look at every word of the list: i is 0, 1, 2 ... up to the last item.
+            for (let i = 0; i < wordList.length; i++) {
+
+                // Is this the typed word?
+                if (wordList[i].turkish == txtTurkish.text) {
+
+                    // Write its English name.
+                    txtEnglish.text = wordList[i].english;
+
+                    // Paint the button with the color of that name.
+                    btnTranslate.color = txtEnglish.text;
+
+                }
+
+            }
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Translate the other way too: from an English color name to its Turkish name.
+          1. First, the English text box must take typing: its .enabled must be 1.
+          2. Then use a second button for it. Or keep one button: when only the English text box
+             has a word, translate it into Turkish; when only the Turkish one has a word, into English.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

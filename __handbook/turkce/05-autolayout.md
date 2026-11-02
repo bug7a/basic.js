@@ -100,6 +100,7 @@ endGroup();
 - `border` (number) — Kenarlık kalınlığı.
 - `borderColor` (string) — Kenarlık rengi.
 - `round` (number) — Köşe yuvarlaklığı.
+- `clipContent` (boolean, varsayılan: `1`) — Grup da bir Box'tır: kenarlarını aşan içeriği **keser**. Yüksekliği içeriği kadar olan bir grup (`height: "auto"`, `hug: 1`), fareyle kalkan ya da büyüyen bir düğmeyi, bir gölgeyi ya da odak çizgisini hemen keser. Böyle nesnelerin etrafındaki gruplara `clipContent: 0` ver (bkz. Box: "Kutusunun dışına çıkan içerik").
 
 ---
 

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Keyword Box</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        KEYWORD BOX
+
+        ALGORITHM:
+        Words (keywords) are added to a box with a text box and a + button. A click on a word removes it.
+        The list is saved, so the words are still there when the page is opened again.
+
+        WORKING LOGIC:
+        - The keywords are in an HGroup with wrap: 1 (keywordBox). It puts them side by side, and when
+          a line is full, the next keyword goes on to a new line. gap: the space between the keywords.
+        - keywordBox has no fixed height (height: "auto"): it grows with its keywords. The card around it
+          is a VGroup with hug: 1, so it grows too, and the group of the page keeps it in its middle.
+          No code sets a size or a place again after a change.
+        - A new keyword is created in keywordBox with createIn(). A clicked one is removed with remove().
+          The group places the other keywords again by itself.
+        - Every word has an id. keywordList keeps the id and the text of every word.
+        - The edited list is saved in the storage of the browser (basic.storage).
+        - A keyword is a text that the user typed: it is shown with plainText (never read as HTML).
+        - In this example, the important steps and values are written to the console (println),
+          so you can follow how the functions work. (The console of the browser: F12)
+
+        */
+
+        // *** VARIABLES:
+
+        const APP_COLOR = "#8FBC8F";                // a soft green
+        const STORAGE_KEY = "app66-keywordList";    // the name of the saved list in the storage of the browser
+
+        // The last id that was given to a keyword
+        let keywordId = 0;
+        // The keywords. The page starts with this list when nothing is saved yet.
+        let keywordList = [
+            { id: "1", name: "C" },
+            { id: "2", name: "C++" },
+            { id: "3", name: "Java" },
+            { id: "4", name: "C#" },
+            { id: "5", name: "Python" },
+            { id: "6", name: "Swift" },
+        ];
+
+        // The white card
+        let card;
+
+        // Short names
+        let keywordBox;
+        let txtNewKeyword;
+        let lblbtnAddNewKeyword;
+
+        // *** START:
+
+        const start = function () {
+
+            // APP_COLOR + "30" = "#8FBC8F30": the last two digits make the color transparent (00: not seen ... FF: solid).
+            page.color = APP_COLOR + "30";
+
+            // GROUP: It has no size, so it is as big as the page and puts the card in its middle,
+            // also when the size of the window changes.
+            AutoLayout();
+
+                // GROUP: The card: the keywords, and under them the place to add a new keyword.
+                // hug: 1 -> it is as big as its objects (+ its padding), so it grows with the keywords.
+                card = VGroup({
+                    hug: 1,
+                    padding: 20,
+                    gap: 20,
+                    color: "white",
+                    boxShadow: "2px 3px 6px rgba(0, 0, 0, 0.05)",
+                    borderColor: "lightgray",
+                    round: 13,
+                });
+
+                    createKeywordBox();
+                    createAddKeywordRow();
+
+                endGroup();
+
+            endAutoLayout();
+
+            // To go back to the starting list, run this line once:
+            // basic.storage.save(STORAGE_KEY, keywordList);
+
+            loadSavedKeywords();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // The box of the keywords. The keywords are created in it later (createKeywordInBox()).
+        const createKeywordBox = function () {
+
+            // GROUP: The keywords side by side. wrap: 1 -> a keyword that does not fit goes on to the next line.
+            // height: "auto" -> it grows with its keywords.
+            card.keywordBox = HGroup({
+                width: 300,
+                height: "auto",
+                wrap: 1,
+                gap: "4px 6px",         // 4 px between the lines, 6 px between two keywords on a line
+                padding: [13, 12],      // 13 px at the left and the right, 12 px at the top and the bottom
+                align: "left top",
+                round: 13,
+                color: "whitesmoke",
+                // css: the CSS properties that basic.js has no name for
+                css: {
+                    minHeight: "84px",              // With no keywords in it, it is still 84 px high.
+                    alignContent: "flex-start",     // The lines start at the top, also when it is higher than they are.
+                },
+            });
+            keywordBox = card.keywordBox;
+
+            endGroup();
+
+        };
+
+        // The place to add a new keyword: the text box and the + button side by side, at its bottom.
+        // (The title of the text box is drawn above the text box, in the free space of this place.)
+        const createAddKeywordRow = function () {
+
+            // GROUP: 100 px high. align: "left bottom" -> its objects stand side by side at its bottom.
+            card.addKeywordRow = HGroup({
+                width: 300,
+                height: 100,
+                gap: 10,
+                align: "left bottom",
+            });
+
+                // INPUT: The text box of the new keyword
+                card.addKeywordRow.txtNewKeyword = Input({
+                    width: 240,
+                    title: "New Keyword:",
+                    minimal: 1,
+                    round: 13,
+                    color: "whitesmoke",
+                });
+                txtNewKeyword = card.addKeywordRow.txtNewKeyword;
+
+                // LABEL: The add button. A Label can be clicked like a button too.
+                card.addKeywordRow.lblbtnAddNewKeyword = Label({
+                    width: 50,
+                    height: 50,
+                    text: "+",
+                    textAlign: "center",
+                    fontSize: 35,
+                    color: APP_COLOR + "15",
+                    border: 1,
+                    round: 25,
+                    borderColor: APP_COLOR,
+                    textColor: APP_COLOR,
+                });
+                lblbtnAddNewKeyword = card.addKeywordRow.lblbtnAddNewKeyword;
+                lblbtnAddNewKeyword.on("click", addNewKeyword);
+
+            endGroup();
+
+        };
+
+        // Loads the saved keywords (or the starting list) and creates them in the box.
+        const loadSavedKeywords = function () {
+
+            // When a list was saved before, it is used. (||: "or". load() gives null when nothing is saved.)
+            keywordList = basic.storage.load(STORAGE_KEY) || keywordList;
+
+            println("loadSavedKeywords: ");
+            println(keywordList);
+
+            // The id of the last keyword. A new keyword gets the next number.
+            if (keywordList.length == 0) {
+                keywordId = 0;
+            } else {
+                keywordId = basic.num(keywordList[keywordList.length - 1].id);
+            }
+
+            println("current keywordId: " + keywordId);
+
+            // Create the loaded keywords.
+            for (let i = 0; i < keywordList.length; i++) {
+                createKeywordInBox(keywordList[i].name, keywordList[i].id);
+            }
+
+        };
+
+        // Runs when the + button is clicked: the typed word becomes a new keyword, and the list is saved.
+        const addNewKeyword = function () {
+
+            // An empty text box adds nothing.
+            if (txtNewKeyword.text.length == 0) return;
+
+            const lblKeyword = createKeywordInBox(txtNewKeyword.text);
+
+            keywordList.push({ id: lblKeyword.id, name: txtNewKeyword.text });
+            basic.storage.save(STORAGE_KEY, keywordList);
+
+            // The text box is emptied for the next word.
+            txtNewKeyword.text = "";
+
+        };
+
+        // Creates a keyword at the end of the keyword box and gives it back.
+        // id: the id of a loaded keyword. Without an id, a new one is made.
+        const createKeywordInBox = function (keywordText, id) {
+
+            // When no id is given, a new one is made. (||: "or")
+            id = id || generateNewKeywordId();
+
+            // createIn(): the objects created in the function go into the given box (here: the group).
+            const lblKeyword = createIn(keywordBox, function () {
+                return createKeyword(keywordText);
+            });
+
+            // Our own information on the keyword: its id
+            lblKeyword.id = id;
+
+            println("createKeywordInBox: id: " + id + ", text: " + keywordText);
+
+            return lblKeyword;
+
+        };
+
+        // Makes a new id: the number after the last one.
+        const generateNewKeywordId = function () {
+
+            keywordId++;
+            println("generateNewKeywordId: " + keywordId);
+
+            return keywordId;
+
+        };
+
+        // Creates the label of a keyword: a small white card. It has no left and no top: the group places it.
+        const createKeyword = function (keywordText) {
+
+            // LABEL: The keyword
+            const lblKeyword = Label({
+                plainText: keywordText,     // a text that the user typed: shown as it is, never read as HTML
+                spaceX: 10,                 // the space at the left and at the right of the text
+                spaceY: 3,                  // the space above and under the text
+                boxShadow: "1px 1px 1px rgba(0, 0, 0, 0.1)",
+                color: "white",
+                textColor: "gray",
+                border: 0,
+                round: 8,
+                fontSize: 16,
+                bold: 1,
+            });
+
+            // A click on a keyword removes it.
+            lblKeyword.on("click", removeKeyword);
+
+            println("createKeyword: text: " + keywordText);
+
+            return lblKeyword;
+
+        };
+
+        // Runs when a keyword is clicked: it is removed from the box and from the list, and the list is saved.
+        // self: the clicked keyword (basic.js gives it).
+        const removeKeyword = function (self) {
+
+            const index = getKeywordIndexById(self.id);
+
+            // The keyword is not in the list: nothing to do.
+            if (index < 0) return;
+
+            println("removeKeyword: id: " + self.id + ", index: " + index);
+
+            // splice(index, 1): 1 item at this place is taken out of the list.
+            keywordList.splice(index, 1);
+            basic.storage.save(STORAGE_KEY, keywordList);
+
+            // The group places the other keywords again, and the card gets smaller if a line is empty.
+            self.remove();
+
+        };
+
+        // Gives the order number (index) of the keyword with this id in keywordList, or -1 when it is not there.
+        const getKeywordIndexById = function (id) {
+
+            for (let i = 0; i < keywordList.length; i++) {
+
+                // NOTE: == (not ===), because an id can be a text ("1") or a number (7).
+                if (keywordList[i].id == id) {
+                    println("getKeywordIndexById: " + i);
+                    return i;
+                }
+
+            }
+
+            // The keyword is not found.
+            return -1;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add the word with the Enter key too: txtNewKeyword.onEnter(addNewKeyword).
+        - Do not add a word that is already in the box.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

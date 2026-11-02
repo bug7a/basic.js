@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Snake Game</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        SNAKE GAME
+
+        ALGORITHM:
+        A snake game like the one we know from old phones.
+
+        WORKING LOGIC:
+        - The board is 28 x 23 squares. Each square is a Box; the squares at the edges are black (the wall).
+        - The snake is a list of points (x, y); the first point is its head. Its squares are painted in the snake color.
+        - loop() runs every 250 ms and moves the snake one square: the square in front of the head is painted,
+          and the last square of the snake is painted white again.
+        - The color of the square in front of the head decides what happens:
+          white: go on, gold (a bait): grow and score, black (the wall): stop.
+
+        GAME PLAY:
+        - The four arrows change the direction of the snake.
+        - Eat the gold squares: the snake grows one square and the score goes up by 1.
+
+        */
+
+        // *** VARIABLES:
+
+        // The size of the board, in squares.
+        // NOTE: A name written in CAPITAL letters says that its value never changes (a constant).
+        const HORIZONTAL_SQUARE_NUMBER = 28;
+        const VERTICAL_SQUARE_NUMBER = 23;
+
+        const SQUARE_SIZE = 19;     // px
+        const SQUARE_SPACE = 20;    // px: from the start of a square to the start of the next one (a 1 px line between them)
+        const BOARD_TOP = 100;      // px: the board starts under the score
+        const ARROW_SIZE = 50;      // px
+        const ARROW_SPACE = 5;      // px: between two arrows
+        const STEP_TIME = 250;      // ms: the snake moves one square in this time
+
+        // The colors of the squares. The game reads the color of a square to know what is on it.
+        const EMPTY_COLOR = "white";
+        const WALL_COLOR = "black";
+        const BAIT_COLOR = "gold";
+        const SNAKE_COLOR = "tomato";
+
+        // The score: a title and a number
+        let lblScoreTitle;
+        let lblScore;
+
+        // The direction buttons (Icons: picture objects)
+        let imgUp, imgDown, imgRight, imgLeft;
+
+        // Every square of the board, found by its key: squares["5-3"] is the square at x = 5, y = 3.
+        let squares;
+
+        // The direction of the snake: "up", "down", "right" or "left"
+        let direction = "right";
+
+        // The points of the snake, its head first. It starts with 3 points.
+        const points = [
+            { x: 4, y: 2 },
+            { x: 3, y: 2 },
+            { x: 2, y: 2 },
+        ];
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "tomato";
+
+            // loop() runs every 250 ms (and not every 1000 ms, as it does by default).
+            setLoopTimer(STEP_TIME);
+
+            // LABEL: The score title
+            lblScoreTitle = Label({
+                left: 360,
+                top: 40,
+                text: "<b>Score</b>",   // <b>: bold. The text of a Label can have HTML in it.
+                textAlign: "center",
+                textColor: "black",
+                height: 28,             // px: the number below is placed right under this height
+            });
+
+            // LABEL: The score, right under its title
+            lblScore = Label({
+                text: "0",
+                textAlign: "center",
+                textColor: "black",
+            });
+            lblScore.aline(lblScoreTitle, "bottom");
+
+            // THE DIRECTION BUTTONS:
+
+            // ICON: The down arrow, at a fixed place. The other arrows are placed around it with aline().
+            imgDown = Icon({ left: 455, top: 650, width: ARROW_SIZE, height: ARROW_SIZE });
+            imgDown.load("images/arrow-down.png");
+
+            // ICON: The up arrow, 5 px above the down arrow
+            imgUp = Icon({ width: ARROW_SIZE, height: ARROW_SIZE });
+            imgUp.load("images/arrow-up.png");
+            imgUp.aline(imgDown, "top", ARROW_SPACE);
+
+            // ICON: The right arrow, 5 px at the right of the down arrow
+            imgRight = Icon({ width: ARROW_SIZE, height: ARROW_SIZE });
+            imgRight.load("images/arrow-right.png");
+            imgRight.aline(imgDown, "right", ARROW_SPACE);
+
+            // ICON: The left arrow, 5 px at the left of the down arrow
+            imgLeft = Icon({ width: ARROW_SIZE, height: ARROW_SIZE });
+            imgLeft.load("images/arrow-left.png");
+            imgLeft.aline(imgDown, "left", ARROW_SPACE);
+
+            // Our own information on each arrow: its direction.
+            imgDown.direction = "down";
+            imgUp.direction = "up";
+            imgRight.direction = "right";
+            imgLeft.direction = "left";
+
+            // The same function runs for every arrow.
+            imgDown.on("click", changeDirection);
+            imgUp.on("click", changeDirection);
+            imgRight.on("click", changeDirection);
+            imgLeft.on("click", changeDirection);
+
+            // THE BOARD: the squares that the snake moves on (28 x 23)
+
+            // An empty object: every square is kept in it, with its key.
+            squares = {};
+
+            // y: the row (1 to 23), x: the column (1 to 28)
+            for (let y = 1; y <= VERTICAL_SQUARE_NUMBER; y++) {
+                for (let x = 1; x <= HORIZONTAL_SQUARE_NUMBER; x++) {
+
+                    // The squares at the edges are the wall: the first and the last column, the first and the last row.
+                    let color = EMPTY_COLOR;
+                    if (x == 1 || x == HORIZONTAL_SQUARE_NUMBER || y == 1 || y == VERTICAL_SQUARE_NUMBER) {
+                        color = WALL_COLOR;
+                    }
+
+                    // BOX: A square. Its place comes from its column and its row.
+                    const square = Box({
+                        left: x * SQUARE_SPACE,
+                        top: BOARD_TOP + (y * SQUARE_SPACE),
+                        width: SQUARE_SIZE,
+                        height: SQUARE_SIZE,
+                        border: 0,
+                        color: color,
+                    });
+
+                    // Keep the square with a key made from its place: "x-y"
+                    squares[x + "-" + y] = square;
+
+                }
+            }
+
+            // Paint the snake at its first place.
+            for (let i = 0; i < points.length; i++) {
+                paintSquare(points[i].x, points[i].y, SNAKE_COLOR);
+            }
+
+            // Put the first bait on the board.
+            addBait();
+
+        };
+
+        // basic.js runs loop() again and again (here: every 250 ms).
+        const loop = function () {
+
+            // The snake moves one square at every step.
+            moveForward();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Moves the snake one square in its direction.
+        const moveForward = function () {
+
+            // HOW: the head goes one square forward, and one square is cleared at the end of the snake.
+            // The color of the square in front of the head decides:
+            // 1. black (the wall): nothing happens, the game is over.
+            // 2. gold (a bait): the snake eats it and grows one square.
+            // 3. white (empty): the snake goes on.
+
+            // The next place of the head: one square from the head, in the direction of the snake.
+            let newX = points[0].x;
+            let newY = points[0].y;
+
+            if (direction == "right") {
+                newX = newX + 1;
+
+            } else if (direction == "left") {
+                newX = newX - 1;
+
+            } else if (direction == "down") {
+                newY = newY + 1;           // a bigger y: lower on the board
+
+            } else if (direction == "up") {
+                newY = newY - 1;
+            }
+
+            // What is on the next square? Its color tells it.
+            const nextSquareColor = getSquareColor(newX, newY);
+
+            if (nextSquareColor == EMPTY_COLOR) {
+
+                // Go to the new place WITHOUT growing.
+                paintAndUpdate(newX, newY, 0);
+
+            } else if (nextSquareColor == WALL_COLOR) {
+
+                // Nothing: the game is over.
+
+                // PROBLEM: After the snake hits the wall, the game can go on at any time with the direction buttons.
+                // This should be fixed.
+
+            } else if (nextSquareColor == BAIT_COLOR) {
+
+                // The bait is eaten: go to the new place and GROW.
+                paintAndUpdate(newX, newY, 1);
+                // A new bait
+                addBait();
+                // The score goes up by 1.
+                increaseScore();
+
+            }
+
+            // PROBLEM: When the moving snake meets itself, the game should not go on.
+            // This should be fixed.
+
+        };
+
+        // Paints the new place of the head and updates the list of points.
+        // isGrowing: 1 -> the snake gets one square longer, 0 -> its length stays the same.
+        const paintAndUpdate = function (newX, newY, isGrowing) {
+
+            if (isGrowing == 0) {
+
+                // NOTE: Without this, the snake would get one square longer at every step.
+
+                // The last point of the snake: paint its square white, then remove it from the list.
+                const lastPoint = points[points.length - 1];
+                paintSquare(lastPoint.x, lastPoint.y, EMPTY_COLOR);
+                points.pop();
+
+            }
+
+            // Paint the new place of the head.
+            paintSquare(newX, newY, SNAKE_COLOR);
+
+            // Add the new place to the start of the list: it is the new head.
+            points.unshift({ x: newX, y: newY });
+
+        };
+
+        // Changes the direction of the snake. clickedArrow: the arrow itself (basic.js gives it).
+        const changeDirection = function (clickedArrow) {
+
+            // The direction comes from our own information on the arrow.
+            direction = clickedArrow.direction;
+
+        };
+
+        // Puts a bait (a gold square) at a random place.
+        const addBait = function () {
+
+            // A random place, not on the edges
+            const x = random(2, HORIZONTAL_SQUARE_NUMBER - 1);
+            const y = random(2, VERTICAL_SQUARE_NUMBER - 1);
+
+            // PROBLEM: With a small chance, the random place can be on the snake. This should be fixed:
+            // check the place, and choose a new one again and again when it is needed.
+
+            // Paint the random place gold.
+            paintSquare(x, y, BAIT_COLOR);
+
+        };
+
+        // NOTE: Our own function: it paints the square at x, y.
+        const paintSquare = function (x, y, color) {
+
+            // The key of the square, made from its place. Ex: "5-3"
+            const key = x + "-" + y;
+
+            squares[key].color = color;
+
+        };
+
+        // NOTE: Our own function: it gives the color of the square at x, y.
+        const getSquareColor = function (x, y) {
+
+            // The key of the square, made from its place.
+            const key = x + "-" + y;
+
+            return squares[key].color;
+
+        };
+
+        // Adds 1 to the score.
+        const increaseScore = function () {
+
+            // The text of the label is turned into a number, and 1 is added to it.
+            lblScore.text = basic.num(lblScore.text) + 1;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Fix the three PROBLEMs written in the code.
+        - Change the direction with the arrow keys of the keyboard too.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -4,9 +4,51 @@ Bu belgede basic.js kütüphanesine eklenen yeni özellikler, güncellemeler ve 
 
 ---
 
+## Versiyon 26.11.01
+
+*   **Bileşenler sığdırılmış bir sayfada boylarını korur:** `page.fit(600, 800)` ile sığdırılan (telefonda 0.65'e küçülen) bir sayfada bir kez `basic.uiScale = 1 / page.zoom` yazın: Tabs, Dialog, Toast, Tooltip, SelectBox ve SelectDate bunu yeni `scale` parametrelerinin varsayılanı olarak alır ve normal bir sayfadaki kadar büyük kalır. `basic.scaleStyle(style, factor)`, `basic.scaleSize(value, factor)` ve `basic.scaleCssText(text, factor)` (bir gölgenin px'leri) kendi bileşenleriniz için bir stilin ölçülerini çarpar. Varsayılan 1 ile hiçbir şey değişmez. Örnekli başvuru: `basic/basic-what-is-new.md`.
+
+---
+
+## Versiyon 26.10.27
+
+*   **Stil paketleri parametreleri de değiştirebilir:** kendi `style` anahtarı olan bir paket bir parametre paketidir. `style`'ı bileşenin stiline, diğer anahtarları sayfanın vermediği parametrelere gider: `Tabs.styles.dark = { style: { tab: { textColor: "white" } }, closeIconFile: "tabs/close-white.svg" }`. `style` anahtarı olmayan paket eskisi gibi çalışır. Tam uyumlu. `InputB` (comp-m2) koyu stili için bunu kullanır. Örnekli başvuru: `basic/basic-what-is-new.md`.
+*   **`minimal` ve `border`:** `minimal` bir Button / Input'un kenarı yoktur (basic.css), artık `border` da 0 okunur (1 okunuyordu). Verdiğiniz bir kenar (`border: 2`) kalır. Ekranda bir şey değişmez.
+
+---
+
+## Versiyon 26.10.25
+
+*   **UYUMSUZ: yardımcılar `basic.*` altında:** `num`, `str`, `isMobile`, `go` ve `twoDigitFormat` artık `basic.num()`, `basic.str()`, `basic.isMobile()`, `basic.go()` ve `basic.twoDigitFormat()`; global değiller.
+*   **UYUMSUZ: eski `create*` globalleri kaldırıldı:** `createBox`, `createLabel`, `createButton`, `createImage` / `createIcon`, `createTextBox` / `createInput`. Yerine `Box()`, `Label()`, `Button()`, `Icon()`, `Input()` (aynısı, props ile). Fonksiyonlar `basic.createBox()`... olarak duruyor. Eski bir sürüme göre yazılmış sayfada yalnızca adı değiştirmek yeter.
+*   **`basic.resolveTheme(temalar, ad)`:** bir temanın renkleri (`"auto"`: sistem ayarı), eksik anahtarlar açık temadan. `Modal`, `Toast` ve `ChartBox` bunu kullanır; yeni bir tema yalnızca farklı anahtarları içerir: `Toast.THEMES.ocean = { background: "#0B2239" }`.
+*   **`Alpha(renk, oran)`:** `Black(0.5)` / `White(0.5)` gibi, ama her renk için: `Alpha("#456789", 0.5)` sonucu `"rgba(69,103,137,0.5)"`. Hex renkler `rgba` olur; bir ad, `rgb()` ya da bir `var(--token)` `color-mix` ile şeffaflaşır. Tam uyumlu. Örnekli başvuru: `basic/basic-what-is-new.md`.
+
+---
+
+## Versiyon 26.10.24
+
+*   **`basic.applyStylePackage(params, Comp.styles, CompDefaults)`:** Bir bileşenin stil paketleri (`styleName: "dark"`) tek satırda; her bileşenin yazdığı üç satırın yerine. Sıra aynı: `params.style` > `styleName` paketi > `Defaults.style`. Bir paket olduğu gibi de verilebilir, `Tabs({ style: Tabs.styles.dark })`: kopyalanır, paketin kendisi hiç değişmez. Tam uyumlu. `comp/tabs.js` ve `_component-template.js` bunu kullanır (v26.10.24 gerekir). Örnekli başvuru: `basic/basic-what-is-new.md`.
+
+---
+
+## Versiyon 26.10.23
+
+*   **Daha sade bileşenler, tam uyumlu:** Önceki sürümler için yazılmış bütün sayfalar ve bileşenler değişiklik gerekmeden çalışır. Bir nesnenin global kayıtları artık kendi `remove()`'u ile temizlenir; bu yüzden bir bileşenin bunlar için kendi `remove()`'unu yazmasına gerek kalmaz (önceden 63 bileşenden 42'si `remove()`'u yalnızca bunları temizlemek için eziyordu ve unutulan bir temizlik bellek sızıntısına yol açıyordu). Örnekli başvuru: `basic/basic-what-is-new.md`. Kendi kendini kontrol eden test sayfası: `test/basic-test.htm` (137 kontrol).
+*   **`remove()` ile temizlenenler:** `obj.listenTo(window, "keydown", func)` (başka bir elemanın olayı; kaldırma fonksiyonunu döndürür), `obj.onPageResize(func)`, `obj.after(ms, func)` (bir kez; iptal fonksiyonunu döndürür), `obj.every(ms, func)` (tekrar tekrar; durdurma fonksiyonunu döndürür), `obj.own(başkaNesne)` (başka bir yerde, örneğin `page` üzerinde oluşturulan bir menü, bu nesneyle birlikte silinir).
+*   **Yeni metotlar (bütün nesneler):** `onHoverChange(func)` (`func(self, isOver)`), `setFocusRing(color)` (yalnızca klavyede görünen odak halkası, CSS `:focus-visible`).
+*   **basic:** `isOn(value)` (`1`, `"1"`, `true`), `addCss(id, css, replace)` (bir `<style>`'ı bir kez ekler: `:hover`, `::-webkit-scrollbar`, `@keyframes` gibi satır içi yazılamayanlar için).
+*   **`createIn(container, func)`** artık `func`'ın sonucunu döndürür: `const menu = box.own(createIn(page, function () { return Box(...); }));`
+*   **Düzeltme (gruplar):** Bir grubun (`HGroup`, `VGroup`, `AutoLayout`) props'una verilen `grow`, `shrink` ve `css`, grubun flex stilleri tarafından eziliyor ve kayboluyordu. Artık `VGroup({ align: "left top", css: { alignItems: "stretch" } })` ve `HGroup({ grow: 1 })` yazıldığı gibi çalışır.
+*   **Düzeltme (`rotate`):** `obj.rotate = 45` transform'un geri kalanını (bir `translateY()`, bir `scale()`) siliyordu. Artık yalnızca kendi `rotate()` kısmını değiştirir.
+*   **Erişilebilirlik özellikleri (her nesne):** `role` (`"button"`, `"tab"`...), `aria` (`{ label: "Kapat", selected: true }`: yalnızca verilen anahtarlar değişir, `null` birini kaldırır) ve `tabIndex`. `elem.setAttribute("aria-...")` satırlarının yerine geçer. Bkz. "Ortak Özellikler".
+*   **Bileşen şablonu** (`_component-template.js`) bunlarla yazıldı; `comp/tree-view.js` kendi `remove()`'u olmayan ilk bileşen.
+
+---
+
 ## Versiyon 26.09.18
 
-*   **Tam uyumlu düzeltmeler ve eklemeler:** Önceki sürümler için yazılmış bütün sayfalar ve bileşenler değişiklik gerekmeden çalışır (137 örnek ve şablon sayfası headless Chrome'da karşılaştırıldı: DOM birebir aynı). Sayfalarda değişiklik gerekmez. Önceki sürüm (26.09.17) başvuru için `basic/basic-bugra.js` / `basic-bugra.min.js` olarak saklanır. Örnekli tam başvuru: `basic/basic-v26.09.18.md`. Kendi kendini kontrol eden test sayfası: `test/basic-test.htm`.
+*   **Tam uyumlu düzeltmeler ve eklemeler:** Önceki sürümler için yazılmış bütün sayfalar ve bileşenler değişiklik gerekmeden çalışır (137 örnek ve şablon sayfası headless Chrome'da karşılaştırıldı: DOM birebir aynı). Sayfalarda değişiklik gerekmez. Önceki sürüm (26.09.17) başvuru için `basic/backup/v26.09.17/basic-bugra.js` / `basic-bugra.min.js` olarak saklanır. Örnekli tam başvuru: `basic/basic-what-is-new.md`. Kendi kendini kontrol eden test sayfası: `test/basic-test.htm`.
 *   **Düzeltmeler:** `left`, `top`, `right`, `bottom`, `width`, `height` için `"100"` ve `"50%"` / `"calc()"` değerleri çalışır. Gizli bir grupta (`VGroup({ visible: 0 })`) oluşturulan nesneler gerçek flex öğesi olur. Sayfa hazır olmadan nesne oluşturmak anlaşılır bir hata fırlatır. Kütüphane yardımcısı ile aynı adı taşıyan bir sayfa değişkeni (`const createButton`) `Button()` fonksiyonunu bozamaz. `remove()` bekleyen hareket zamanlayıcılarını temizler. `props()` nesneyi döndürür.
 *   **Yeni özellikler (bütün nesneler):** `css`, `cursor`, `zIndex`, `boxShadow`, `fontFamily`, `bold`, `italic`, `lineHeight`, `ellipsis`, `selectable`, `grow`, `shrink`, `plainText`, `isRemoved`, `children`.
 *   **Yeni metotlar (bütün nesneler):** `show()`, `hide()`, `toggle()`, `setSize()`, `setPosition()`, `bringToFront()`, `contains()`, `once()`, `animate()` (Promise döndürür).

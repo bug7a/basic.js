@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Aligning Objects</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        ALIGNING OBJECTS
+
+        ALGORITHM:
+        Buttons are placed at the four corners and in the middle of the page, and other buttons next to them.
+
+        WORKING LOGIC:
+        - The red buttons (A, B, C, D, E) are placed with left, top, right and bottom,
+          or in the middle of the page with center().
+        - Every blue button is placed next to another button with aline(): at its right, left, top or bottom,
+          with a 10 px space between them.
+        - When the size of the page changes, the buttons in the middle are placed again.
+          The buttons at the corners stay where they are: right: 0 and bottom: 0 follow the edges of the page.
+
+        */
+
+        // *** VARIABLES:
+
+        const SPACE = 10;   // px: the space between two buttons
+
+        let btnA, btnA1, btnA2, btnA3, btnA4;
+        let btnB, btnB1, btnB2;
+        let btnC, btnC1, btnC2;
+        let btnD, btnD1, btnD2;
+        let btnE, btnE1, btnE2, btnE3, btnE4;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            // TOP LEFT
+
+            // BUTTON: At the top left corner
+            btnA = Button({ text: "A", color: "tomato", top: 0, left: 0 });
+
+            // At the right of btnA, with a 10 px space
+            btnA1 = Button({ text: "A1" });
+            that.aline(btnA, "right", SPACE);
+
+            // At the right of btnA1, with a 10 px space
+            btnA2 = Button({ text: "A2" });
+            that.aline(btnA1, "right", SPACE);
+
+            // Under btnA, with a 10 px space
+            btnA3 = Button({ text: "A3" });
+            that.aline(btnA, "bottom", SPACE);
+
+            // Under btnA3, with a 10 px space
+            btnA4 = Button({ text: "A4" });
+            that.aline(btnA3, "bottom", SPACE);
+
+            // TOP RIGHT
+
+            // BUTTON: At the top right corner
+            btnB = Button({ text: "B", color: "tomato", top: 0, right: 0 });
+
+            // At the left of btnB, with a 10 px space
+            btnB1 = Button({ text: "B1" });
+            that.aline(btnB, "left", SPACE);
+
+            // Under btnB, with a 10 px space
+            btnB2 = Button({ text: "B2" });
+            that.aline(btnB, "bottom", SPACE);
+
+            // BOTTOM LEFT
+
+            // BUTTON: At the bottom left corner
+            btnC = Button({ text: "C", color: "tomato", left: 0, bottom: 0 });
+
+            // At the right of btnC, with a 10 px space
+            btnC1 = Button({ text: "C1" });
+            that.aline(btnC, "right", SPACE);
+
+            // Above btnC, with a 10 px space
+            btnC2 = Button({ text: "C2" });
+            that.aline(btnC, "top", SPACE);
+
+            // BOTTOM RIGHT
+
+            // BUTTON: At the bottom right corner
+            btnD = Button({ text: "D", color: "tomato", right: 0, bottom: 0 });
+
+            // At the left of btnD, with a 10 px space
+            btnD1 = Button({ text: "D1" });
+            that.aline(btnD, "left", SPACE);
+
+            // Above btnD, with a 10 px space
+            btnD2 = Button({ text: "D2" });
+            that.aline(btnD, "top", SPACE);
+
+            // IN THE MIDDLE OF AN OBJECT (here: the page)
+
+            // BUTTON: In the middle of the page
+            btnE = Button({ text: "E", color: "tomato" });
+            that.center();
+
+            // NOTE:
+            // ONLY from left to right, in the middle: that.center("left")
+            // ONLY from top to bottom, in the middle: that.center("top")
+
+            // At the right of btnE
+            btnE1 = Button({ text: "E1" });
+            that.aline(btnE, "right", SPACE);
+
+            // At the left of btnE
+            btnE2 = Button({ text: "E2" });
+            that.aline(btnE, "left", SPACE);
+
+            // Above btnE
+            btnE3 = Button({ text: "E3" });
+            that.aline(btnE, "top", SPACE);
+
+            // Under btnE
+            btnE4 = Button({ text: "E4" });
+            that.aline(btnE, "bottom", SPACE);
+
+            // When the size of the page changes, alignAgain runs.
+            page.onResize(alignAgain);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Places the buttons in the middle again.
+        const alignAgain = function () {
+
+            // In the middle of the page again
+            btnE.center();
+            btnE1.aline(btnE, "right", SPACE);
+            btnE2.aline(btnE, "left", SPACE);
+            btnE3.aline(btnE, "top", SPACE);
+            btnE4.aline(btnE, "bottom", SPACE);
+
+            // NOTE: Only the buttons in the middle need to be placed again.
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Put a button F in the middle of the left edge of the page (left: 0 and center("top")),
+          and a button F1 at its right.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

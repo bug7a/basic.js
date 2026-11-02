@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Move the Rocket</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MOVE THE ROCKET
+
+        ALGORITHM:
+        Four arrow buttons move a rocket picture up, down, left and right.
+
+        WORKING LOGIC:
+        - The rocket and the four arrows are Icons (image objects).
+        - Each arrow keeps its own direction ("up", "down", "left", "right").
+        - One function, moveRocket(), runs for every arrow: it reads the direction of the clicked arrow,
+          turns the rocket that way and moves it 15 px.
+        - The arrows are placed next to each other with aline().
+
+
+        */
+
+        // *** VARIABLES:
+
+        const STEP = 15;            // px: how far the rocket moves on one click
+        const ARROW_SIZE = 50;      // px
+        const ARROW_SPACE = 5;      // px: between two arrows
+
+        // The rocket (an Icon)
+        let imgRocket;
+
+        // The arrows that move the rocket
+        let imgUp, imgDown, imgRight, imgLeft;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "gold";
+
+            // ICON: The rocket, in the middle of the page
+            imgRocket = Icon({ width: 60, height: 60 });
+            imgRocket.load("images/rocket.png");
+            imgRocket.center();
+
+            // ICON: The up arrow, at a fixed place
+            imgUp = Icon({ left: 100, top: 50, width: ARROW_SIZE, height: ARROW_SIZE });
+            imgUp.load("images/arrow-up.png");
+
+            // ICON: The down arrow, under the up arrow
+            imgDown = Icon({ width: ARROW_SIZE, height: ARROW_SIZE });
+            imgDown.load("images/arrow-down.png");
+            imgDown.aline(imgUp, "bottom", ARROW_SPACE);
+
+            // ICON: The right arrow, at the right of the down arrow
+            imgRight = Icon({ width: ARROW_SIZE, height: ARROW_SIZE });
+            imgRight.load("images/arrow-right.png");
+            imgRight.aline(imgDown, "right", ARROW_SPACE);
+
+            // ICON: The left arrow, at the left of the down arrow
+            imgLeft = Icon({ width: ARROW_SIZE, height: ARROW_SIZE });
+            imgLeft.load("images/arrow-left.png");
+            imgLeft.aline(imgDown, "left", ARROW_SPACE);
+
+            // Our own information on each arrow: its direction.
+            imgUp.direction = "up";
+            imgDown.direction = "down";
+            imgRight.direction = "right";
+            imgLeft.direction = "left";
+
+            // The same function runs for every arrow.
+            imgUp.on("click", moveRocket);
+            imgDown.on("click", moveRocket);
+            imgRight.on("click", moveRocket);
+            imgLeft.on("click", moveRocket);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Turns the rocket to the direction of the clicked arrow and moves it one step.
+        // clickedArrow: the arrow itself (basic.js gives it).
+        const moveRocket = function (clickedArrow) {
+
+            if (clickedArrow.direction == "up") {
+                imgRocket.rotate = 0;                       // the nose looks up
+                imgRocket.top = imgRocket.top - STEP;       // a smaller top: higher on the page
+
+            } else if (clickedArrow.direction == "down") {
+                imgRocket.rotate = 180;
+                imgRocket.top = imgRocket.top + STEP;
+
+            } else if (clickedArrow.direction == "left") {
+                imgRocket.rotate = 270;
+                imgRocket.left = imgRocket.left - STEP;
+
+            } else if (clickedArrow.direction == "right") {
+                imgRocket.rotate = 90;
+                imgRocket.left = imgRocket.left + STEP;
+            }
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Move the rocket with the arrow keys of the keyboard too.
+        - Do not let the rocket leave the page.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

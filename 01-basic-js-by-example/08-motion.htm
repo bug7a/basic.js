@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Motion</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MOTION
+
+        Click the box: it gets bigger with a soft motion and stays in the middle of the page.
+        After a few clicks it goes back to its first size.
+
+        - obj.setMotion("width 0.3s, height 0.3s")
+                                    -> from now on, a change of these props is not sudden: it moves in
+                                       0.3 seconds. The names are CSS names: "left", "top", "width",
+                                       "height", "opacity", "background-color", "border-radius", "all"...
+        - box.width += 50           -> a plain change of a prop. setMotion() makes it a motion.
+        - obj.center()              -> puts the object in the middle of its container. It calculates only
+                                       when it is called: call it again after the size changes.
+        - page.onResize(fn)         -> runs fn when the size of the window changes.
+        - obj.animate(props, ms)    -> one motion without setMotion(), Ex: box.animate({ opacity: 0 }, 300).
+
+        TRY: add "background-color 0.3s" to setMotion(), and box.color = "steelblue"; to growBox().
+
+        */
+
+        // *** VARIABLES:
+
+        const START_SIZE = 120;
+        const GROW_STEP = 50;
+        const MAX_SIZE = 320;
+
+        let boxGrowing, lblSize;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // LABEL: The size of the box, at the top of the page
+            lblSize = Label(0, 30, "100%", "auto", {
+                textAlign: "center",
+                fontSize: 16,
+                textColor: Black(0.6),
+            });
+
+            // BOX: The box to click
+            boxGrowing = Box(0, 0, START_SIZE, START_SIZE, {
+                color: "orangered",
+                round: 8,
+                cursor: "pointer",
+            });
+            boxGrowing.center();
+            boxGrowing.setMotion("left 0.3s, top 0.3s, width 0.3s, height 0.3s");
+            boxGrowing.on("click", growBox);
+
+            showSize();
+
+            // WHY: The middle of the page moves with the size of the window.
+            page.onResize(function () {
+                boxGrowing.center();
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        // box: the clicked box
+        const growBox = function (box) {
+
+            if (box.width >= MAX_SIZE) {
+                box.width = START_SIZE;
+                box.height = START_SIZE;
+            } else {
+                box.width += GROW_STEP;
+                box.height += GROW_STEP;
+            }
+
+            // WHY: The size changed, so the middle changed too. left and top are in setMotion(): they move too.
+            box.center();
+            showSize();
+
+        };
+
+        const showSize = function () {
+            lblSize.text = "Click the box. Size: " + boxGrowing.width + " x " + boxGrowing.height;
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

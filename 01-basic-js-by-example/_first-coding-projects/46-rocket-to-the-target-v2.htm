@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Rocket to the Target V2</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        ROCKET TO THE TARGET V2
+
+        THE SIMPLE MOTION OF AN OBJECT:
+        An object moves when its position is changed again and again, a little each time.
+
+        IN THIS EXAMPLE:
+        With a picture (the rocket), the coordinates of the page and a function that runs again and again
+        (loop), the picture moves to the place we want.
+
+        ALGORITHM:
+        A click on the page chooses a target. The rocket flies there 1 px at a time, left-right and
+        up-down at the same time, so it can fly on a diagonal too. Its position and its angle are written
+        at the top right corner.
+
+        WORKING LOGIC:
+        - A click saves the position of the mouse as the new target (newX, newY) and shows an "x" there.
+        - loop() runs every 8 milliseconds. Each time, it calculates the step of the rocket:
+          calcX is -1 (left), 0 or 1 (right), calcY is -1 (up), 0 or 1 (down).
+        - calcDirection() turns the step into an angle (0: up, 90: right, 135: right and down...).
+        - When the rocket is at the target, the "x" is hidden.
+
+        MORE INFORMATION:
+        Better algorithms make these motions much nicer and smoother, with easier code.
+        This example teaches the basic and simplest idea.
+
+        */
+
+        // *** VARIABLES:
+
+        const LOOP_TIME = 8;        // ms: loop() runs again after this time
+        const TARGET_SIZE = 30;     // px: the size of the "x" of the target
+
+        // The rocket (an Icon)
+        let imgRocket;
+
+        // The target of the rocket: the place of its top left corner
+        let newX = 50;
+        let newY = 50;
+
+        // The step of the rocket in this loop: -1, 0 or 1 (px)
+        let calcX = 0;
+        let calcY = 0;
+
+        let lblFinish;          // the "x" that marks the target
+        let lblInfo;            // the information text in the middle
+        let lblRocketInfo;      // the position and the angle of the rocket
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "#141414";
+
+            // LABEL: The "x" that marks the clicked place. Hidden until a target is chosen.
+            lblFinish = Label(0, 0, TARGET_SIZE, TARGET_SIZE, {
+                text: "x",
+                color: "transparent",
+                textColor: "orangeRed",
+                textAlign: "center",
+                round: 15,
+                opacity: 0.4,
+                visible: 0,
+            });
+
+            // LABEL: The information text in the middle of the page
+            lblInfo = Label(0, 0, 260, 20, {
+                text: "Choose a target to start.",
+                textColor: "orangered",
+                fontSize: 14,
+                opacity: 0.8,
+                textAlign: "center",
+            });
+            // In the middle of the page
+            lblInfo.center();
+
+            // LABEL: The position and the angle of the rocket, 15 px from the top right corner
+            lblRocketInfo = Label({
+                top: 15,
+                right: 15,
+                width: 200,
+                height: 20,
+                textColor: "orangered",
+                fontSize: 11,
+                opacity: 0.8,
+                textAlign: "right",
+            });
+
+            // ICON: The rocket, at its first target (50, 50)
+            imgRocket = Icon(newX, newY, 50, 50);
+            imgRocket.load("images/rocket.png");
+
+            // When a mouse button is pressed on the page, mouseDown runs.
+            page.on("mousedown", mouseDown);
+
+            // Run loop() every 8 milliseconds. (basic.js runs it every 1000 ms when it is not set.)
+            setLoopTimer(LOOP_TIME);
+
+        };
+
+        // basic.js runs loop() again and again: every 8 ms here.
+        const loop = function () {
+
+            calcX = 0;
+            calcY = 0;
+
+            // The left-right step
+            if (imgRocket.left > newX) {
+                calcX = -1;
+
+            } else if (imgRocket.left < newX) {
+                calcX = 1;
+            }
+
+            // The up-down step
+            if (imgRocket.top > newY) {
+                calcY = -1;
+
+            } else if (imgRocket.top < newY) {
+                calcY = 1;
+            }
+
+            // Turn the rocket to the way it goes.
+            imgRocket.rotate = calcDirection(calcX, calcY);
+
+            // Move the rocket 1 px (or 0 px when it is already there).
+            imgRocket.left = imgRocket.left + calcX;
+            imgRocket.top = imgRocket.top + calcY;
+
+            // Show the new position.
+            refreshRocketInfo();
+
+            // The motion is over: the rocket is at the target.
+            if (calcX == 0 && calcY == 0) {
+
+                // Hide the "x" of the target.
+                // NOTE: After the first time, the "x" is already hidden, so this does not run again.
+                if (lblFinish.visible != 0) {
+                    lblFinish.visible = 0;
+                }
+
+            }
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs when a mouse button is pressed. event: the information of the mouse (basic.js gives it).
+        const mouseDown = function (self, event) {
+
+            // Hide the information text.
+            lblInfo.visible = 0;
+
+            // Save the position of the mouse as the new target.
+            newX = event.offsetX;
+            newY = event.offsetY;
+
+            // Show the "x" with its center at the target.
+            lblFinish.visible = 1;
+            lblFinish.left = newX - (TARGET_SIZE / 2);
+            lblFinish.top = newY - (TARGET_SIZE / 2);
+
+            // The center of the rocket must reach the target, so its top left corner goes
+            // half of its size to the left and up.
+            newX = newX - (imgRocket.width / 2);
+            newY = newY - (imgRocket.height / 2);
+
+        };
+
+        // Gives the angle of the rocket for a step. x: -1, 0 or 1 (left, right), y: -1, 0 or 1 (up, down)
+        // NOTE: 0 degrees: the nose looks up. The angle grows clockwise: 90 right, 180 down, 270 left.
+        const calcDirection = function (x, y) {
+
+            // Without a motion, the angle stays the same.
+            let direction = imgRocket.rotate;
+
+            if (x == 1) {
+                // Right
+                direction = 90;
+
+                if (y == 1) {
+                    // Right and down
+                    direction = direction + 45;
+
+                } else if (y == -1) {
+                    // Right and up
+                    direction = direction - 45;
+                }
+
+            } else if (x == -1) {
+                // Left
+                direction = 270;
+
+                if (y == 1) {
+                    // Left and down
+                    direction = direction - 45;
+
+                } else if (y == -1) {
+                    // Left and up
+                    direction = direction + 45;
+                }
+
+            } else {
+
+                if (y == 1) {
+                    // Down
+                    direction = 180;
+
+                } else if (y == -1) {
+                    // Up
+                    direction = 0;
+                }
+
+            }
+
+            return direction;
+
+        };
+
+        // Writes the position and the angle of the rocket.
+        const refreshRocketInfo = function () {
+
+            lblRocketInfo.text = "x: " + imgRocket.left + " y: " + imgRocket.top + " angle: " + imgRocket.rotate;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show the distance to the target in the Label too.
+        - Move the rocket with the arrow keys of the keyboard, and keep the click for the target.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

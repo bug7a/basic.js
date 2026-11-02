@@ -50,9 +50,12 @@ const ScrollBar = function (params = {}) {
     let _eventRemovers = []; // scrollableBox üzerine bağlanan olayların silicileri.
 
     // Mouse drag state
-    let _mouseX = 0;
-    let _mouseY = 0;
-    let _hasDragOrigin = false; // WHY: clientX/clientY gerçekten 0 olabilir, 0 kontrolü güvenilir değil.
+    // WHY: The scroll position is computed from the mousedown point (start + distance x ratio). Adding the
+    //      small step of every mousemove lost the parts under 1 px (scrollTop is rounded) and the first move.
+    let _startX = 0;
+    let _startY = 0;
+    let _startScrollLeft = 0;
+    let _startScrollTop = 0;
     let _mouseMoving = false;
     let _dragScrollBar = null; // "top" | "left" | null
 
@@ -271,21 +274,13 @@ const ScrollBar = function (params = {}) {
 
         const elem = box.scrollableBox.elem;
 
-        if (_hasDragOrigin) {
-
-            if (_dragScrollBar == "left") {
-                elem.scrollLeft += (event.clientX - _mouseX) * _dragRatio(false);
-            }
-
-            if (_dragScrollBar == "top") {
-                elem.scrollTop += (event.clientY - _mouseY) * _dragRatio(true);
-            }
-
+        if (_dragScrollBar == "left") {
+            elem.scrollLeft = _startScrollLeft + (event.clientX - _startX) * _dragRatio(false);
         }
 
-        _mouseX = event.clientX;
-        _mouseY = event.clientY;
-        _hasDragOrigin = true;
+        if (_dragScrollBar == "top") {
+            elem.scrollTop = _startScrollTop + (event.clientY - _startY) * _dragRatio(true);
+        }
 
         _scheduleAutoHide();
 
@@ -294,7 +289,6 @@ const ScrollBar = function (params = {}) {
     const _exitDragging = function () {
 
         _mouseMoving = false;
-        _hasDragOrigin = false;
         _dragScrollBar = null;
 
         if (_fullscreenBox) {
@@ -310,7 +304,7 @@ const ScrollBar = function (params = {}) {
 
     };
 
-    const _enterDragging = function () {
+    const _enterDragging = function (event) {
 
         // Önceki sürükleme katmanı kaldıysa temizle.
         // WHY: Arka arkaya mousedown gelirse, eski tam ekran kutusu sayfanın üstünde
@@ -320,9 +314,10 @@ const ScrollBar = function (params = {}) {
             _fullscreenBox = null;
         }
 
-        _mouseX = 0;
-        _mouseY = 0;
-        _hasDragOrigin = false;
+        _startX = (event) ? event.clientX : 0;
+        _startY = (event) ? event.clientY : 0;
+        _startScrollLeft = box.scrollableBox.elem.scrollLeft;
+        _startScrollTop = box.scrollableBox.elem.scrollTop;
 
         _fullscreenBox = Box(0, 0, "100%", "100%", {
             color: "transparent",
@@ -432,7 +427,7 @@ const ScrollBar = function (params = {}) {
         if (event && event.preventDefault) event.preventDefault(); // WHY: sürüklerken metin seçilmesin.
         _dragScrollBar = "top";
         _setBarState(true, true);
-        _enterDragging();
+        _enterDragging(event);
     });
 
     box.boxScrollBarLeft.on("mouseover", function () {
@@ -449,7 +444,7 @@ const ScrollBar = function (params = {}) {
         if (event && event.preventDefault) event.preventDefault();
         _dragScrollBar = "left";
         _setBarState(false, true);
-        _enterDragging();
+        _enterDragging(event);
     });
 
     // Scroll alanı hover
@@ -491,6 +486,10 @@ const ScrollBar = function (params = {}) {
         childList: true,
         subtree: true,
         characterData: true,
+        // WHY: basic.js changes the size of an object in its style (content.height = 800): without it the bar
+        //      kept the old length until the next scroll.
+        attributes: true,
+        attributeFilter: ["style", "class"],
     });
 
     // --- Cleanup ---

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Moving Objects with CSS</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MOVING OBJECTS WITH CSS
+
+        ALGORITHM:
+        A click on one of the four gray areas moves the black square onto that area, with a soft motion.
+
+        WORKING LOGIC:
+        - We can use this method when the place, the size and / or the angle of an object must change
+          with a motion.
+        - The four gray areas and the black square are Boxes.
+        - Each area keeps a hidden color of its own (hiddenColor): the color that the square takes there.
+        - setMotion() is given to the square once. From then on, a change of the CSS properties in it
+          (left, top, width, height, transform, background-color, border-radius) takes 1 second:
+          the browser draws the steps between the old and the new value. (transform is the angle.)
+        - moveSquare() gives the square the place, the size, the corners, the angle and the hidden color
+          of the clicked area.
+
+        */
+
+        // *** VARIABLES:
+
+        const AREA_COLOR = "lightgray";
+        const EDGE_SPACE = 50;      // px: from the edges of the page to the areas
+
+        // The square that moves
+        let boxSquare;
+
+        // The areas that the square moves onto
+        let boxTopLeft, boxTopRight, boxBottomLeft, boxBottomRight;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // BOX: The area at the top left
+            boxTopLeft = Box({
+                left: EDGE_SPACE,
+                top: EDGE_SPACE,
+                width: 100,
+                height: 100,
+                color: AREA_COLOR,
+            });
+            // Our own information on the area: the color that the square takes here.
+            boxTopLeft.hiddenColor = "orangered";
+            boxTopLeft.on("click", moveSquare);
+
+            // BOX: The area at the top right. A big round makes it a circle.
+            boxTopRight = Box({
+                top: EDGE_SPACE,
+                width: 60,
+                height: 60,
+                color: AREA_COLOR,
+                round: 50,
+            });
+            // Its left is calculated from its width: 50 px from the right edge of the page.
+            boxTopRight.left = page.width - boxTopRight.width - EDGE_SPACE;
+            boxTopRight.hiddenColor = "seagreen";
+            boxTopRight.on("click", moveSquare);
+
+            // BOX: The area at the bottom left. Round corners, turned 15 degrees.
+            boxBottomLeft = Box({
+                left: EDGE_SPACE,
+                width: 120,
+                height: 120,
+                color: AREA_COLOR,
+                round: 13,
+                rotate: 15,
+            });
+            // Its top is calculated from its height: 50 px from the bottom edge of the page.
+            boxBottomLeft.top = page.height - boxBottomLeft.height - EDGE_SPACE;
+            boxBottomLeft.hiddenColor = "steelblue";
+            boxBottomLeft.on("click", moveSquare);
+
+            // BOX: The area at the bottom right. Tall and narrow.
+            boxBottomRight = Box({
+                width: 40,
+                height: 220,
+                color: AREA_COLOR,
+            });
+            boxBottomRight.left = page.width - boxBottomRight.width - EDGE_SPACE;
+            boxBottomRight.top = page.height - boxBottomRight.height - EDGE_SPACE;
+            boxBottomRight.hiddenColor = "yellow";
+            boxBottomRight.on("click", moveSquare);
+
+            // BOX: The black square that moves. In the middle of the page at the start.
+            boxSquare = Box({
+                width: 50,
+                height: 50,
+                color: "black",
+            });
+            boxSquare.center();
+
+            // Add a CSS motion to the square.
+            boxSquare.setMotion("left 1s, top 1s, width 1s, height 1s, transform 1s, background-color 1s, border-radius 1s");
+
+            // NOTE: After setMotion(), a change of one of these properties of the square
+            //       is not sudden any more: it happens slowly, in 1 second.
+
+            // NOTE: The square is created after the other objects, so it is seen on top of them.
+
+            // TO STOP THE MOTION: the properties change at once again.
+            // boxSquare.setMotion("none");
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Gives the square the same properties as the clicked area.
+        // clickedArea: the area itself (basic.js gives it).
+        const moveSquare = function (clickedArea) {
+
+            boxSquare.left = clickedArea.left;
+            boxSquare.top = clickedArea.top;
+            boxSquare.height = clickedArea.height;
+            boxSquare.width = clickedArea.width;
+
+            boxSquare.color = clickedArea.hiddenColor;
+            boxSquare.round = clickedArea.round;
+            boxSquare.rotate = clickedArea.rotate;
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a fifth area with its own place, size, corners and hidden color.
+        - Change the time of the motion in setMotion() (Ex: 0.3s or 3s) and see the difference.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

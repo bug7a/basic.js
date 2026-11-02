@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Collapsible Content</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        COLLAPSIBLE CONTENT (ACCORDION MENU)
+
+        ALGORITHM:
+        Three title buttons, one under the other. A click on a title opens its content under it,
+        and the content that was open before closes.
+
+        WORKING LOGIC:
+        - accordion: a VGroup that puts the items of the menu one under the other.
+        - An item is a VGroup too: its title button, and its content under it, 5 px apart (gap).
+        - A closed content is 0 px high, so it is not seen: a closed item is its title and 5 px under it.
+        - When a title is clicked, its content gets its full height, and its item gets 5 px of space
+          at its bottom (padding), so the next title is 5 px under the open content.
+          The content that was open gets 0 px again, and its item gets no padding.
+        - setMotion() makes these changes slow (0.5 s). While a size changes, the groups move
+          the objects under it at every step of the motion: no code places the objects again.
+        - The menu stays in the middle of the page: firstPage is a group as big as the page,
+          and a group puts its objects in its middle (also when the size of the window changes).
+        - The items are kept in an array (accordion.items). It is used to reach the objects again
+          when they are needed.
+        - The full height of a content is the height of the object in it, known when it is drawn (onResize()).
+        - The names of the buttons come from the array accordionButtons.
+        - Each content is filled by its own function (createScienceContent()...).
+          So each content can be designed on its own, independently of the others.
+
+        */
+
+        // *** VARIABLES:
+
+        // The width of the accordion menu (px)
+        const ACCORDION_CONTENT_WIDTH = 450;
+
+        const BUTTON_HEIGHT = 80;       // px
+        const SPACE_BETWEEN_ITEMS = 5;  // px: under every button and every open content
+
+        // The first page (a group as big as the page)
+        let firstPage;
+
+        // The name of the accordion menu in the code
+        let accordion;
+
+        // The buttons of the accordion menu
+        const accordionButtons = [
+            { id: 1, name: "Science" },
+            { id: 2, name: "Technology" },
+            { id: 3, name: "Art" },
+        ];
+
+        // *** START:
+
+        const start = function () {
+
+            // GROUP: The first page. A group without a size is as big as the page (also when the size of the
+            // window changes), and it puts its objects in its middle.
+            firstPage = VGroup({
+                color: "white",
+            });
+
+                // GROUP: The accordion menu: its items, one under the other. (The spaces are in the items.)
+                // hug: 1 -> it is as big as its items: it gets higher when a content opens.
+                firstPage.accordion = VGroup({
+                    hug: 1,
+                });
+
+                // firstPage.accordion can be used as accordion too.
+                accordion = firstPage.accordion;
+
+                    // The order number of the open content
+                    accordion.selectedButtonIndex = 0;
+
+                    // The list of the items: accordion.items[0] is the first one.
+                    accordion.items = [];
+
+                    // Create the items: a title button, and its content under it.
+                    for (let i = 0; i < accordionButtons.length; i++) {
+                        const item = createItem(accordionButtons[i].name, i);
+                        accordion.items.push(item);
+                    }
+
+                endGroup();
+
+            endGroup();
+
+            // Fill the content boxes: each one has its own function.
+            createScienceContent(accordion.items[0].boxContent);
+            createTechnologyContent(accordion.items[1].boxContent);
+            createArtContent(accordion.items[2].boxContent);
+
+            // At the start, the first content is open.
+            accordionBtnClicked(accordion.items[0].btnTitle);
+            // Or the second one:
+            // accordionBtnClicked(accordion.items[1].btnTitle);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates one item of the menu and gives it back: a title button, and its content under it.
+        // index: its order number (0, 1, 2).
+        const createItem = function (titleText, index) {
+
+            // GROUP: The item: the title, and 5 px under it, the content.
+            // Its padding (the space at its bottom) is 0 while the content is closed.
+            const item = VGroup({
+                hug: 1,
+                gap: SPACE_BETWEEN_ITEMS,
+            });
+            item.setMotion("padding 0.5s");
+
+                // BOX: The carrier of the title button
+                item.btnTitle = startBox({
+                    width: ACCORDION_CONTENT_WIDTH,
+                    height: BUTTON_HEIGHT,
+                    color: "white",
+                    round: 8,
+                    cursor: "pointer",  // The mouse shows a hand over it: it can be clicked.
+                });
+                // Our own information on the button: its order number (0, 1, 2).
+                item.btnTitle.indexNumber = index;
+                item.btnTitle.setMotion("background-color 0.5s");
+                item.btnTitle.on("click", accordionBtnClicked);
+
+                    // LABEL: The text of the button
+                    item.btnTitle.lblTitle = Label({
+                        left: 40,
+                        top: 22,
+                        text: titleText,
+                        textColor: "rgba(0, 0, 0, 0.6)",
+                        fontSize: 25,
+                    });
+
+                    // ICON: The arrow picture of the button
+                    item.btnTitle.imgIcon = Icon({
+                        right: 30,
+                        top: 30,
+                        width: 25,
+                        height: 25,
+                        opacity: 0.1,
+                    });
+                    item.btnTitle.imgIcon.load("images/52/arrow-down.png");
+                    item.btnTitle.imgIcon.setMotion("opacity 0.5s");
+
+                    // BOX: A layer that makes the background color of the button a little darker
+                    item.btnTitle.boxBlack = Box(0, 0, ACCORDION_CONTENT_WIDTH, BUTTON_HEIGHT, {
+                        color: "rgba(0, 0, 0, 0.07)",
+                        round: 8,
+                    });
+
+                endBox();
+
+                // BOX: The content box. 0 px high: closed.
+                // It cuts what is out of it, so its objects are seen only as far as it is open.
+                item.boxContent = Box({
+                    width: ACCORDION_CONTENT_WIDTH,
+                    height: 0,
+                    round: 8,
+                });
+                item.boxContent.setMotion("height 0.5s, background-color 0.5s");
+
+            endGroup();
+
+            return item;
+
+        };
+
+        // Does what is needed when a button is clicked. clickedButton: the button itself (basic.js gives it).
+        const accordionBtnClicked = function (clickedButton) {
+
+            // Give shorter names to the items that are used.
+            const oldItem = accordion.items[accordion.selectedButtonIndex];
+            const newItem = accordion.items[clickedButton.indexNumber];
+
+            // Clear the old selection: its content closes, and its item has no space at its bottom.
+            oldItem.padding = 0;
+            oldItem.boxContent.opened = 0;
+            oldItem.boxContent.height = 0;
+            oldItem.btnTitle.imgIcon.opacity = 0.1;
+            oldItem.btnTitle.color = "white";
+            oldItem.btnTitle.cursor = "pointer";
+
+            // Select the clicked one: its content opens, and its item gets 5 px of space at its bottom.
+            // padding: [left, top, right, bottom]
+            newItem.padding = [0, 0, 0, SPACE_BETWEEN_ITEMS];
+            newItem.boxContent.opened = 1;
+            newItem.boxContent.height = newItem.boxContent.maxHeight;
+            newItem.btnTitle.imgIcon.opacity = 0;
+            newItem.btnTitle.color = newItem.boxContent.color;
+            newItem.btnTitle.cursor = "default";
+
+            // Keep the order number of the selected content.
+            accordion.selectedButtonIndex = clickedButton.indexNumber;
+
+            // NOTE: Nothing is placed again here. While the sizes change, the groups move the other items.
+
+        };
+
+        const createScienceContent = function (box) {
+
+            box.color = "Lavender";
+
+            // createIn(): the objects created in the function go into box.
+            createIn(box, function () {
+
+                // ICON: The background picture. autoSize: 2 -> half of the size of the picture file.
+                box.imgBackground = Icon({
+                    top: 70,
+                    right: -50,
+                    autoSize: 2,
+                    opacity: 0.1,
+                });
+                box.imgBackground.load("images/52/scie3.png");
+                // NOTE: top is used, not bottom: so the picture does not move while the content closes.
+
+                // LABEL: The text of the content
+                box.lblContent = Label(0, 0, box.width, "auto", {
+                    text: "According to the Turkish Language Association, science is the orderly knowledge that takes a part of the universe or of events as its subject, and tries to find laws based on experimental methods and on reality. More simply, we can define it as our efforts to explain the life we live in.",
+                    textAlign: "left",
+                    textColor: "rgba(0, 0, 0, 0.4)",
+                    padding: 40,
+                });
+
+            });
+
+            calculateContentHeight(box, box.lblContent);
+
+        };
+
+        const createTechnologyContent = function (box) {
+
+            box.color = "PaleTurquoise";
+
+            createIn(box, function () {
+
+                // GROUP: The text and the picture side by side: 40 px of space around them, 20 px between them.
+                // align: "left center" -> the picture is in the middle of the height of the text.
+                box.row = HGroup({
+                    left: 0,
+                    top: 0,
+                    width: box.width,
+                    height: "auto",
+                    padding: 40,
+                    gap: 20,
+                    align: "left center",
+                });
+
+                    // LABEL: The text of the content
+                    box.lblContent = Label({
+                        width: 230,
+                        text: "Technology is the knowledge and skill needed to make or produce the tools and devices that people need. Technology is also the knowledge that covers the production methods of a branch of industry, and the tools, equipment and instruments it uses.",
+                        textAlign: "left",
+                        textColor: "rgba(0, 0, 0, 0.4)",
+                    });
+
+                    // ICON: The picture of the content, at the right side of the text
+                    box.imgBackground = Icon({
+                        width: 120,
+                        height: 120,
+                        opacity: 0.7,
+                    });
+                    box.imgBackground.load("images/52/tech2.png");
+
+                endGroup();
+
+            });
+
+            // The full height of this content is the height of its group.
+            calculateContentHeight(box, box.row);
+
+            // Fill this box here.
+
+        };
+
+        const createArtContent = function (box) {
+
+            box.color = "Bisque";
+
+            createIn(box, function () {
+
+                // LABEL: The text of the content
+                box.lblContent = Label(0, 0, box.width, "auto", {
+                    text: "Art is how people tell their feelings, thoughts and dreams with concrete and abstract materials, using their creative power, in a way that touches others. In its most general meaning, art is understood as the expression of creativity and imagination.",
+                    textAlign: "left",
+                    textColor: "rgba(0, 0, 0, 0.4)",
+                    padding: 40,
+                });
+
+            });
+
+            calculateContentHeight(box, box.lblContent);
+
+            // Fill this box here.
+
+        };
+
+        // The full height of a content (maxHeight) is the height of the object in it (its text, or its group).
+        // A text is measured when it is drawn, so its height is found in onResize().
+        const calculateContentHeight = function (box, inner) {
+
+            box.maxHeight = 0;
+            box.opened = 0;
+
+            // onResize(): runs when the size of inner changes (also when it is drawn the first time).
+            inner.onResize(function (self) {
+
+                box.maxHeight = self.height;
+
+                // If the content is open, it gets its new height. (The groups move the items under it.)
+                if (box.opened == 1) {
+                    box.height = box.maxHeight;
+                }
+
+            });
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Add a fourth title and its content: one more item in accordionButtons,
+          and a function that fills its content (Ex: createMusicContent()).
+        - Let a second click on the open title close its content.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

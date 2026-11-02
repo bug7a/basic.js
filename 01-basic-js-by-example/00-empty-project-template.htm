@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>New Project</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+        <!-- A custom scroll bar for a scrolling box (see custom-scrollbar-usage-1.htm):
+        <script src="../basic/scroll-bar.js" type="text/javascript" charset="utf-8"></script> -->
+
+        <script>
+
+        /*
+
+        EMPTY PROJECT
+
+        Copy this page to start a new one. Nothing is drawn yet.
+
+        - start()    -> basic.js calls it once, when the page is ready. Build your page in it.
+        - loop()     -> basic.js calls it every second (setLoopTimer(ms) changes the time).
+                        Delete it when you do not need it.
+        - page       -> the box that fills the window. The objects you create go into it.
+
+        */
+
+        // *** VARIABLES:
+
+        let clickCount = 0;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // Create your objects here. Ex: Label({ text: "Hello" });
+
+        };
+
+        // Runs every second.
+        const loop = function () {
+
+        };
+
+        // *** FUNCTIONS:
+
+        const countClick = function () {
+            clickCount++;
+            println(clickCount);
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

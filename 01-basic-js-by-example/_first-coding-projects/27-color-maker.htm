@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Color Maker</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        COLOR MAKER
+
+        ALGORITHM:
+        A color is made from its red, green and blue parts. Each part is a number from 0 to 255:
+        the "-" and "+" buttons change it (15 at a time), or it is typed.
+        The made color is shown in a panel, and its code under it.
+
+        WORKING LOGIC:
+        - createColorEdit() makes our own object, three times (red, green, blue): a round box with
+          a "-" button, a text box with the number, and a "+" button in it.
+        - A click on "-" or "+" adds -15 or 15 to the number. A typed number is checked too:
+          the number always stays from 0 to 255.
+        - After every change, updateColorPanelAndCode() makes the color "rgb(red, green, blue)":
+          it paints the panel with it and writes this code into the text box under the panel.
+
+        ABOUT THE COLORS:
+        - RGB is made of the first letters of the words RED, GREEN and BLUE.
+        - The other colors are made by mixing these three colors in different amounts.
+        - The amount of each color is a number from 0 to 255.
+
+        Different ways of writing the color white:
+        page.color = "white"
+        page.color = "#FFFFFF"
+        page.color = "rgb(255, 255, 255)"
+
+        Different ways of writing the color black:
+        page.color = "black"
+        page.color = "#000000"
+        page.color = "rgb(0, 0, 0)"
+
+        Different ways of writing the color red:
+        page.color = "red"
+        page.color = "#FF0000"
+        page.color = "rgb(255, 0, 0)"
+
+        NOTE: FF is 255 in the base 16 (hexadecimal) number system.
+
+        */
+
+        // *** VARIABLES:
+
+        const STEP = 15;    // a click on "-" or "+" changes the number this much
+
+        // The made color (a Box)
+        let boxColorPanel;
+        // The code of the made color: "rgb(red, green, blue)" (a text box)
+        let txtColorCode;
+
+        // The color edit objects: "-", the number, "+" (our own object)
+        let redEdit;
+        let greenEdit;
+        let blueEdit;
+
+        // *** START:
+
+        const start = function () {
+
+            // Try the color you made as the color of the page too.
+            page.color = "rgb(230, 230, 230)";
+
+            // The color edit objects. Their place, and the color of their number:
+            redEdit = createColorEdit(250, 20, "orangered");
+            greenEdit = createColorEdit(250, 85, "seagreen");
+            blueEdit = createColorEdit(250, 150, "steelblue");
+
+            // BOX: The made color
+            boxColorPanel = Box(40, 20, 190, 190, {
+                border: 4,
+                borderColor: "black",
+                round: 6,
+            });
+
+            // TEXTBOX: The code of the made color, 20 px under the panel
+            txtColorCode = Input({ width: 190 });
+            txtColorCode.aline(boxColorPanel, "bottom", 20);
+
+            // Paint the panel and write the code. (All the numbers are 0 now: black.)
+            updateColorPanelAndCode();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Shows the made color: paints the panel with it and writes its code.
+        const updateColorPanelAndCode = function () {
+
+            const red = redEdit.txtNumber.text;
+            const green = greenEdit.txtNumber.text;
+            const blue = blueEdit.txtNumber.text;
+
+            boxColorPanel.color = "rgb(" + red + ", " + green + ", " + blue + ")";
+            txtColorCode.text = boxColorPanel.color;
+
+        };
+
+        // *** OUR OWN OBJECT:
+
+        // Makes a color edit object: a "-" button, the number of the color (0 to 255) and a "+" button.
+        // left, top: its place. numberColor: the color of its number.
+        const createColorEdit = function (left, top, numberColor) {
+
+            // BOX: The background, a round box.
+            // NOTE: startObject() ... endObject() make our own object: the objects made between them go into it.
+            const box = startObject({
+                left: left,
+                top: top,
+                width: 220,
+                height: 60,
+                color: "whitesmoke",
+                round: 30,
+            });
+
+            // BUTTON: Decrease
+            box.btnDecrease = Button(5, 5, 50, 50, {
+                text: "-",
+                color: "lightgray",
+                minimal: 1,         // a flat button: no edge, no shade
+                round: 30,
+                fontSize: 35,
+            });
+
+            // TEXTBOX: The number of the color
+            box.txtNumber = Input(60, 5, 100, 50, {
+                text: "0",
+                minimal: 1,
+                color: "transparent",
+                textColor: numberColor,
+                textAlign: "center",
+            });
+
+            // BUTTON: Increase
+            box.btnIncrease = Button(165, 5, 50, 50, {
+                text: "+",
+                color: "lightgray",
+                minimal: 1,
+                round: 30,
+                fontSize: 35,
+            });
+
+            // THE FUNCTIONS OF THE OBJECT:
+            // NOTE: They are kept on the box, so each color edit object has its own.
+
+            // A number of a color must be from 0 to 255.
+            box.checkNumber = function (number) {
+
+                if (number < 0) {
+                    number = 0;
+
+                } else if (number > 255) {
+                    number = 255;
+
+                }
+
+                return number;
+
+            };
+
+            // Adds count to the number (a negative count takes away), then shows the new color.
+            box.addToNumber = function (count) {
+
+                // The text in the text box, as a number
+                let number = basic.num(box.txtNumber.text);
+                // Add, and keep it from 0 to 255.
+                number = box.checkNumber(number + count);
+                // Write the number back. (basic.str() makes a text from a number.)
+                box.txtNumber.text = basic.str(number);
+
+                // Show the new color and its code.
+                updateColorPanelAndCode();
+
+            };
+
+            // Takes away 15.
+            box.decrease = function () {
+                box.addToNumber(-STEP);
+            };
+
+            // Adds 15.
+            box.increase = function () {
+                box.addToNumber(STEP);
+            };
+
+            // A number was typed: it is only checked (0 is added).
+            box.numberTyped = function () {
+                box.addToNumber(0);
+            };
+
+            // The buttons and the text box run the functions.
+            box.btnDecrease.on("click", box.decrease);
+            box.btnIncrease.on("click", box.increase);
+            box.txtNumber.onChange(box.numberTyped);
+
+            // endObject() closes the box and makes it "that" (the last object made).
+            return endObject(box);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show the code of the color in base 16 too. Ex: "#FF6347"
+          (number.toString(16) gives the base 16 text of a number.)
+        - Add a button that makes a random color.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

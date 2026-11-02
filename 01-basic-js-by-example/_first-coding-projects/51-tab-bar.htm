@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Tab Bar</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        TAB BAR
+
+        ALGORITHM:
+        A row of buttons (tabs), and a content box under it. A click on a button slides its content
+        into view, and a colored background slides behind the clicked button.
+
+        WORKING LOGIC:
+        - tabs: a VGroup that carries the whole object: the row of buttons, and the contents under it.
+          The group around it has no size: it is as big as the page and keeps tabs in its middle,
+          also when the size of the window changes.
+        - tabs is divided into two parts:
+          1. tabs.buttonRow: an HGroup that puts the buttons side by side. hug: 1 -> it is as wide as
+             its buttons, and tabs puts it in its middle.
+          2. tabs.contentWindow: a Box as big as one content. In it, tabs.contentRow (an HGroup) puts the
+             contents side by side. The window cuts what is out of it, so only one content is seen.
+          So the buttons can be centered as a group, and the contents can slide as a group:
+          a change of the left of tabs.contentRow slides all the contents.
+        - The names and the widths of the buttons come from the array tabBarButtons.
+          The widths of the buttons are NOT calculated automatically.
+        - When a button is clicked, the background color of the button that was pressed before
+          must move behind the clicked button with a motion. For this, the sliding part is a different
+          object (tabs.boxSelected), and the backgrounds of the buttons are transparent.
+        - tabs.boxSelected is in the row of buttons, but the group must not place it:
+          position: "absolute" takes it out of the row. It stands at its own left, and that left (and its
+          width) is read from the clicked button: the group gave the button its place.
+        - Each content is filled by its own function (createScienceContent()...).
+          So each content can be designed on its own, independently of the others.
+
+        */
+
+        // *** VARIABLES:
+
+        // The size of a content box (px)
+        const TAB_CONTENT_WIDTH = 450;
+        const TAB_CONTENT_HEIGHT = 300;
+
+        const BUTTON_HEIGHT = 50;           // px
+        const SPACE_UNDER_BUTTONS = 10;     // px: between the buttons and the contents
+
+        // The tab bar
+        let tabs;
+
+        // The buttons of the tab bar: their names and their widths (px)
+        const tabBarButtons = [
+            { id: 1, name: "Science", width: 90 },
+            { id: 2, name: "Technology", width: 120 },
+            { id: 3, name: "Art", width: 100 },
+            { id: 4, name: "?", width: 40 },
+        ];
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // GROUP: It has no size, so it is as big as the page and puts the tab bar in its middle.
+            AutoLayout();
+
+                // GROUP: The tab bar: the row of buttons, and the contents under it.
+                // hug: 1 -> it is as big as its two parts.
+                tabs = VGroup({
+                    hug: 1,
+                    gap: SPACE_UNDER_BUTTONS,
+                });
+
+                    // The buttons and the content boxes, in their order: tabs.buttons[0] is the first button.
+                    tabs.buttons = [];
+                    tabs.contents = [];
+
+                    createButtonRow();
+                    createContentWindow();
+
+                endGroup();
+
+            endAutoLayout();
+
+            // Fill the content boxes: each one has its own function.
+            createScienceContent(tabs.contents[0]);
+            createTechnologyContent(tabs.contents[1]);
+            createArtContent(tabs.contents[2]);
+            createHelpContent(tabs.contents[3]);
+
+            // At the start, act as if the first button was clicked.
+            // withMotion(): the function runs a moment later, when the motions (setMotion) are ready.
+            tabs.withMotion(function () {
+                tabBarBtnClicked(tabs.buttons[0]);
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        // The row of buttons, with the colored box that moves behind the selected button.
+        const createButtonRow = function () {
+
+            // GROUP: The buttons side by side. hug: 1 -> it is as wide as all the buttons.
+            tabs.buttonRow = HGroup({
+                hug: 1,
+                color: "white",
+                round: 8,
+            });
+
+                // BOX: The colored box that moves behind the selected button.
+                // It is 10 px wide at the start: it grows to the first button with a motion.
+                tabs.boxSelected = Box({
+                    position: "absolute",   // The group does not place it: it stands at its own left and top.
+                    left: 0,
+                    top: 0,
+                    width: 10,
+                    height: BUTTON_HEIGHT,
+                    color: "whitesmoke",
+                    border: 2,
+                    borderColor: "white",
+                    round: 8,
+                });
+                tabs.boxSelected.setMotion("left 0.5s, width 0.5s, background-color 0.5s");
+
+                // Create the buttons. The group puts each one after the one before it.
+                for (let i = 0; i < tabBarButtons.length; i++) {
+
+                    // BUTTON: A tab. It is transparent: the colored box behind it is seen.
+                    Button({
+                        text: tabBarButtons[i].name,
+                        width: tabBarButtons[i].width,
+                        height: BUTTON_HEIGHT,
+                        minimal: 1,
+                        round: 8,
+                        color: "transparent",
+                    });
+                    // NOTE: "that" is the last object that was created (here: the button above).
+
+                    // Our own information on the button: its order number (0, 1, 2...).
+                    that.indexNumber = i;
+                    that.on("click", tabBarBtnClicked);
+
+                    tabs.buttons.push(that);
+
+                }
+
+            endGroup();
+
+        };
+
+        // The window of the contents, and the row of the contents in it.
+        const createContentWindow = function () {
+
+            // BOX: As big as one content. It cuts what is out of it (clipContent), so only one content is seen.
+            tabs.contentWindow = startBox({
+                width: TAB_CONTENT_WIDTH,
+                height: TAB_CONTENT_HEIGHT,
+                color: "transparent",
+            });
+
+                // GROUP: The contents side by side. It is in a Box (not in a group), so it stands at its own left:
+                // a change of its left moves it. It starts half a content to the left: at the start, it slides
+                // into its place with a motion.
+                tabs.contentRow = HGroup({
+                    left: -TAB_CONTENT_WIDTH / 2,
+                    top: 0,
+                    hug: 1,
+                });
+                tabs.contentRow.setMotion("left 0.5s");
+
+                    // Create the content boxes, one after the other.
+                    for (let i = 0; i < tabBarButtons.length; i++) {
+
+                        // BOX: The content box of a tab
+                        const box = Box({
+                            width: TAB_CONTENT_WIDTH,
+                            height: TAB_CONTENT_HEIGHT,
+                            round: 4,
+                        });
+
+                        tabs.contents.push(box);
+
+                    }
+
+                endGroup();
+
+            endBox();
+
+        };
+
+        // Does what is needed when a button is clicked. clickedButton: the button itself (basic.js gives it).
+        const tabBarBtnClicked = function (clickedButton) {
+
+            // The colored box goes to the place and the size of the button.
+            // (The group gave the button its place, and left reads that place.)
+            tabs.boxSelected.left = clickedButton.left;
+            tabs.boxSelected.width = clickedButton.width;
+
+            // The colored box takes the color of the content box.
+            tabs.boxSelected.color = tabs.contents[clickedButton.indexNumber].color;
+
+            // The contents slide, so the content of the clicked button is seen. Ex: the 3rd button -> left: -900
+            tabs.contentRow.left = (clickedButton.indexNumber * TAB_CONTENT_WIDTH) * -1;
+
+        };
+
+        // The content of the Science tab. box: its content box.
+        const createScienceContent = function (box) {
+
+            box.color = "Lavender";
+
+            // createIn(): the objects created in the function go into box.
+            createIn(box, function () {
+
+                // LABEL: The title, in the middle of the box
+                box.lblTitle = Label({
+                    text: "Content 1",
+                    textAlign: "center",
+                    height: 30,
+                });
+                box.lblTitle.center();
+
+                // Fill this box here.
+
+            });
+
+        };
+
+        // The content of the Technology tab
+        const createTechnologyContent = function (box) {
+
+            box.color = "PaleTurquoise";
+
+            createIn(box, function () {
+
+                // LABEL: The title, in the middle of the box
+                box.lblTitle = Label({
+                    text: "Content 2",
+                    textAlign: "center",
+                    height: 30,
+                });
+                box.lblTitle.center();
+
+                // Fill this box here.
+
+            });
+
+        };
+
+        // The content of the Art tab
+        const createArtContent = function (box) {
+
+            box.color = "Bisque";
+
+            createIn(box, function () {
+
+                // LABEL: The title, in the middle of the box
+                box.lblTitle = Label({
+                    text: "Content 3",
+                    textAlign: "center",
+                    height: 30,
+                });
+                box.lblTitle.center();
+
+                // Fill this box here.
+
+            });
+
+        };
+
+        // The content of the ? tab (help)
+        const createHelpContent = function (box) {
+
+            box.color = "whitesmoke";
+
+            createIn(box, function () {
+
+                // LABEL: The title, in the middle of the box
+                box.lblTitle = Label({
+                    text: "Content 4",
+                    textAlign: "center",
+                    height: 30,
+                });
+                box.lblTitle.center();
+
+                // Fill this box here.
+
+            });
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Fill the content boxes with your own objects (pictures, texts, buttons).
+        - Calculate the width of each button from the length of its name,
+          instead of writing it in the array.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

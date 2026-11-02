@@ -129,3 +129,4 @@ window.onload = function() {
 - basic.js'de arayüz geçişleri CSS `transition` üzerinden yürütülür ve en çok `.setMotion` metodu ile tetiklenir.
 - Tarayıcıda performans ve sekme sorunlarını çözmek için DOM değişiklikleri sonrasında `.withMotion()` kullanılmalıdır.
 - Yalnızca anında zıplama yapması gereken objelerde (örneğin kaydırma scroll pozisyonu algılandığında elementin takibi vs.) `.dontMotion()` yapıları kullanılır.
+- Bir nesneyi kutusunun kenarından dışarı götüren hareket (zıplama, kalkma, büyüme, kayarak gelme) o kutu tarafından kesilir: her Box ve grup varsayılan olarak keser. Etrafındaki kutulara `clipContent: 0` ver (bkz. Box: "Kutusunun dışına çıkan içerik").

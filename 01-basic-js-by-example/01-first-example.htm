@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>First Example</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        FIRST EXAMPLE
+
+        A text in the middle of the page that counts its clicks.
+        The whole page is written in JavaScript: there is no HTML markup and no CSS file.
+
+        - start()                       -> basic.js calls it when the page is ready.
+        - AutoLayout() ... endAutoLayout()
+                                        -> a group: the objects created between these two lines go into it.
+                                           With no props it fills the page and puts its objects in the middle.
+        - Label({ text, color, ... })   -> a text. Every prop in the object sets one thing of its look.
+        - obj.on("click", fn)           -> runs fn when the object is clicked.
+        - println(value)                -> writes to the console (open the developer tools to see it).
+
+        */
+
+        // *** VARIABLES:
+
+        let clickCount = 0;
+        let lblCounter;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // GROUP: Fills the page and puts the label in its middle
+            AutoLayout();
+
+                // LABEL: The text to click
+                lblCounter = Label({
+                    text: "Click Me",
+                    color: "white",
+                    padding: [12, 4],       // [left and right, top and bottom]
+                    round: 4,
+                    border: 1,
+                    borderColor: Black(0.1),  // Black(0.1): black at 10% (a soft line)
+                    cursor: "pointer",      // the hand cursor: it can be clicked
+                });
+                lblCounter.on("click", countClick);
+
+            endAutoLayout();
+
+        };
+
+        // *** FUNCTIONS:
+
+        const countClick = function () {
+            clickCount++;
+            lblCounter.text = "Clicked: " + clickCount;
+            println(clickCount);
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

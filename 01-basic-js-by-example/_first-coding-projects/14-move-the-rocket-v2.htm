@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Move the Rocket V2</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MOVE THE ROCKET V2
+
+        ALGORITHM:
+        The up arrow moves the rocket forward, the right and the left arrows turn it.
+        The rocket does not jump: it moves 1 px and turns 1 degree at a time.
+
+        WORKING LOGIC:
+        - A simple way of motion, with the coordinate system and the function loop(),
+          which runs again and again at fixed intervals (here every 5 ms).
+        - Each run of loop() makes one small step: first the turn (1 degree) until turnAngle is 0,
+          then the move (1 px) until moveDistance is 0.
+        - The forward arrow adds 100 px to moveDistance.
+          A turn arrow sets turnAngle to 90 degrees and changes the direction of the rocket.
+
+        THE AIM OF THE PROJECT:
+        - To practice using variables and conditions together,
+          and to understand how a motion is made, at its base.
+
+        NOTE: With motion libraries or other techniques, animations can be made with much simpler code.
+
+        */
+
+        // *** VARIABLES:
+
+        const ROCKET_SIZE = 80;         // px
+        const ARROW_SIZE = 50;          // px
+        const ARROW_SPACE = -10;        // px: a negative space: the turn arrows go 10 px up, next to the forward arrow
+        const ARROW_SHIFT = 45;         // px: the turn arrows are this far at the right and at the left
+        const LABEL_EXTRA_WIDTH = 100;  // px: the label is wider than the arrow, 50 px on each side
+        const FLY_DISTANCE = 100;       // px: one click on the forward arrow
+        const TURN_ANGLE = 90;          // degrees: one click on a turn arrow
+        const LOOP_TIME = 5;            // ms: loop() runs again after this time
+
+        // The rocket (an Icon)
+        let imgRocket;
+        // The arrows that move the rocket
+        let imgForward;
+        let imgRight;
+        let imgLeft;
+        // The distance that is left
+        let lblDistance;
+
+        // The directions, in their order. 0: up, 1: right, 2: down, 3: left
+        const directionList = ["up", "right", "down", "left"];
+
+        // NOTE: The order makes the turns simple math. When a rocket with the direction 1 (right) turns right,
+        //       it gets 1 + 1 = 2 (down). When it turns left, it gets 1 - 1 = 0 (up).
+
+        // The direction of the rocket: an index of directionList. 0: up
+        let moveDirection = 0;
+        // How far the rocket still moves (px). loop() moves it until this is 0 again.
+        let moveDistance = 0;
+
+        // "+": the angle grows (clockwise), "-": the angle gets smaller (counterclockwise).
+        let turnDirection = "+";
+        // How many degrees the rocket still turns.
+        let turnAngle = 0;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "gold";
+
+            // ICON: The rocket, in the middle of the page. Parameters: left, top, width, height
+            imgRocket = Icon(0, 0, ROCKET_SIZE, ROCKET_SIZE);
+            imgRocket.load("images/rocket.png");
+            imgRocket.center();
+
+            // ICON: The forward arrow
+            imgForward = Icon(100, 50, ARROW_SIZE, ARROW_SIZE);
+            imgForward.load("images/arrow-up.png");
+            imgForward.on("click", flyTheRocket);
+
+            // ICON: The turn right arrow
+            imgRight = Icon(0, 0, ARROW_SIZE, ARROW_SIZE);
+            imgRight.load("images/arrow-right.png");
+            // Under the forward arrow (a space of -10 px: 10 px up),
+            imgRight.aline(imgForward, "bottom", ARROW_SPACE);
+            // then 45 px to the right.
+            imgRight.left += ARROW_SHIFT;
+            imgRight.on("click", turnTheRocket);
+
+            // ICON: The turn left arrow
+            imgLeft = Icon(0, 0, ARROW_SIZE, ARROW_SIZE);
+            imgLeft.load("images/arrow-left.png");
+            imgLeft.aline(imgForward, "bottom", ARROW_SPACE);
+            // 45 px to the left.
+            imgLeft.left -= ARROW_SHIFT;
+            imgLeft.on("click", turnTheRocket);
+
+            // Our own information on each turn arrow: its direction.
+            imgRight.direction = "right";
+            imgLeft.direction = "left";
+
+            // LABEL: The distance that is left, over the forward arrow.
+            lblDistance = Label({
+                width: imgForward.width + LABEL_EXTRA_WIDTH,
+                textAlign: "center",
+                text: "0",
+            });
+            // Over the forward arrow, with a space of 10 px,
+            lblDistance.aline(imgForward, "top", 10);
+            // then to the left by half of its extra width: so it is in the middle, over the arrow.
+            lblDistance.left -= LABEL_EXTRA_WIDTH / 2;
+
+            // Run loop() every 5 ms (and not every second).
+            setLoopTimer(LOOP_TIME);
+
+        };
+
+        // basic.js runs loop() again and again (every 5 ms here).
+        const loop = function () {
+
+            // First the turn: until the angle that is left is 0.
+            if (turnAngle > 0) {
+
+                if (turnDirection == "+") {
+                    // Clockwise: the angle grows by 1.
+                    imgRocket.rotate++;
+
+                } else {
+                    // Counterclockwise: the angle gets smaller by 1.
+                    imgRocket.rotate--;
+                }
+
+                // One degree of the turn is done.
+                turnAngle--;
+
+            } else if (moveDistance > 0) {
+
+                // NOTE: The move comes after the turn is over: the rocket does not move while it turns.
+
+                // One px in the direction of the rocket.
+                if (moveDirection == 0) {
+                    imgRocket.top--;
+
+                } else if (moveDirection == 1) {
+                    imgRocket.left++;
+
+                } else if (moveDirection == 2) {
+                    imgRocket.top++;
+
+                } else if (moveDirection == 3) {
+                    imgRocket.left--;
+                }
+
+                // One px of the move is done.
+                moveDistance--;
+
+                // Write some information into the console of the browser (F12 opens it).
+                println("The distance the rocket will move: " + moveDistance);
+                println("The direction of the rocket: " + directionList[moveDirection]);
+
+                lblDistance.text = moveDistance;
+
+            }
+
+            // Otherwise: there is nothing to do.
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs when the forward arrow is clicked: the rocket moves 100 px more.
+        const flyTheRocket = function () {
+
+            moveDistance += FLY_DISTANCE;
+
+            // NOTE: The distance adds up, like fuel: three quick clicks make 300 px.
+
+        };
+
+        // Runs when a turn arrow is clicked. clickedArrow: the arrow itself (basic.js gives it).
+        const turnTheRocket = function (clickedArrow) {
+
+            // A new turn can start only when the last one is over.
+            if (turnAngle != 0) return;
+
+            if (clickedArrow.direction == "right") {
+
+                // The turn is clockwise.
+                turnDirection = "+";
+                // The new direction is the next item of the list.
+                moveDirection++;
+                // After the last item: back to the first one.
+                if (moveDirection == directionList.length) {
+                    moveDirection = 0;
+                }
+                // Turn 90 degrees.
+                turnAngle = TURN_ANGLE;
+
+            } else if (clickedArrow.direction == "left") {
+
+                // The same steps, the other way.
+                turnDirection = "-";
+                moveDirection--;
+                if (moveDirection < 0) {
+                    moveDirection = directionList.length - 1;
+                }
+                turnAngle = TURN_ANGLE;
+
+            }
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Show the direction of the rocket in a second Label: directionList[moveDirection]
+        - Add a "stop" button: it makes moveDistance 0.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

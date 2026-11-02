@@ -132,7 +132,7 @@ basic.js is the base of the [JS-Component Suite](https://github.com/bug7a/js-com
 
 - **[Handbook](https://bug7a.github.io/basic.js-handbook/):** every object, property and function with examples, in English and Turkish. It also works offline as an installable app.
 - **[What is new](https://github.com/bug7a/js-components/blob/main/__handbook/english/00-what-is-new.md):** release notes.
-- **[Tutorial pages](https://github.com/bug7a/js-components/tree/main/01-basic-samples-m1):** numbered sample pages for the core library.
+- **[Tutorial pages](01-basic-js-by-example/):** numbered sample pages for the core library.
 
 ---
 

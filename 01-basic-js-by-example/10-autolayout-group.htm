@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>HGroup and VGroup</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        HGROUP AND VGROUP
+
+        A group places its objects for you, so they need no left and top. HGroup puts them side by
+        side, VGroup puts them one under the other. Groups can be inside groups.
+
+        - HGroup(props) ... endGroup()
+                                    -> a row: the objects created between these two lines go into it.
+        - VGroup(props) ... endGroup()
+                                    -> a column. (AutoLayout() is the same group: flow: "horizontal" or
+                                       "vertical".)
+        - A group without a size fills its container (100% x 100%) and puts its objects in the middle.
+        - hug: 1                    -> the group is only as big as its objects.
+        - align: "left top"         -> where the objects are: a word across (left, center, right) and a
+                                       word up and down (top, center, bottom).
+        - gap: 10                   -> the px between the objects.
+        - padding: 10               -> the px between the edge of the group and its objects.
+                                       ([10, 20]: 10 at the left and right, 20 at the top and bottom.)
+        - wrap: 1                   -> the objects go on to the next line when there is no room.
+        - justify: "space-between"  -> the free room is shared between the objects.
+        - group.gap = 20, group.align = "left top", group.flow = "vertical"
+                                    -> a group can be changed after it is created.
+
+        TRY: give the page group align: "left top" and padding: 20.
+
+        */
+
+        // *** VARIABLES:
+
+        const SQUARE_SIZE = 60;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "whitesmoke";
+
+            // GROUP: The page. It has no size, so it fills the page and puts the samples in its middle.
+            HGroup({
+                gap: 40,
+            });
+
+                // GROUP: The first sample and its name, one under the other
+                VGroup({ hug: 1, gap: 8 });
+
+                    // GROUP: A row: side by side
+                    HGroup({
+                        hug: 1,
+                        gap: 10,
+                        padding: 10,
+                        color: "white",
+                        round: 8,
+                    });
+
+                        Box({ width: SQUARE_SIZE, height: SQUARE_SIZE, color: "orangered" });
+                        Box({ width: SQUARE_SIZE, height: SQUARE_SIZE, color: "steelblue" });
+                        Box({ width: SQUARE_SIZE, height: SQUARE_SIZE, color: "gold" });
+
+                    endGroup();
+
+                    Label({ text: "HGroup", fontSize: 14, textColor: Black(0.6) });
+
+                endGroup();
+
+                // GROUP: The second sample and its name
+                VGroup({ hug: 1, gap: 8 });
+
+                    // GROUP: A column: one under the other
+                    VGroup({
+                        hug: 1,
+                        gap: 10,
+                        padding: 10,
+                        color: "white",
+                        round: 8,
+                    });
+
+                        Box({ width: SQUARE_SIZE, height: SQUARE_SIZE, color: "orangered" });
+                        Box({ width: SQUARE_SIZE, height: SQUARE_SIZE, color: "steelblue" });
+                        Box({ width: SQUARE_SIZE, height: SQUARE_SIZE, color: "gold" });
+
+                    endGroup();
+
+                    Label({ text: "VGroup", fontSize: 14, textColor: Black(0.6) });
+
+                endGroup();
+
+            endGroup();
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

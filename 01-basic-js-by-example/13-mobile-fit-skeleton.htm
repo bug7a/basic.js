@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Mobile Fit Skeleton</title>
+
+        <meta charset="UTF-8">
+        <!-- WHY: Without this line a phone draws the page 980 px wide and makes it small. -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MOBILE FIT SKELETON
+
+        A starting page for a phone app. You design it for one width (DESIGN_WIDTH, 600 px) and
+        page.fit() scales the whole page, so that width fills the screen: smaller on a phone, bigger
+        on a tablet. On a wide screen it stops at MAX_WIDTH and the dark sides are seen.
+        Make the window narrower and wider: the text under the title shows what fit() did.
+
+        - page.fit(designWidth, maxWidth)   -> sets page.zoom: the page is drawn at that scale.
+        - page.zoom                         -> 1 is the normal size, 0.5 half, 2 double.
+        - page.onResize(fn)                 -> runs fn when the window changes size (not at the start).
+        - grow: 1                           -> in a group, takes the free space (the content under the top bar).
+        - scrollY: 1                        -> the box scrolls when its content is taller than it.
+
+        TRY: change DESIGN_WIDTH to 400, or make MAX_WIDTH the same as DESIGN_WIDTH.
+
+        */
+
+        // *** VARIABLES:
+
+        const DESIGN_WIDTH = 600;   // px: the width you design the page for
+        const MAX_WIDTH = 800;      // px: on a wider screen the app stops growing at this width
+        const TOP_BAR_HEIGHT = 64;
+        const CARD_COUNT = 3;
+        const CARD_HEIGHT = 140;
+
+        const COLOR_SIDES = "#141414";
+        const COLOR_TOP_BAR = "#2F5D62";
+
+        let lblFitInfo;
+
+        // *** START:
+
+        const start = function () {
+
+            // The first fit here: page.onResize() runs only when the window changes later.
+            page.fit(DESIGN_WIDTH, MAX_WIDTH);
+            page.onResize(fitToWindow);
+
+            // GROUP: Fills the window and puts the app in its middle. Its color is seen at the sides.
+            AutoLayout({ color: COLOR_SIDES });
+
+                // GROUP: The app: DESIGN_WIDTH wide, as high as the window
+                VGroup({ width: DESIGN_WIDTH, height: "100%", align: "left top", color: "white" });
+
+                    createTopBar();
+                    createContent();
+
+                endGroup();
+
+            endAutoLayout();
+
+            showFitInfo();
+
+        };
+
+        // *** VIEW:
+
+        const createTopBar = function () {
+
+            // GROUP: The top bar. It stays at the top: only the content under it scrolls.
+            HGroup({
+                width: "100%",
+                height: TOP_BAR_HEIGHT,
+                align: "left center",
+                padding: [24, 0],
+                color: COLOR_TOP_BAR,
+            });
+
+                // LABEL: App name
+                Label({
+                    text: "My App",
+                    fontSize: 22,
+                    bold: 1,
+                    textColor: "white",
+                });
+
+            endGroup();
+
+        };
+
+        const createContent = function () {
+
+            // BOX: The rest of the height. height: 10 is only a start: grow: 1 gives it the free space.
+            //      It scrolls when the content is taller.
+            startBox({ width: "100%", height: 10, grow: 1, color: "transparent", scrollY: 1 });
+
+                // GROUP: The content, one under the other. height: "auto" -> it can be taller than the box.
+                VGroup({ width: "100%", height: "auto", align: "left top", gap: 16, padding: 24 });
+
+                    // LABEL: Title
+                    Label({
+                        text: "Mobile Content",
+                        fontSize: 28,
+                        bold: 1,
+                    });
+
+                    // LABEL: What fit() does
+                    lblFitInfo = Label({
+                        width: "100%",
+                        fontSize: 16,
+                        lineHeight: 26,
+                        textColor: Black(0.6),
+                    });
+
+                    for (let i = 1; i <= CARD_COUNT; i++) {
+                        createEmptyCard("Your content " + i);
+                    }
+
+                endGroup();
+
+            endBox();
+
+        };
+
+        // A gray place for the content you will add
+        const createEmptyCard = function (cardText) {
+
+            // GROUP:
+            HGroup({ width: "100%", height: CARD_HEIGHT, color: "whitesmoke", round: 16 });
+
+                // LABEL:
+                Label({
+                    text: cardText,
+                    fontSize: 16,
+                    textColor: Black(0.35),
+                });
+
+            endGroup();
+
+        };
+
+        // *** FUNCTIONS:
+
+        const fitToWindow = function () {
+            page.fit(DESIGN_WIDTH, MAX_WIDTH);
+            showFitInfo();
+        };
+
+        const showFitInfo = function () {
+
+            const windowWidth = window.innerWidth;
+            const appWidth = Math.round(DESIGN_WIDTH * page.zoom);
+
+            const lines = [
+                "Designed " + DESIGN_WIDTH + " px wide.",
+                "The window is " + windowWidth + " px wide, so page.zoom is " + page.zoom.toFixed(2) + ".",
+                "On the screen the app is " + appWidth + " px wide.",
+            ];
+            lblFitInfo.text = lines.join("<br>");
+
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

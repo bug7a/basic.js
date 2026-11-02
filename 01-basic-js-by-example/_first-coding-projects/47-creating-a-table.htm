@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Creating a Table</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        CREATING A TABLE
+
+        This table is made of three basic objects:
+        - Button
+        - Label
+        - Box
+
+        With the same technique, you can add every other feature you need to this algorithm.
+
+        ALGORITHM:
+        A table of people: a row of titles at the top, and one row for every person under it.
+        A click on a row writes the name of its person to the console.
+
+        WORKING LOGIC:
+        - The people are in an array: every element has an id, a name and an e-mail.
+        - The titles are Buttons, next to each other. One properties object gives them the same look.
+        - The rows are in a Box that scrolls up and down. A loop makes one row (a Box with 3 Labels) for
+          every person. The Labels of a row are placed under their titles.
+        - Every row keeps its person in its own property (person), so a click knows whose row it is.
+
+        */
+
+        // *** VARIABLES:
+
+        const TABLE_HEIGHT = 450;   // px
+        const TITLE_HEIGHT = 40;    // px
+        const ROW_HEIGHT = 30;      // px
+        const TEXT_SPACE = 10;      // px: before a text that starts at the left
+
+        // The information of the table
+        const people = [
+            { id: "001", name: "Aaron", email: "aaron.test@gmail.com" },
+            { id: "002", name: "Martin", email: "martin.test@gmail.com" },
+            { id: "003", name: "Fiona", email: "fiona.test@gmail.com" },
+            { id: "004", name: "Harry", email: "harry.test@gmail.com" },
+            { id: "005", name: "Diana", email: "diana.test@gmail.com" },
+            { id: "006", name: "Alan", email: "alan.test@gmail.com" },
+            { id: "007", name: "Daphne", email: "daphne.test@gmail.com" },
+            { id: "008", name: "Abraham", email: "abe.test@gmail.com" },
+        ];
+
+        // The table (a Box)
+        let tblPeople;
+
+        // The common properties of the titles
+        const titleProps = { color: "white", round: 4 };
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // The page is zoomed to fit 600 px, but it is never zoomed for more than 650 px.
+            page.fit(600, 650);
+
+            // BOX: The table. The objects created between startBox() and endBox() go inside it.
+            tblPeople = startBox(10, 50, 580, TABLE_HEIGHT, {
+                round: 4,
+            });
+
+                // BUTTON: Title 1
+                tblPeople.title1 = Button(0, 0, 140, TITLE_HEIGHT, {
+                    text: "No.",
+                    cursor: "default",      // no hand cursor over it: it is not clicked
+                });
+                tblPeople.title1.props(titleProps);
+                // Only this title is blue.
+                tblPeople.title1.color = "lightblue";
+
+                // BUTTON: Title 2, at the right of title 1
+                tblPeople.title2 = Button(0, 0, 200, TITLE_HEIGHT, {
+                    text: "Name",
+                    cursor: "default",
+                });
+                tblPeople.title2.props(titleProps);
+                tblPeople.title2.aline(tblPeople.title1, "right");
+
+                // BUTTON: Title 3, at the right of title 2
+                tblPeople.title3 = Button(0, 0, 240, TITLE_HEIGHT, {
+                    text: "E-mail",
+                    cursor: "default",
+                });
+                tblPeople.title3.props(titleProps);
+                tblPeople.title3.aline(tblPeople.title2, "right");
+
+                // BOX: The box of all the rows, under the titles. It scrolls up and down.
+                tblPeople.boxRows = startBox(0, TITLE_HEIGHT, tblPeople.width, tblPeople.height - TITLE_HEIGHT, {
+                    color: "transparent",
+                    scrollY: 1,
+                });
+
+                    // One row for every person
+                    for (let i = 0; i < people.length; i++) {
+                        createRow(i);
+                    }
+
+                endBox();
+
+            endBox();
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Creates the row of the person with the number i, inside the box of the rows.
+        const createRow = function (i) {
+
+            const person = people[i];
+
+            // BOX: The row. Each row is under the one before it.
+            const row = startBox(0, i * ROW_HEIGHT, tblPeople.width, ROW_HEIGHT);
+
+            // Our own information on the row: its person.
+            row.person = person;
+            row.on("click", rowClicked);
+
+            // Every second row is white (the ones whose number can not be divided by 2: 1, 3, 5...).
+            if (i % 2) {
+                row.color = "white";
+            }
+
+                // LABEL: The number, under title 1. Its text is in the middle.
+                row.lblID = Label({
+                    left: tblPeople.title1.left,
+                    top: 0,
+                    width: tblPeople.title1.width,
+                    height: ROW_HEIGHT,
+                    textAlign: "center",
+                    text: person.id,
+                });
+
+                // LABEL: The name, under title 2. Its text starts 10 px after the start of the title.
+                row.lblName = Label({
+                    left: tblPeople.title2.left + TEXT_SPACE,
+                    top: 0,
+                    width: tblPeople.title2.width - TEXT_SPACE,
+                    height: ROW_HEIGHT,
+                    textAlign: "left",
+                    text: person.name,
+                });
+
+                // LABEL: The e-mail, under title 3
+                row.lblEmail = Label({
+                    left: tblPeople.title3.left + TEXT_SPACE,
+                    top: 0,
+                    width: tblPeople.title3.width - TEXT_SPACE,
+                    height: ROW_HEIGHT,
+                    textAlign: "left",
+                    text: person.email,
+                });
+
+            endBox();
+
+        };
+
+        // Runs when a row is clicked: it writes the name of the person to the console.
+        const rowClicked = function (clickedRow) {
+
+            println(clickedRow.person.name);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Paint the clicked row in another color, so the selected row is seen.
+        - Add a fourth column: the phone number of the person.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Mouse Position</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        MOUSE POSITION
+
+        ALGORITHM:
+        The position of the mouse is shown at the top left corner of the page. A click puts a circle of
+        a random size and color at that position.
+
+        WORKING LOGIC:
+        - The page tells us about the mouse with events: "mousemove" (it moves), "mousedown" (a button is
+          pressed) and "mouseup" (the button is released). page.on(eventName, function) runs the function then.
+        - Every time the mouse moves, its position (x, y) is saved in two variables and written in a Label.
+        - When a mouse button is pressed, a round Box is created at the saved position.
+
+        */
+
+        // *** VARIABLES:
+
+        // The Label of the mouse position
+        let lblMouseInfo;
+
+        // The last position of the mouse on the page (px)
+        let mouseX, mouseY;
+
+        // *** START:
+
+        const start = function () {
+
+            // LABEL: The position of the mouse
+            lblMouseInfo = Label({
+                left: 30,
+                top: 30,
+                text: "",
+            });
+
+            // LABEL: The information text in the middle of the page
+            Label({
+                width: 200,
+                text: "Please click on the screen...",
+                fontSize: 14,
+                textAlign: "center",
+            });
+            // In the middle of the page
+            that.center();
+
+            // When the mouse moves, mouseMoved runs.
+            page.on("mousemove", mouseMoved);
+
+            // When a mouse button is pressed, mouseDown runs.
+            page.on("mousedown", mouseDown);
+
+            // When the mouse button is released, mouseUp runs.
+            page.on("mouseup", mouseUp);
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Runs every time the mouse moves.
+        // self: the page, event: the information of the mouse (basic.js gives both).
+        const mouseMoved = function (self, event) {
+
+            // event.clientX / clientY: the position of the mouse in the window.
+            // withPageZoom(): the same position in the size of the page (when the page is zoomed).
+            mouseX = withPageZoom(event.clientX);
+            mouseY = withPageZoom(event.clientY);
+
+            lblMouseInfo.text = mouseX + ", " + mouseY;
+
+        };
+
+        // Runs when a mouse button is pressed: a circle at the last position of the mouse.
+        const mouseDown = function (self, event) {
+
+            createShape(mouseX, mouseY);
+
+        };
+
+        // Runs when the mouse button is released. (Empty: for your own code)
+        const mouseUp = function (self, event) {
+
+        };
+
+        // Creates a circle of a random size and a random color, with its center at x, y.
+        const createShape = function (x, y) {
+
+            const colors = ["red", "green", "blue", "pink", "yellow", "black", "orange"];
+
+            // A random size. The width and the height are the same: a square, then a circle with round.
+            const size = random(30, 90);
+
+            // The radius: half of the size, as a whole number.
+            const radius = basic.num(size / 2, "integer");
+
+            // BOX: The circle. Its center is at the mouse, so it starts one radius to the left and up.
+            Box(x - radius, y - radius, size, size, {
+                round: radius,
+                // An opacity from 0.3 to 1
+                opacity: basic.num(random(30, 100) / 100),
+                // One of the colors of the list
+                color: colors[random(0, colors.length - 1)],
+            });
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTIONS:
+
+        - Use mouseUp(): make the last circle a little bigger when the button is released.
+        - Show the number of the circles on the page.
+        - Think about what else can be added; design it and write it.
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

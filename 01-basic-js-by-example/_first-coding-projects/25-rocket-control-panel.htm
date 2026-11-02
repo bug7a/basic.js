@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Rocket Control Panel</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../../basic/basic.css">
+        <script src="../../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        ROCKET CONTROL PANEL
+
+        ALGORITHM:
+        The place and the angle of a rocket are changed with the numbers typed into text boxes.
+
+        WORKING LOGIC:
+        - The control panel is a Box at the bottom right corner of the page. It has three text boxes
+          (Input) and a button. It is drawn at 70% of its size, with the CSS zoom of the box.
+        - At the start, the text boxes show the place (left, top) and the angle (rotate) of the rocket.
+        - The button reads the numbers from the text boxes and gives them to the rocket.
+
+        */
+
+        // *** VARIABLES:
+
+        // The rocket (an Icon: a picture object)
+        let imgRocket;
+        // The control panel (a Box)
+        let boxControl;
+
+        // *** START:
+
+        // basic.js runs start() by itself, when the page is ready.
+        const start = function () {
+
+            page.color = "black";
+
+            // BOX: The control panel, at the bottom right corner
+            // NOTE: Every object created between startBox() and endBox() goes inside the box.
+            boxControl = startBox({
+                right: 30,
+                bottom: 30,
+                width: 310,
+                height: 350,
+                border: 0,
+                round: 6,
+                color: "whitesmoke",
+                // css: the CSS of the box. zoom 0.7: the panel and everything in it are drawn at 70% of their size.
+                css: { zoom: 0.7 },
+            });
+
+                // INPUT: The horizontal place of the rocket (left)
+                boxControl.txtRocketX = Input({
+                    title: "Rocket's Horizontal Position:",
+                    minimal: 1,
+                    top: 40,
+                    left: 20,
+                });
+
+                // INPUT: The vertical place of the rocket (top), 30 px under the text box before it
+                boxControl.txtRocketY = Input({
+                    title: "Rocket's Vertical Position:",
+                    minimal: 1,
+                });
+                that.aline(boxControl.txtRocketX, "bottom", 30);
+
+                // INPUT: The angle of the rocket (rotate)
+                boxControl.txtRocketAngle = Input({
+                    title: "Rocket's Angle:",
+                    minimal: 1,
+                });
+                that.aline(boxControl.txtRocketY, "bottom", 30);
+
+                // BUTTON: Apply the changes. It is as wide as the text boxes.
+                boxControl.btnApply = Button({
+                    text: "Apply the Changes",
+                    color: "tomato",
+                    width: boxControl.txtRocketAngle.width,
+                });
+                that.aline(boxControl.txtRocketAngle, "bottom", 30);
+                that.on("click", applyChanges);
+
+            endBox();
+
+            // ICON: The rocket
+            imgRocket = Icon({
+                width: 100,
+                height: 100,
+                top: 250,
+                left: 150,
+                rotate: 45,     // degrees
+            });
+            imgRocket.load("images/rocket.png");
+
+            // NOTE: The rocket is created last, so it is seen over the other objects.
+            //       The object that is created first stays at the bottom.
+
+            // Show the place and the angle of the rocket in the text boxes.
+            boxControl.txtRocketX.text = imgRocket.left;
+            boxControl.txtRocketY.text = imgRocket.top;
+            boxControl.txtRocketAngle.text = imgRocket.rotate;
+
+        };
+
+        // *** FUNCTIONS:
+
+        // Changes the place and the angle of the rocket.
+        const applyChanges = function () {
+
+            // The new numbers come from the text boxes. basic.num() turns a text into a number.
+            imgRocket.left = basic.num(boxControl.txtRocketX.text);
+            imgRocket.top = basic.num(boxControl.txtRocketY.text);
+            imgRocket.rotate = basic.num(boxControl.txtRocketAngle.text);
+
+        };
+
+        /*
+
+        DEVELOPMENT SUGGESTION (DIFFICULT):
+
+        - The rocket should go to its new place slowly, and its angle should change slowly too.
+          (Speed: 1 px / 20 ms, turning speed: 1 degree / 20 ms)
+
+        */
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>

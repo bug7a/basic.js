@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <title>Icon</title>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- LIBRARY FILES: basic.css and basic.js come first, your own code after them -->
+        <link rel="preload" href="../basic/font/open-sans/OpenSans-Regular.ttf" as="font" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="../basic/basic.css">
+        <script src="../basic/basic.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+        /*
+
+        ICON
+
+        An Icon shows a picture file (png, jpg, svg...). The same file is shown three times, in three ways.
+
+        - Icon(left, top, width, height, props)
+                                    -> a picture at a place. With a width and a height, the picture is
+                                       drawn in that size.
+        - icon.load(file)           -> loads the picture. The path starts from this page: "assets/carrot.png".
+        - autoSize: 8               -> no width and height: the size of the file divided by 8.
+                                       (autoSize: 1 is the size of the file.)
+        - padding, color, round     -> the space around the picture, a background and round corners.
+        - alt                       -> the text a screen reader says for the picture.
+        - icon.onLoad(fn)           -> runs fn when the file is loaded. Then icon.naturalWidth and
+                                       icon.naturalHeight are the size of the file.
+        - that                      -> the object created last. that.load() right after Icon() loads the
+                                       picture of that icon.
+
+        TRY: change autoSize: 8 to 4, or to 1.
+
+        */
+
+        // *** VARIABLES:
+
+        const PICTURE_FILE = "assets/carrot.png";
+        const CAPTION_TOP = 180;
+
+        let icoCarrot, lblFileSize;
+
+        // *** START:
+
+        const start = function () {
+
+            page.color = "white";
+
+            // ICON: A fixed size: the picture is drawn in 128 x 128
+            icoCarrot = Icon(40, 40, 128, 128, {
+                padding: 15,                // the space between the edge and the picture
+                color: Black(0.05),         // a soft background
+                round: 8,
+                alt: "A carrot",
+            });
+            icoCarrot.onLoad(showFileSize); // WHY: Before load(), so the function is ready when the file comes.
+            icoCarrot.load(PICTURE_FILE);
+
+            // LABEL: Its caption
+            Label(40, CAPTION_TOP, "auto", "auto", { text: "128 x 128", fontSize: 14, textColor: Black(0.5) });
+
+            // ICON: No width and height: its size comes from the file (512 / 8 = 64).
+            // (top: 72 puts its middle in line with the middle of the others.)
+            Icon(208, 72, {
+                autoSize: 8,
+                alt: "A small carrot",
+            });
+            that.load(PICTURE_FILE);
+
+            // LABEL: Its caption
+            Label(208, CAPTION_TOP, "auto", "auto", { text: "autoSize: 8", fontSize: 14, textColor: Black(0.5) });
+
+            // ICON: A circle: round is half of the width
+            Icon(312, 40, 128, 128, {
+                padding: 24,
+                color: "#FFE9D6",
+                round: 64,
+                alt: "A carrot in a circle",
+            });
+            that.load(PICTURE_FILE);
+
+            // LABEL: Its caption
+            Label(312, CAPTION_TOP, "auto", "auto", { text: "round: 64", fontSize: 14, textColor: Black(0.5) });
+
+            // LABEL: The size of the file. showFileSize() writes it when the file is loaded.
+            lblFileSize = Label(40, 240, "auto", "auto", {
+                text: "Loading the picture...",
+                fontSize: 16,
+            });
+
+        };
+
+        // *** FUNCTIONS:
+
+        // icon: the Icon whose file was loaded.
+        const showFileSize = function (icon) {
+            lblFileSize.text = "The file is " + icon.naturalWidth + " x " + icon.naturalHeight + " px.";
+            println("naturalWidth: " + icon.naturalWidth + ", naturalHeight: " + icon.naturalHeight);
+        };
+
+        </script>
+
+    </head>
+    <body>
+    </body>
+</html>
