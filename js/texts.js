@@ -8,8 +8,11 @@ basic.js Website - Texts - v26.09
 - All the copy of the site. Both languages must have the same keys. Code samples: js/samples.js
 - {size}, {components}, {chapters}, {license}, {version} -> js/config.js ve basic.version ile doldurulur.
 
-Developer: Bugra Ozden
-Email: bugra.ozden@gmail.com
+Webpage: https://bug7a.github.io/basic.js/
+
+Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com> (https://bug7a.github.io/)
+Licensed under the Apache License, Version 2.0
+SPDX-License-Identifier: Apache-2.0
 
 */
 
@@ -100,7 +103,7 @@ const TEXTS = {
         // ECOSYSTEM
         ecosystemEyebrow: "ECOSYSTEM",
         ecosystemTitle: "More than a library",
-        ecosystemLead: "basic.js comes with a handbook, the JS-Component Kit and ready app templates, all written with the same few ideas.",
+        ecosystemLead: "basic.js comes with a handbook, the OzdenUI components and ready app templates, all written with the same few ideas.",
         ecosystem: [
             { key: "handbook", icon: "book", title: "Handbook", text: "{chapters} chapters, from the first Box to motion and utilities. Every example runs in the page.", link: "Open the handbook" },
             { key: "components", icon: "grid", title: "Components", text: "{components} ready components: tabs, tables, date pickers, charts, toasts, dialogs… each with a live example and its code.", link: "Browse the components" },
@@ -219,7 +222,7 @@ const TEXTS = {
         // ECOSYSTEM
         ecosystemEyebrow: "EKOSİSTEM",
         ecosystemTitle: "Bir kütüphaneden fazlası",
-        ecosystemLead: "basic.js ile birlikte bir el kitabı, JS-Component Kit ve hazır uygulama şablonları gelir; hepsi aynı birkaç fikirle yazılmıştır.",
+        ecosystemLead: "basic.js ile birlikte bir el kitabı, OzdenUI bileşenleri ve hazır uygulama şablonları gelir; hepsi aynı birkaç fikirle yazılmıştır.",
         ecosystem: [
             { key: "handbook", icon: "book", title: "El kitabı", text: "İlk Box'tan harekete ve yardımcı fonksiyonlara {chapters} bölüm. Her örnek sayfanın içinde çalışır.", link: "El kitabını açın" },
             { key: "components", icon: "grid", title: "Bileşenler", text: "{components} hazır bileşen: sekmeler, tablolar, tarih seçiciler, grafikler, bildirimler, pencereler… her biri canlı örneği ve koduyla.", link: "Bileşenlere göz atın" },

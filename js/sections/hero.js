@@ -6,8 +6,11 @@ HeroSection - v26.09 (basic.js Website)
 
 - Koyu giriş bölümü: sürüm, başlık, giriş, iki düğme, kısa bilgiler ve canlı bir kod örneği (LiveCode).
 
-Developer: Bugra Ozden
-Email: bugra.ozden@gmail.com
+Webpage: https://bug7a.github.io/basic.js/
+
+Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com> (https://bug7a.github.io/)
+Licensed under the Apache License, Version 2.0
+SPDX-License-Identifier: Apache-2.0
 
 */
 
@@ -24,12 +27,12 @@ const HeroSection = function (params = {}) {
     strip.elem.style.paddingTop = (L.headerH + (L.mobile ? 44 : 90)) + "px";
     strip.elem.style.paddingBottom = (L.mobile ? 60 : 100) + "px";
     // Hafif bir ışık: başlığın arkasında amber bir parıltı
-    strip.elem.style.backgroundImage = "radial-gradient(ellipse 60% 45% at 50% 0%, rgba(245, 184, 46, 0.16), rgba(245, 184, 46, 0) 70%)";
+    strip.elem.style.backgroundImage = "radial-gradient(ellipse 60% 45% at 50% 0%, rgba(91, 186, 193, 0.16), rgba(91, 186, 193, 0) 70%)";
 
         // GROUP: Sürüm hapı
-        HGroup({ width: "auto", height: "auto", align: "left center", gap: 8, padding: [14, 7], color: "rgba(245, 184, 46, 0.12)", round: 100 });
+        HGroup({ width: "auto", height: "auto", align: "left center", gap: 8, padding: [14, 7], color: "rgba(91, 186, 193, 0.12)", round: 100 });
         that.border = 1;
-        that.borderColor = "rgba(245, 184, 46, 0.3)";
+        that.borderColor = "rgba(91, 186, 193, 0.3)";
 
             Box({ width: 7, height: 7, round: 4, color: SITE.ACCENT });
             SITE.label(TEXTS.fill(T.heroEyebrow), { fontSize: 13, textColor: SITE.ACCENT });

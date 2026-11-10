@@ -6,8 +6,11 @@ WhySection - v26.09 (basic.js Website)
 
 - Dört kısa neden: okunur kod, küçük boyut, derleme yok, her şey tek yerde.
 
-Developer: Bugra Ozden
-Email: bugra.ozden@gmail.com
+Webpage: https://bug7a.github.io/basic.js/
+
+Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com> (https://bug7a.github.io/)
+Licensed under the Apache License, Version 2.0
+SPDX-License-Identifier: Apache-2.0
 
 */
 

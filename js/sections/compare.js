@@ -6,8 +6,11 @@ CompareSection - v26.09 (basic.js Website)
 
 - Aynı kartın iki yazılışı: solda HTML + CSS + JavaScript (3 dosya), sağda basic.js (1 fonksiyon, canlı).
 
-Developer: Bugra Ozden
-Email: bugra.ozden@gmail.com
+Webpage: https://bug7a.github.io/basic.js/
+
+Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com> (https://bug7a.github.io/)
+Licensed under the Apache License, Version 2.0
+SPDX-License-Identifier: Apache-2.0
 
 */
 

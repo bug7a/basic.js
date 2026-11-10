@@ -6,8 +6,11 @@ FooterSection - v26.09 (basic.js Website)
 
 - Koyu alt bölüm: son sürümle gelenler (hap listesi) ve alt bilgi (logo, bağlantılar, lisans).
 
-Developer: Bugra Ozden
-Email: bugra.ozden@gmail.com
+Webpage: https://bug7a.github.io/basic.js/
+
+Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com> (https://bug7a.github.io/)
+Licensed under the Apache License, Version 2.0
+SPDX-License-Identifier: Apache-2.0
 
 */
 
@@ -93,7 +96,7 @@ const FooterSection = function (params = {}) {
 
             SITE.label("© 2020–" + new Date().getFullYear(), { fontSize: 12, textColor: SITE.ON_DARK_FAINT });
 
-            const lblAuthor = SITE.label("Bugra Ozden", { fontSize: 12, textColor: SITE.ON_DARK_SOFT });
+            const lblAuthor = SITE.label("Buğra Özden", { fontSize: 12, textColor: SITE.ON_DARK_SOFT });
             lblAuthor.elem.style.cursor = "pointer";
             lblAuthor.elem.style.textDecoration = "underline";
             lblAuthor.on("mouseenter", function () { lblAuthor.textColor = "#FFFFFF"; });

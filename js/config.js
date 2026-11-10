@@ -7,8 +7,11 @@ basic.js Website - Site Configuration - v26.09
 - Tüm site ayarları bu dosyadadır. Metinler: js/texts.js  |  Kod örnekleri: js/samples.js
 - All site settings are in this file. Texts: js/texts.js  |  Code samples: js/samples.js
 
-Developer: Bugra Ozden
-Email: bugra.ozden@gmail.com
+Webpage: https://bug7a.github.io/basic.js/
+
+Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com> (https://bug7a.github.io/)
+Licensed under the Apache License, Version 2.0
+SPDX-License-Identifier: Apache-2.0
 
 */
 
@@ -18,7 +21,7 @@ const CONFIG = {
 
     // *** BRAND:
     brandName: "basic.js",
-    logoFile: "assets/basicjs-ui-library-white-text.svg", // Logo (356 x 83), koyu zemin için yazıları beyaz kopyası / text made white for the dark background, relative to this page
+    logoFile: "assets/basicjs-ui-library-dark.svg", // Logo (355 x 81), koyu zemin için sürümü / its version for the dark background, relative to this page
 
     // *** PATHS: (Bu sayfaya göre)
     // Canlı örnekler buradaki basic/basic.min.js ile çalışır. (Site kendi içinden çalışır: basic/ ve comp/ bu klasörde,
@@ -29,7 +32,7 @@ const CONFIG = {
     githubURL: "https://github.com/bug7a/js-components",
     handbookURL: "https://bug7a.github.io/basic.js-handbook/",
     componentsURL: "https://bug7a.github.io/js-components/",
-    authorURL: "https://bug7a.github.io/", // Alt bilgideki "Bugra Ozden"
+    authorURL: "https://bug7a.github.io/", // the "Buğra Özden" link of the footer
     templatesURL: "https://github.com/bug7a/js-components/tree/main/04-templates",
     toolkitURL: "https://github.com/bug7a/js-components/tree/main/__developer-toolkit",
     // "basic.js'i görün" düğmesi (kaynak kod GitHub'da; bu klasörde sadece .min dosyası var)

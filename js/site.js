@@ -7,8 +7,11 @@ basic.js Website - Site Controller - v26.09
 - Sayfayı kurar, dili değiştirir, ekran genişliği değişince yeniden kurar.
 - Builds the page, switches the language and rebuilds it when the window width changes.
 
-Developer: Bugra Ozden
-Email: bugra.ozden@gmail.com
+Webpage: https://bug7a.github.io/basic.js/
+
+Copyright 2020-2026 Bugra Ozden <bugra.ozden@gmail.com> (https://bug7a.github.io/)
+Licensed under the Apache License, Version 2.0
+SPDX-License-Identifier: Apache-2.0
 
 */
 
