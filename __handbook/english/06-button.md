@@ -13,7 +13,7 @@ In the `basic.js` library, the `Button()` object is used to interact with the us
 
 Standard creation process:
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const btnOk = Button({ 
         left: 20, 
@@ -52,7 +52,7 @@ Alternative (Fast) Parameter Format:
 The use of `.on("click", function)` is standardized in buttons.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const btn = Button(40, 40, 180, 50, { 
         text: "HELLO",
@@ -75,7 +75,7 @@ window.onload = function() {
 The minimal property is generally useful in menu navigations, or dialog buttons like warning or cancel.
 
 ```javascript
-window.onload = function() {
+const start = function () {
     
     HGroup({ align: "center", gap: 10 });
     

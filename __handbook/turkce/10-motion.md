@@ -1,6 +1,6 @@
 # basic.js — Motion (Hareket ve Animasyonlar)
 
-basic.js kütüphanesinde oluşturulan herhangi bir GUI nesnesinin (Box, Button, Image vb.) pozisyonlarını, boyutlarını veya renklerini anında (sertçe) değiştirmek yerine, yavaş ve estetik geçişlerle (akıcı şekilde) değiştirmek için `Motion` mekanizması kullanılır.
+basic.js kütüphanesinde oluşturulan herhangi bir GUI nesnesinin (Box, Button, Icon vb.) pozisyonlarını, boyutlarını veya renklerini anında (sertçe) değiştirmek yerine, yavaş ve estetik geçişlerle (akıcı şekilde) değiştirmek için `Motion` mekanizması kullanılır.
 
 ---
 
@@ -9,7 +9,7 @@ basic.js kütüphanesinde oluşturulan herhangi bir GUI nesnesinin (Box, Button,
 Animasyon komutu, öncelikle hangi özelliklerin "hangi sürede" değişeceğini bir kural olarak tanımlar ve `.setMotion()` ile nesneye verilir.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     HGroup();
 
@@ -50,7 +50,7 @@ Nesneye uygulanan genel CSS (transition) komut stringini alır.
 Genellikle birden fazla css değişkeniyle oluşan veya anlık eklenen animasyonların düzgün işlenmesi adına (browser buglarını önlemek için) ufak bir zaman damgasıyla bir kere çalıştırılan akıllı bir fonksiyondur.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     HGroup();
 
@@ -93,7 +93,7 @@ Ekranda baştan oluşturulmuş ancak görünmez (opacity = 0) olan bir yapıyı,
 ```javascript
 let box = null;
 
-window.onload = function() {
+const start = function () {
 
     page.color = Black(0.8);
 
@@ -109,7 +109,7 @@ window.onload = function() {
         
     // Başlangıç değerleri (Aşağıda ve opaklıkta)
     box.opacity = 0;
-    box.elem.style.transform = "translateY(150px)";
+    box.css = { transform: "translateY(150px)" };
 
     // Hangi özelliklerin animasyon ile değişeceğini söylüyoruz
     box.setMotion("transform 0.3s, opacity 0.3s");
@@ -117,7 +117,7 @@ window.onload = function() {
     // Çıkarılmasını izleyen ufak bir zamanlama aralığı
     box.withMotion(function(self) {
         self.opacity = 1;
-        self.elem.style.transform = "translateY(0px)";  // Havaya sıçrat
+        self.css = { transform: "translateY(0px)" };  // Havaya sıçrat
     });
 
 };

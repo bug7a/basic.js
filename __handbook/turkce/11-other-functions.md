@@ -29,10 +29,12 @@ Mevcut durumda yaratılan nesnelerin eklendiği ebeveyn nesneyi (`Box` veya `Mai
 Varsayılan listesinde / hiyerarşisinde belirlenmiş olan bir önceki konteyner kutusuna pratik bir şekilde geri dönmeyi sağlar.
 
 **`createIn(container, func)`** (v26.09.18)
-`func(container)` fonksiyonunu `container` varsayılan kap olacak şekilde çalıştırır ve ardından önceki kabı geri yükler; `func` hata fırlatsa bile. `setDefaultContainerBox(container)` ... `setDefaultContainerBox(previous)` ikilisinin güvenli hâlidir: zaten var olan bir kutunun içinde nesne oluşturmak için kullanın (örneğin bir bileşen oluşturulduktan sonra onun liste kutusuna satır eklemek için).
+`func` fonksiyonunun sonucunu döndürür (v26.10.23). `func(container)` fonksiyonunu `container` varsayılan kap olacak şekilde çalıştırır ve ardından önceki kabı geri yükler; `func` hata fırlatsa bile. `setDefaultContainerBox(container)` ... `setDefaultContainerBox(previous)` ikilisinin güvenli hâlidir: zaten var olan bir kutunun içinde nesne oluşturmak için kullanın (örneğin bir bileşen oluşturulduktan sonra onun liste kutusuna satır eklemek için).
 
 ```javascript
-createIn(box.list, function () {
+const listBox = Box(20, 20, 240, 80, { color: "whitesmoke" });
+
+createIn(listBox, function () {
     Label({ text: "Yeni satır" });
 });
 // Varsayılan kap, çağrıdan önceki ile aynıdır.
@@ -53,3 +55,39 @@ createIn(box.list, function () {
 Uygulamada kendi oluşturduğunuz özel tasarımlı / gelişmiş bir nesneyi, basic.js ekosistemine sorunsuzca entegre edip tanıtmayı sağlar.
 - Fonksiyondan geçen nesneye, yeni bir basic.js nesnesi yaratılana dek global boyutlardaki `that` isimli değişkenden erişilebilir.
 - Eğer geliştirmek istediğiniz özel nesne; birden fazla temel bileşenden (Label, Button vs) oluşuyorsa, hepsini üzerinde barındıran temel taşıyıcı eleman olarak `Box` elemanını kullanmanız ve kutuyu makeBasicObject içine yollamanız tavsiye edilir.
+- Bir bileşen, bunu sizin yerinize yapan `startObject()` / `endObject()` ile yapılır: `15-making-a-component.md`.
+
+---
+
+## 5. remove() ile Temizlenen Olaylar ve Zamanlayıcılar (v26.10.23)
+
+Bu metotlar her nesnede vardır. Başlattıkları işi `remove()` temizler; sayfanın veya bileşenin bunu ayrıca hatırlaması gerekmez.
+
+| Metot | Ne yapar |
+|---|---|
+| `obj.listenTo(target, event, func, capture)` | `window`, `document` veya herhangi bir elemanın olayını dinler: `func(self, event)`. Kaldırma fonksiyonu döndürür. |
+| `obj.onPageResize(func)` | Pencere boyutu değişince çalışır: `func(self, event)`. Kaldırma fonksiyonu döndürür. |
+| `obj.after(ms, func)` | `func(self)` bir kez çalışır. İptal fonksiyonu döndürür. |
+| `obj.every(ms, func)` | `func(self)` tekrar tekrar çalışır. Durdurma fonksiyonu döndürür. |
+| `obj.own(other)` | Başka bir yerde yapılan nesne (`page` üzerindeki bir menü) `obj` ile birlikte kaldırılır. `other` döndürür. |
+
+```javascript
+const lblTime = Label({ text: "Bekliyor", fontSize: 20 });
+
+// lblTime kaldırılınca kendiliğinden durur.
+lblTime.every(1000, function (self) {
+    self.text = new Date().toLocaleTimeString();
+});
+
+lblTime.listenTo(window, "keydown", function (self, event) {
+    if (event.key === "Escape") self.textColor = "tomato";
+});
+
+// 5 saniye sonra yazı kaldırılır: zamanlayıcı ve klavye dinleyicisi de onunla gider.
+lblTime.after(5000, function (self) {
+    self.remove();
+});
+```
+
+**`obj.setFocusRing(color)`**
+Nesneye klavye ile gelindiğinde bir halka çizer; fare tıklamasından sonra çizmez. `""` kaldırır.

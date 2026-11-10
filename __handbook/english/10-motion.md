@@ -1,6 +1,6 @@
 # basic.js — Motion (Movement and Animations)
 
-In the basic.js library, the `Motion` mechanism is used to change the positions, sizes, or colors of any GUI object (Box, Button, Image, etc.) with slow and aesthetic transitions (fluidly) instead of changing them instantly (harshly).
+In the basic.js library, the `Motion` mechanism is used to change the positions, sizes, or colors of any GUI object (Box, Button, Icon, etc.) with slow and aesthetic transitions (fluidly) instead of changing them instantly (harshly).
 
 ---
 
@@ -9,7 +9,7 @@ In the basic.js library, the `Motion` mechanism is used to change the positions,
 An animation command first defines which properties will change in "what duration" as a rule and is given to the object with `.setMotion()`.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     HGroup();
 
@@ -50,7 +50,7 @@ Takes the general CSS (transition) command string applied to the object.
 It is a smart function that is run once with a small timestamp to handle animations that usually consist of multiple CSS variables or are added instantly (to prevent browser bugs).
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     HGroup();
 
@@ -93,7 +93,7 @@ Pulling a structure that was initially created on the screen but is invisible (o
 ```javascript
 let box = null;
 
-window.onload = function() {
+const start = function () {
 
     page.color = Black(0.8);
 
@@ -109,7 +109,7 @@ window.onload = function() {
         
     // Initial values (Bottom and transparent)
     box.opacity = 0;
-    box.elem.style.transform = "translateY(150px)";
+    box.css = { transform: "translateY(150px)" };
 
     // We specify which properties will change with animation
     box.setMotion("transform 0.3s, opacity 0.3s");
@@ -117,7 +117,7 @@ window.onload = function() {
     // A small timing interval following its creation
     box.withMotion(function(self) {
         self.opacity = 1;
-        self.elem.style.transform = "translateY(0px)";  // Jump up
+        self.css = { transform: "translateY(0px)" };  // Jump up
     });
 
 };

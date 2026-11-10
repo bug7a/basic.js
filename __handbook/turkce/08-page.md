@@ -55,11 +55,20 @@ Ekranın içerisine arayüzün (content) genişlik bazında tam olarak sığmas�
 - `originalWidth`: Ekranda görünmesini hedeflediğiniz orijinal içerik genişliği.
 - `maxWidth`: İçeriğin genişleyebileceği en yüksek mesafe sınırı (Girilmesi zorunlu değildir, girilmezse `originalWidth` ile aynı değer varsayılır). 
 
+**`basic.uiScale`** (Number, v26.11.01)
+`page.fit()` ile sığdırılan sayfa yakınlaştırılır; bu yüzden ekran pikseline göre yapılmış bileşenler (`Tabs`, `Dialog`, `Toast`, `Tooltip`, `SelectBox`, `DatePicker`) onunla birlikte küçülür. `basic.uiScale = 1 / page.zoom` satırını bir kez, yakınlaştırmayı değiştiren bir pencere boyutlandırmasından sonra da yeniden yazarsanız ekrandaki boyutlarını korurlar. Varsayılan değer `1`'dir. Böyle bir bileşenin `scale` parametresi başka bir değer seçebilir.
+
+```javascript
+page.fit(600, 800);
+basic.uiScale = 1 / page.zoom;
+Label({ text: "Zoom: " + page.zoom.toFixed(2), fontSize: 20 });
+```
+
 **`page.autoFit(contentWidth, contentHeight)`**
 Yukarıdaki komutun biraz daha pratik formudur. Belirtilen içerik ölçülerini bozmadan (en boy oranıyla) sayfaya akıllıca sığdırır.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     // Başlangıçta sayfayı bir kere ekrana sığdır.
     page.autoFit(1280, 720);
@@ -99,7 +108,7 @@ Sayfa üzerine (**body** dahilindeki boş bir yöne) her tıklandığında için
 
 **`page.onResize(fonksiyon)`**
 Pencere boyutu her değiştiğinde eyleme geçilecek fonksiyon verilir.
-- Sayfanın açıldığı (window.onload) **İLK AN TETİKLENMEZ!** Programcı açılıştaki boyutlandırılmayı mecburen 1 kere manuel çağırmalıdır.
+- Sayfanın açıldığı (`start()`) **İLK AN TETİKLENMEZ!** Programcı açılıştaki boyutlandırılmayı mecburen 1 kere manuel çağırmalıdır.
 - Etkiyi kaldırmak için `page.remove_onResize(fonksiyon_adi)` kullanılır.
 
 ---

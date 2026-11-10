@@ -5,22 +5,20 @@ The useful code snippets below demonstrate how to practically manipulate CSS pro
 ---
 
 ## Box Shadow
-To add depth (shadow) to objects, standard CSS shadow definitions can be used through the element (`elem`) properties of the object.
+To add depth (shadow) to objects, standard CSS shadow definitions can be given to the `boxShadow` property of the object.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     page.color = "whitesmoke";
 
     VGroup({ gap: 20 });
 
         // Example 1: Sharp shadow towards bottom-right
-        Box({ color: "white" });
-        that.elem.style.boxShadow = "2px 3px 6px rgba(0, 0, 0, 0.6)";
+        Box({ color: "white", boxShadow: "2px 3px 6px rgba(0, 0, 0, 0.6)" });
 
         // Example 2: Soft glowing shadow around center
-        Box({ color: "white" });
-        that.elem.style.boxShadow = "0px 0px 8px rgba(0, 0, 0, 0.2)";
+        Box({ color: "white", boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.2)" });
 
     endGroup();
 
@@ -33,17 +31,15 @@ window.onload = function() {
 Using the object's own `border` property may shift dimensions. Instead, you can create inner or outer borders without affecting layout using the box-shadow trick.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     VGroup({ gap: 20 });
 
         // Inner border
-        Box({ color: "white", round: 20 });
-        that.elem.style.boxShadow = "inset 0px 0px 0px 1px rgba(0, 0, 0, 1)";
+        Box({ color: "white", round: 20, boxShadow: "inset 0px 0px 0px 1px rgba(0, 0, 0, 1)" });
 
         // Outer border
-        Box({ color: "white", round: 20 });
-        that.elem.style.boxShadow = "0px 0px 0px 1px rgba(0, 0, 0, 1)";
+        Box({ color: "white", round: 20, boxShadow: "0px 0px 0px 1px rgba(0, 0, 0, 1)" });
 
     endGroup();
 
@@ -53,17 +49,17 @@ window.onload = function() {
 ---
 
 ## Nowrap & Ellipsis Text
-To prevent long text from wrapping or to truncate it with ellipsis (`...`) when it overflows, CSS white-space rules are used.
+To prevent long text from wrapping, give the CSS white-space rule with `css`. To truncate it with ellipsis (`...`) when it overflows, use `ellipsis: 1`.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     // Prevent wrapping only (overflow allowed)
     Label(20, 80, 200, {
         text: "A label that stays on a single line no matter how long it is.",
         color: "peru",
+        css: { whiteSpace: "nowrap" },
     });
-    that.elem.style.whiteSpace = "nowrap";
 
     // Prevent wrapping and truncate with ellipsis
     Label(20, {
@@ -71,9 +67,8 @@ window.onload = function() {
         color: "peru",
         bottom: 80,
         width: 200,
+        ellipsis: 1,
     });
-    that.elem.style.whiteSpace = "nowrap";
-    that.elem.style.textOverflow = "ellipsis";
 
 };
 ```
@@ -84,7 +79,7 @@ window.onload = function() {
 Changing the mouse cursor to a pointer (hand) when hovering over an object/text gives a strong indication that it is clickable.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     Label({
         text: "Click Me",
@@ -92,9 +87,8 @@ window.onload = function() {
         padding: [12, 4], 
         round: 3, 
         clickable: 1,
+        cursor: "pointer",
     }).center();
-
-    that.elem.style.cursor = "pointer";
 
 };
 ```
@@ -105,7 +99,7 @@ window.onload = function() {
 Besides `.on("click")`, you can also listen to native DOM events like `mouseover` and `mouseout`.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const lbl = Label(20, 20, {
         text: "Hover over me!",
@@ -131,7 +125,7 @@ window.onload = function() {
 By default, objects use `clipContent: 1` (overflow: hidden). If child elements need to overflow outside the container, use `clipContent: 0` (overflow: visible).
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     HGroup();
 
@@ -148,9 +142,9 @@ window.onload = function() {
         top: 10, 
         width: "auto", 
         color: "yellow",
+        css: { whiteSpace: "nowrap" },
     });
     box.add(that);
-    that.elem.style.whiteSpace = "nowrap";
 
 };
 ```
@@ -161,21 +155,17 @@ window.onload = function() {
 Enhance UI with linear, radial, or conic gradients using CSS background.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     VGroup({ gap: 8 });
 
-        Box({ width: 200 });
-        that.elem.style.background = "linear-gradient(to right, #FFFFFF00, seagreen)";
+        Box({ width: 200, css: { background: "linear-gradient(to right, #FFFFFF00, seagreen)" } });
 
-        Box({ width: 200 });
-        that.elem.style.background = "linear-gradient(to bottom, pink, purple, indianred)";
+        Box({ width: 200, css: { background: "linear-gradient(to bottom, pink, purple, indianred)" } });
 
-        Box({ width: 200 });
-        that.elem.style.background = "radial-gradient(gold, indianred, black)";
+        Box({ width: 200, css: { background: "radial-gradient(gold, indianred, black)" } });
 
-        Box({ width: 200 });
-        that.elem.style.background = "conic-gradient(red, yellow, green, blue, black)";
+        Box({ width: 200, css: { background: "conic-gradient(red, yellow, green, blue, black)" } });
 
     endGroup();
 
@@ -188,14 +178,11 @@ window.onload = function() {
 You can quickly adjust color, blur, and contrast of an `Icon` or any object.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
-    Icon(10, 10, 100, 100, { border: 1 }).load("test.png");
+    Icon(10, 10, 100, 100, { border: 1, css: { filter: "grayscale(100%)" } }).load("test.png");
 
-    that.elem.style.filter = "grayscale(100%)";
-
-    Icon(10, 118, 100, 100, { border: 1 }).load("test.png");
-    that.elem.style.filter = "invert(100%)";
+    Icon(10, 118, 100, 100, { border: 1, css: { filter: "invert(100%)" } }).load("test.png");
 
 };
 ```
@@ -206,11 +193,9 @@ window.onload = function() {
 You can assign custom fonts (Google Fonts or external fonts) directly.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
-    Label(20, 20, { text: "Custom Font Example" });
-
-    that.elem.style.fontFamily = "opensans-bold";
+    Label(20, 20, { text: "Custom Font Example", fontFamily: "opensans-bold" });
 
 };
 ```
@@ -221,7 +206,7 @@ window.onload = function() {
 You can scale elements and add animations using CSS transform.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     HGroup();
 
@@ -231,21 +216,19 @@ window.onload = function() {
             padding: 10, 
             clickable: 1,
             round: 13,
+            css: { transform: "scale(1)", transformOrigin: "50% 50%" },
         });
-
-        lbl.elem.style.transform = "scale(1)";
-        lbl.elem.style.transformOrigin = "50% 50%";
 
         lbl.setMotion("transform 0.5s, background-color 0.5s");
 
         lbl.on("mouseover", function(self) {
             self.color = "indianred";
-            self.element.style.transform = "scale(1.2)";
+            self.css = { transform: "scale(1.2)" };
         });
 
         lbl.on("mouseout", function(self) {
             self.color = "white";
-            self.element.style.transform = "scale(1)";
+            self.css = { transform: "scale(1)" };
         });
 
     endGroup();
@@ -259,12 +242,9 @@ window.onload = function() {
 Text selection is disabled by default. You can enable it if needed.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
-    Label(10, 10, { text: "Selectable text..." });
-
-    that.elem.style.userSelect = "text";
-    that.elem.style.pointerEvents = "auto";
+    Label(10, 10, { text: "Selectable text...", selectable: 1 });
 
 };
 ```
@@ -275,7 +255,7 @@ window.onload = function() {
 You can attach predefined CSS classes.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     Box(10, 10, 50, 50, { color: "red" });
 
@@ -290,7 +270,7 @@ window.onload = function() {
 You can define borders individually per side.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     page.color = "whitesmoke";
 
@@ -299,11 +279,12 @@ window.onload = function() {
         bottom: 40,
         width: 300, 
         height: 300, 
-        color: "rgba(255, 255, 255, 0.7)" 
+        color: "rgba(255, 255, 255, 0.7)",
+        css: {
+            borderTop: "2px dotted rgba(0, 0, 0, 0.9)",
+            borderBottom: "5px solid rgba(0, 0, 0, 0.9)",
+        },
     });
-
-    that.elem.style.borderTop = "2px dotted rgba(0, 0, 0, 0.9)";
-    that.elem.style.borderBottom = "5px solid rgba(0, 0, 0, 0.9)";
 
 };
 ```

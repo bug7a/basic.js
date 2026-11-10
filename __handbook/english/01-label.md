@@ -9,7 +9,7 @@ In the `basic.js` library, the `Label()` object is used to display texts, titles
 The standard way to create a `Label`:
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     Label({ 
         left: 20, 
@@ -36,7 +36,7 @@ window.onload = function() {
 ### Inner Spacing (Padding)
 - `padding` (number / array) — Defines the inner spacing (in pixels) inside the box (Default: `0`).
     - When only a number is given, it is applied from all sides: `padding: 10`
-    - Custom definitions can be made with an array as `[vertical, horizontal]` or `[top, right, bottom, left]`: `padding: [10, 20]`, `padding: [5, 10, 15, 20]`
+    - Custom definitions can be made with an array as `[horizontal, vertical]` or `[left, top, right, bottom]`: `padding: [20, 10]` (20 at the left and right, 10 at the top and bottom), `padding: [5, 10, 15, 20]` (left 5, top 10, right 15, bottom 20)
 
 ---
 
@@ -47,7 +47,7 @@ window.onload = function() {
 Readable titles and descriptions can be created by lining them up inside HGroup and VGroup.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     VGroup({ align: "top left", gap: 10, padding: 20 });
 
@@ -89,7 +89,7 @@ const lblLink = Label({
     ...labelStyle,
 });
 // Changing the cursor is a good user experience (UX) practice.
-lblLink.elem.style.cursor = "pointer";
+lblLink.cursor = "pointer";
 
 lblLink.on("click", function() {
     println("Label element clicked.");

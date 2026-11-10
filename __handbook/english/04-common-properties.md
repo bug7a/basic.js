@@ -8,7 +8,7 @@ The five core interface elements (**Box, Label, Button, Input** and **Icon**) in
 When an object is created, it is automatically assigned to the global variable **`that`** to preserve its validity until a different object is created. The previously created object can be accessed via the **`prevThat`** variable.
 
 ```javascript
-window.onload = function() {
+const start = function () {
     
     // 1st Object: RED BOX
     Box(10, 10, 100, 100, { color: "red" });
@@ -60,8 +60,8 @@ Many objects support the `width: "auto"` parameter. Furthermore, it supports per
 - `color` (String) — Sets the background color of the object (Ex: `"red"`, `"#FFFFFF"`, `"rgba(0,0,0,0.5)"`).
 - `visible` (Boolean) — If `1`, it appears on the screen (CSS block); if `0`, it completely disappears and makes room for others (CSS none).
 - `opacity` (Float) — Transparency level (Max: `1` visible, Min: `0` invisible).
-- `round` (Integer) — The roundness radius degree of the corners. If the number exceeds half of the box, the object becomes oval (circle).
-- `border` (Integer) — The border thickness defining the inner area boundaries (if `0` it's hidden, if `1` it's a thin black line). It does not overflow the object outward. It draws inwardly.
+- `round` (Integer / Array) — The roundness radius degree of the corners. If the number exceeds half of the box, the object becomes oval (circle). An array rounds the corners one by one: `[top, bottom]` (`round: [12, 0]`: only the top corners) or `[topLeft, topRight, bottomRight, bottomLeft]`.
+- `border` (Integer / Array) — The border thickness defining the inner area boundaries (if `0` it's hidden, if `1` it's a thin black line). It does not overflow the object outward. It draws inwardly. Like `padding`, an array gives each side its own thickness: `[horizontal, vertical]` or `[left, top, right, bottom]` (`border: [0, 0, 0, 1]`: a line at the bottom).
 - `borderColor` (String) — Determines the color of the line if a border is assigned.
 - `fontSize` / `textColor` / `textAlign` — If the object contains text, its style is modified. The standard font size is `20` px. Alignment (textAlign) can be `"center"`, `"right"`, etc.
 - `rotate` (Integer) — Rotates the object (in degrees: `90`, `360`, etc.). It changes only the `rotate()` part of the CSS `transform`: a `translateY()` or `scale()` there stays. Animate it with `setMotion("transform 0.3s")`.
@@ -153,7 +153,8 @@ lblName.onResize(function(resizedLabel) {
 
 ## DOM and Parent Tree
 
-- `object.elem` — It is the Element equivalent of the item created by the library directly under Javascript (Document Object Model). Everything can be manipulated with `elem.style`.
+- `object.css` — A CSS property that has no basic.js property of its own: `css: { whiteSpace: "nowrap" }` in the props, or `object.css = { whiteSpace: "nowrap" }` later. Only the given keys change.
+- `object.elem` — It is the Element equivalent of the item created by the library directly under Javascript (Document Object Model). It is for what the library does not have (Ex: `elem.classList`); for a style use the properties or `object.css`.
 - `object.containerBox` or `object.parentBox` — Retrieves the Container variable (originating from the Box class) to which the object is added. (The `page` object is the global default container).
 - `object.remove()` — Permanently deletes the object from the screen DOM model, from events, and from the parent tree. The basic.js objects inside it are removed too. Do not use a removed object again.
-- **Components are removed with `remove()` too.** A component overrides `remove()` (`const superRemove = box.remove;` … `superRemove.call(box);`) and cleans its own global registrations there: `window` / `document` events, timers, `page.onResize` and the objects it created directly on `page` (menus, popups). So one call is enough: `myComponent.remove();`. (Older components had a separate `destroy()` function. `remove()` still calls a child's `destroy()` first, if it has one.)
+- **Components are removed with `remove()` too.** A component registers its global things through the box, and `remove()` cleans them: `box.listenTo()` (`window` / `document` events), `box.after()` / `box.every()` (timers), `box.onPageResize()` and `box.own()` (the objects it created directly on `page`: menus, popups); see `11-other-functions.md`. It overrides `remove()` (`const superRemove = box.remove;` … `superRemove.call(box);`) only for what basic.js can not know, like a static list of the component. So one call is enough: `myComponent.remove();`. (Older components had a separate `destroy()` function. `remove()` still calls a child's `destroy()` first, if it has one.)

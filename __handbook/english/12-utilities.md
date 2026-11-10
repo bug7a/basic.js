@@ -95,6 +95,29 @@ if (doesDataExist) {
 
 ---
 
+## 9. Colors
+
+- `Black(alpha)`, `White(alpha)` — Black or white with the given opacity (0 to 1).
+- `Alpha(color, percent)` — Any color with the given opacity (v26.10.25). A hex color becomes `rgba(...)`. A name, `rgb()`, `hsl()` or `var(--token)` becomes `color-mix(...)`.
+
+```javascript
+Box(20, 20, 120, 80, { color: Alpha("#456789", 0.5) });
+Box(160, 20, 120, 80, { color: Black(0.1) });
+Box(300, 20, 120, 80, { border: 1, borderColor: Alpha("tomato", 0.3) });
+```
+
+---
+
+## 10. Helpers for Components
+
+- `basic.isOn(value)` — `1`, `"1"` and `true` give `true`.
+- `basic.addCss(id, css, replace)` — Adds a `<style>` once, for `:hover`, `@keyframes` and the like. The same `id` adds nothing unless `replace` is given.
+- `basic.applyStylePackage(params, packages, defaults)` — The first line of a component with style packages (`styleName`).
+- `basic.resolveTheme(themes, name)` — The colors of a theme (`"light"`, `"dark"`, `"auto"`): the missing keys come from `themes.light`.
+- `basic.scaleStyle(style, factor)`, `basic.scaleSize(value, factor)`, `basic.scaleCssText(text, factor)` — A style package, a size or a CSS text multiplied by `factor`, for a component that follows `basic.uiScale`.
+
+---
+
 ## Summary
 - The utilities section of basic.js aims to minimize arranged tasks for the programmer and prevent code waste.
 - It is designed particularly for frequent use in `page` or page management functions.

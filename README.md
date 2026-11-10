@@ -2,8 +2,8 @@
 
 A small library for building web applications in plain JavaScript. You create the objects on the screen (boxes, labels, buttons, inputs, images) directly in code, with their layout, style and behavior in one place.
 
-- **Version:** v26.11.01
-- **Size:** about 45 KB minified, about 14 KB gzipped
+- **Version:** v26.11.10
+- **Size:** about 46 KB minified, about 14 KB gzipped
 - **Dependencies:** none
 - **Build step:** none: add a `<script>` tag and open the page in a browser
 - **License:** Apache 2.0
@@ -119,9 +119,9 @@ Properties are changed by assigning them: `lblCount.text = "Hello"`, `box.color 
 
 ## More than the core
 
-basic.js is the base of the [JS-Component Kit](https://github.com/bug7a/js-components):
+basic.js is the base of [OzdenUI](https://github.com/bug7a/js-components), its components and templates:
 
-- **Components:** nearly 70 ready-made components written with basic.js, such as tabs, tables, date and color pickers, charts, dialogs, a rich text editor and a sortable list. See them live in the [component catalog](https://bug7a.github.io/js-components/).
+- **Components:** nearly 90 ready-made components written with basic.js, such as tabs, tables, date and color pickers, charts, dialogs, a rich text editor and a sortable list. See them live in the [component catalog](https://bug7a.github.io/js-components/).
 - **Templates:** [mobile apps](https://github.com/bug7a/javascript-mobile-app-template), an [admin panel](https://github.com/bug7a/js-components/tree/main/04-templates/ozden-panel), ready-made [web forms](https://github.com/bug7a/js-components/tree/main/04-templates/web-forms) and a [PWA tool](https://github.com/bug7a/js-components/tree/main/04-templates/easy-pwa).
 - **VS Code extensions:** a code completer, an object navigator and a view inspector for basic.js ([`__developer-toolkit/`](__developer-toolkit/)).
 - **AI context files:** short documents that teach an AI assistant how to write basic.js code ([`context/`](https://github.com/bug7a/js-components/tree/main/context)).

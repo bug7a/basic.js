@@ -4,6 +4,27 @@ This document contains new features, updates, and changes added to the basic.js 
 
 ---
 
+## Version 26.11.10
+
+*   **`stretch: 1` of a group:** the objects without a width in a `VGroup` (without a height in an `HGroup`) fill the group across: `VGroup({ align: "left top", stretch: 1 })`. The short way of `css: { alignItems: "stretch" }`, which works as before. An object with a size keeps it. `group.stretch = 0` gives the place of `align` back. Reference: `basic/basic-what-is-new.md`.
+
+---
+
+## Version 26.11.07
+
+*   **`border` and `round` take an array, like `padding`:** `border: [0, 0, 0, 1]` is a line at the bottom only (`[horizontal, vertical]` or `[left, top, right, bottom]`, the order of `padding`). `round: [12, 0]` rounds the two top corners (`[top, bottom]`), `round: [12, 12, 0, 12]` each corner on its own (`[topLeft, topRight, bottomRight, bottomLeft]`, clockwise as in CSS). `center()` counts the border of each side. A number works as before: fully compatible. Reference: `basic/basic-what-is-new.md`.
+*   **`gap: [x, y]` of a group:** x between the items of a line, y between the lines of a group that wraps (`wrap: 1`): `HGroup({ wrap: 1, gap: [8, 12] })` for chips and tags. The order of `padding`. A number works as before.
+*   **The handbook: the order of `padding`** was written wrong (`[vertical, horizontal]`, `[top, right, bottom, left]`). It is, and always was, `[horizontal, vertical]` and `[left, top, right, bottom]`: `padding: [20, 10]` is 20 at the left and right, 10 at the top and bottom. Nothing changes in the library.
+
+---
+
+## Version 26.11.05
+
+*   **`basic.zIndexAbove(obj, minimum)`:** the z-index of a list or a menu that opens from `obj`, over the layer that holds `obj` (a Dialog, a SidePanel, a Tooltip popover) and at least `minimum`. The lists and menus of the components use it when they open, so a SelectBox, a SelectDate or a ContextMenu inside a Dialog or a SidePanel opens over it (it opened behind it). Outside a layer nothing changes.
+*   **Fix: `remove()` of a parent also cleans the panels its components own:** the list panels of the components inside a removed container (a page change) kept their ScrollBars, window listeners and DOM; a direct `remove()` worked. Now both clean everything. Reference: `basic/basic-what-is-new.md`.
+
+---
+
 ## Version 26.11.01
 
 *   **The components keep their size on a fitted page:** on a page fitted with `page.fit(600, 800)` (zoomed to 0.65 on a phone) set `basic.uiScale = 1 / page.zoom` once: Tabs, Dialog, Toast, Tooltip, SelectBox and SelectDate take it as the default of their new `scale` param and stay as big as on a normal page. `basic.scaleStyle(style, factor)`, `basic.scaleSize(value, factor)` and `basic.scaleCssText(text, factor)` (the px of a shadow) multiply the sizes of a style for your own components. With the default 1 nothing changes. Reference: `basic/basic-what-is-new.md`.

@@ -72,7 +72,7 @@
 
             // GROUP: It has no size, so it is as big as the page and puts the card in its middle,
             // also when the size of the window changes.
-            AutoLayout();
+            HGroup();
 
                 // GROUP: The card: the keywords, and under them the place to add a new keyword.
                 // hug: 1 -> it is as big as its objects (+ its padding), so it grows with the keywords.
@@ -91,7 +91,7 @@
 
                 endGroup();
 
-            endAutoLayout();
+            endGroup();
 
             // To go back to the starting list, run this line once:
             // basic.storage.save(STORAGE_KEY, keywordList);

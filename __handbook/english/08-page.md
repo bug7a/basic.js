@@ -55,11 +55,20 @@ A dynamic sizing function that allows the interface (content) to fit perfectly w
 - `originalWidth`: The original content width you aim to be displayed on the screen.
 - `maxWidth`: The maximum distance limit the content can expand to (Not mandatory to enter, if not entered it is assumed to be the same value as `originalWidth`). 
 
+**`basic.uiScale`** (Number, v26.11.01)
+A page fitted with `page.fit()` is zoomed, so the components made for screen pixels (`Tabs`, `Dialog`, `Toast`, `Tooltip`, `SelectBox`, `DatePicker`) get smaller with it. Set `basic.uiScale = 1 / page.zoom` once, and again after a resize that changes the zoom, and they keep their size on the screen. The default is `1`. The `scale` param of such a component can choose another value.
+
+```javascript
+page.fit(600, 800);
+basic.uiScale = 1 / page.zoom;
+Label({ text: "Zoom: " + page.zoom.toFixed(2), fontSize: 20 });
+```
+
 **`page.autoFit(contentWidth, contentHeight)`**
 This is a slightly more practical form of the command above. It smartly fits the page without disrupting the specified content dimensions (with aspect ratio).
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     // Fit the page to the screen once at the beginning.
     page.autoFit(1280, 720);
@@ -99,7 +108,7 @@ Every time the page is clicked (on an empty direction within the **body**), the 
 
 **`page.onResize(function)`**
 The function to be executed every time the window size changes.
-- It is **NOT TRIGGERED AT THE FIRST MOMENT** the page opens (window.onload)! The programmer must manually call the sizing at startup exactly 1 time.
+- It is **NOT TRIGGERED AT THE FIRST MOMENT** the page opens (`start()`)! The programmer must manually call the sizing at startup exactly 1 time.
 - To remove the effect, `page.remove_onResize(function_name)` is used.
 
 ---

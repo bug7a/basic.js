@@ -73,7 +73,7 @@
             page.color = "whitesmoke";
 
             // GROUP: It has no size, so it is as big as the page and puts the tab bar in its middle.
-            AutoLayout();
+            HGroup();
 
                 // GROUP: The tab bar: the row of buttons, and the contents under it.
                 // hug: 1 -> it is as big as its two parts.
@@ -91,7 +91,7 @@
 
                 endGroup();
 
-            endAutoLayout();
+            endGroup();
 
             // Fill the content boxes: each one has its own function.
             createScienceContent(tabs.contents[0]);

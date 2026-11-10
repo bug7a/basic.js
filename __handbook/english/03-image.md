@@ -1,15 +1,15 @@
-# basic.js — Image / Icon (Image Object)
+# basic.js — Icon (Image Object)
 
 In the `basic.js` library, the `Icon()` object is used to display image or icon files (PNG, JPG, SVG, etc.) on the screen. Images are loaded asynchronously (afterward) from external links or the local directory.
 
 ---
 
-## Creating an Image or Icon
+## Creating an Icon
 
 The fast `Icon` function provides a basic image control.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const myIcon = Icon({ 
         left: 20, 
@@ -54,7 +54,7 @@ If the image is desired to be placed on the screen with its own actual (original
 ### Example 1: Loading an Image and Printing Dimensions to the Screen
 
 ```javascript
-window.onload = function() {
+const start = function () {
     
     const icoLogo = Icon({
         right: 20,

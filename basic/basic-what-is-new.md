@@ -10,6 +10,112 @@ Naming rule for the additions: no new globals (one exception, the user's choice 
 
 ---
 
+## v26.11.10 (2026-11-10)
+
+### `stretch: 1` of a group
+
+The user's choice (2026-11-10). 56 files wrote `css: { alignItems: "stretch" }` on a group, because `align` gives
+only the left, the middle or the right of the cross axis. Now the group takes it as a prop:
+
+```javascript
+VGroup({ align: "left top", gap: 8, stretch: 1 });   // the items without a width are as wide as the group
+HGroup({ height: 44, stretch: 1 });                  // the items without a height are as high as the row
+```
+
+- Only an item whose cross size is not given (`auto`) is stretched: `width: 200` or `width: "100%"` stays as it is.
+- `group.stretch = 0` gives the cross place of `align` back; `group.stretch` reads 0 / 1. `align` and `flow`
+  keep it (they write `alignItems` again).
+- `css: { alignItems: "stretch" }` works as before; nothing in the repository was switched to the new prop.
+
+---
+
+## v26.11.07 (2026-11-07)
+
+### `border` and `round` take an array, like `padding`
+
+The user's idea (2026-11-07). A line on one side or round corners on one side were written as a `css` text
+(`css = { borderBottom: "1px solid ..." }`, `css = { borderRadius: "12px 12px 0 0" }`). Now the props take them:
+
+```javascript
+Box({ border: [0, 0, 0, 1], borderColor: Black(0.1) });   // a line at the bottom only
+Box({ round: [12, 0] });                                   // the two top corners: a sheet, a tab, the head of a card
+Box({ round: [0, 12] });                                   // the two bottom corners: a list under a field
+Box({ round: [22, 0, 0, 22] });                            // the left corners: the first of two joined buttons
+```
+
+- `border`, in the order of `padding`: `4` (every side), `[x, y]` (left and right x, top and bottom y),
+  `[left, top, right, bottom]`.
+- `round`: `8` (every corner), `[top, bottom]` (the two top corners, the two bottom corners),
+  `[topLeft, topRight, bottomRight, bottomLeft]` (clockwise from the top left, as in CSS). Two values are not the
+  diagonals of CSS (`border-radius: 12px 0`): a round only at the top or only at the bottom is wanted far more often.
+- One value in an array (`[8]`) is every side / corner. Three values are read as two, as `padding` always did. An
+  array of another length is not read: the style stays as it was.
+- `border` / `round` read the value as it was given (the array), like `padding`.
+- `center()` counts the border of each side: an object is centered inside the border (it took `border * 2`; with an
+  array that was NaN). With a number nothing changes.
+- On a Button the array goes on the button, on an Input on its `<input>`, as a number does. `minimal` keeps a given
+  array (it is on the element).
+- `basic.scaleStyle()` multiplies the arrays of `round` and `border` too (it already did for `padding`).
+  `setMotion("border-radius 0.3s")` and `animate({ round: [20, 0] })` move each corner.
+- **Not in the style keys of the components:** `style.panel.border`, `style.card.round`... stay numbers. Some
+  components compute with them (CheckBox, RadioButton, SelectDate, SelectTime, SelectColor, WebView, ContextMenu:
+  `border * 2`; SliderField: `round - border`; Dialog, SidePanel, SmartTable, PropertyPanel, Tooltip: `round + "px"`
+  in a CSS text): an array there gives a wrong size. The array form is for the props of a basic.js object.
+- `padding` reads its values with the same function now: the same result (checked against the old code).
+- Fully compatible. `test/basic-test.htm`: 17 new checks, 188/188 (also with `basic.min.js`).
+- The handbook (`01-label.md`, English and Turkish) gave the order of `padding` wrong (`[vertical, horizontal]`,
+  `[top, right, bottom, left]`): it is `[horizontal, vertical]` and `[left, top, right, bottom]`, as the code always read
+  it; corrected.
+
+### `gap: [x, y]` of a group
+
+The user's choice (2026-11-07), after `border` and `round`. A group that wraps (`wrap: 1`: chips, tags, a grid of
+cards) needs one space between the items of a line and another between the lines. It was only a CSS text, in the
+other order: `gap: "4px 6px"` (the row gap first).
+
+```javascript
+HGroup({ wrap: 1, gap: [8, 12] });   // 8 between the chips of a line, 12 between the lines
+```
+
+- `[x, y]`, the order of `padding`: x is the space between the items of a line (horizontal), y between the lines
+  (vertical), in an HGroup and in a VGroup alike (a VGroup that does not wrap uses only y). The order of
+  `GridGroup` (`[column gap, row gap]`) too.
+- `[8]` is both; three values are read as two; another length is not read (the style stays).
+- `group.gap` reads an array as it was given; a number still reads as its CSS text (`"8px"`), as it always did.
+- The props object of the page keeps its array, so a style package can be scaled again later (a number in it is still
+  changed to its text `"8px"` by the group, as before).
+- `basic.scaleStyle()` multiplies it. `test/basic-test.htm`: 6 new checks (the real space between the items and the
+  lines), 194/194, also with `basic.min.js`; the new ones fail with the basic.js before it.
+- basic-designer reads and writes it (and `border`, `round`) as a list, like `padding` (`_basic-designer/readme.md`).
+
+## v26.11.05 (2026-11-05)
+
+### `basic.zIndexAbove(obj, minimum)`: a list or a menu over the layer of its field
+
+The popups of the components (the lists of SelectBox, SelectDate, SelectTime, SelectColor, TinySelect,
+FullScreenSelect, the menu of ContextMenu, the lists of SearchResults, TagInput and Filters) are made on `page` with a
+fixed z-index (1000 - 3000). A Dialog is at 4000 and up, an open SidePanel at 1001, so a list opened from a field
+inside them opened behind them and could not be used (found in a review of `comp/`, 2026-11-05).
+
+```javascript
+box.panel.zIndex = basic.zIndexAbove(box, 1001);   // when the panel opens
+```
+
+- The layer of `obj` is its ancestor that is a direct child of `page` (a Dialog, a SidePanel, a Tooltip popover); the
+  result is its z-index + 1, and at least `minimum`.
+- An object in the normal content of the page has no layer: the result is `minimum` (the old fixed value), so nothing
+  changes outside the layers.
+
+### Fix: `remove()` of a parent also cleans the panels its components own
+
+`remove()` removes the basic.js objects inside the object. A component removed that way (its parent was removed: a page
+change) removes the panel it made on `page` (with `own()`, or in its own `remove()`). That panel is not inside the
+parent, but a global counter made it skip its own cleaning too: its ScrollBars kept a `page.onResize` listener, a
+resize-detection entry and a MutationObserver, and its components (LabelEditor's Steppers and SelectColors) their
+document listeners and DOM, at every page change (SelectTime: 2 window listeners each time; LabelEditor: 11 listeners
+and 130 DOM nodes). Now an object skips its own cleaning only when it is inside an object whose cleaning runs (DOM
+containment). A direct `remove()` worked before and is the same.
+
 ## v26.11.01 (2026-11-01)
 
 ### `basic.uiScale`, `basic.scaleStyle()`, `basic.scaleSize()`, `basic.scaleCssText()`: the components keep their size on a fitted page

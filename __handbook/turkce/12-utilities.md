@@ -95,6 +95,29 @@ if (dataVarMi) {
 
 ---
 
+## 9. Renkler
+
+- `Black(alpha)`, `White(alpha)` — Verilen saydamlıkta siyah veya beyaz (0 ile 1 arası).
+- `Alpha(color, percent)` — Herhangi bir rengi verilen saydamlıkta verir (v26.10.25). Hex renk `rgba(...)` olur. Renk adı, `rgb()`, `hsl()` veya `var(--token)` ise `color-mix(...)` olur.
+
+```javascript
+Box(20, 20, 120, 80, { color: Alpha("#456789", 0.5) });
+Box(160, 20, 120, 80, { color: Black(0.1) });
+Box(300, 20, 120, 80, { border: 1, borderColor: Alpha("tomato", 0.3) });
+```
+
+---
+
+## 10. Bileşenler için Yardımcılar
+
+- `basic.isOn(value)` — `1`, `"1"` ve `true` için `true` verir.
+- `basic.addCss(id, css, replace)` — `:hover`, `@keyframes` gibi işler için bir kez `<style>` ekler. Aynı `id`, `replace` verilmedikçe bir şey eklemez.
+- `basic.applyStylePackage(params, packages, defaults)` — Stil paketi (`styleName`) olan bir bileşenin ilk satırı.
+- `basic.resolveTheme(themes, name)` — Bir temanın renkleri (`"light"`, `"dark"`, `"auto"`): eksik anahtarlar `themes.light` içinden gelir.
+- `basic.scaleStyle(style, factor)`, `basic.scaleSize(value, factor)`, `basic.scaleCssText(text, factor)` — `factor` ile çarpılmış stil paketi, boyut veya CSS metni; `basic.uiScale` değerine uyan bileşenler içindir.
+
+---
+
 ## Özet
 - basic.js'in utilities kısmı yazılımcıya aranje edilmiş işleri en aza indirgemek ve kod israfının önüne geçilmesini sağlamak amacı ilkesindedir.
 - Özellikle `page` veya sayfa yönetimi fonksiyonlarında sık kullanılmak üzere tasarlanmıştır.

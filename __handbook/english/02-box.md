@@ -14,7 +14,7 @@ In the `basic.js` library, the `Box()` object is used to create basic rectangula
 The standard way to create a `Box` is with a parameter object:
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const myBox = Box({ 
         left: 20, 
@@ -52,9 +52,9 @@ The main properties that can be assigned to a `Box()` object are:
 - `color` (string) — Background color (Default: `"whitesmoke"`).
 
 ### Border
-- `border` (number) — Border thickness (Default: `0`).
+- `border` (number / array) — Border thickness (Default: `0`). An array gives each side its own thickness, in the order of `padding`: `[horizontal, vertical]` or `[left, top, right, bottom]`. `border: [0, 0, 0, 1]` is a line at the bottom only.
 - `borderColor` (string) — Border color (Default: `"rgba(0, 0, 0, 0.6)"`).
-- `round` (number) — Corner roundness (Default: `0`).
+- `round` (number / array) — Corner roundness (Default: `0`). An array rounds the corners one by one: `[top, bottom]` (`round: [12, 0]`: only the two top corners) or `[topLeft, topRight, bottomRight, bottomLeft]`, clockwise as in CSS (`round: [8, 0, 0, 8]`: only the left corners).
 
 ### Scroll and Clip
 - `clipContent` (boolean) — Whether content exceeding the dimensions will overflow outside the box boundaries (Default: `1`, meaning it hides overflow).
@@ -78,9 +78,9 @@ In a group whose height is its content (`height: "auto"`, `hug: 1`), the lifted 
 HGroup({ width: "auto", height: "auto", gap: 12, clipContent: 0 }); // WHY: their lift and shadow must not be cut
 
     Button({ text: "Play", width: 120, height: 44 });
-    that.elem.style.transition = "transform 0.15s";
-    that.on("mouseover", function (self) { self.elem.style.transform = "translateY(-2px)"; });
-    that.on("mouseout", function (self) { self.elem.style.transform = ""; });
+    that.setMotion("transform 0.15s");
+    that.on("mouseover", function (self) { self.css = { transform: "translateY(-2px)" }; });
+    that.on("mouseout", function (self) { self.css = { transform: "" }; });
 
 endGroup();
 ```
@@ -137,7 +137,7 @@ createIn(card, function (box) {           // box === card
 Adding code to run when the box is clicked:
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const myBox = Box({ 
         width: 100, 

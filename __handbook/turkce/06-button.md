@@ -13,7 +13,7 @@ basic.js kütüphanesinde `Button()` nesnesi, kullanıcı ile etkileşime girmek
 
 Standart oluşturma işlemi:
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const btnOk = Button({ 
         left: 20, 
@@ -52,7 +52,7 @@ Alternatif (Hızlı) Parametre Formu:
 Butonlarda `.on("click", fonksiyon)` kullanımı standartlaştırılmıştır.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const btn = Button(40, 40, 180, 50, { 
         text: "HELLO",
@@ -75,7 +75,7 @@ window.onload = function() {
 Minimal özellik, genellikle menü yönlendirmelerinde, uyarı veya iptal gibi diyalog butonlarında işe yarar.
 
 ```javascript
-window.onload = function() {
+const start = function () {
     
     HGroup({ align: "center", gap: 10 });
     

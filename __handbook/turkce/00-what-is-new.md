@@ -4,6 +4,27 @@ Bu belgede basic.js kütüphanesine eklenen yeni özellikler, güncellemeler ve 
 
 ---
 
+## Versiyon 26.11.10
+
+*   **Grubun `stretch: 1` parametresi:** bir `VGroup` içinde genişliği verilmemiş (bir `HGroup` içinde yüksekliği verilmemiş) nesneler grubu enine doldurur: `VGroup({ align: "left top", stretch: 1 })`. `css: { alignItems: "stretch" }` yazmanın kısa yolu; o da eskisi gibi çalışır. Boyutu verilmiş nesne boyutunu korur. `group.stretch = 0`, `align`'ın verdiği yeri geri getirir. Kaynak: `basic/basic-what-is-new.md`.
+
+---
+
+## Versiyon 26.11.07
+
+*   **`border` ve `round` da `padding` gibi dizi alır:** `border: [0, 0, 0, 1]` yalnızca altta bir çizgidir (`[yatay, dikey]` ya da `[sol, üst, sağ, alt]`: `padding`'in sırası). `round: [12, 0]` üstteki iki köşeyi yuvarlar (`[üst, alt]`), `round: [12, 12, 0, 12]` her köşeyi ayrı ayrı (`[solÜst, sağÜst, sağAlt, solAlt]`, CSS'teki gibi saat yönünde). `center()` her kenarın kalınlığını ayrı sayar. Sayı eskisi gibi çalışır: tam uyumlu. Örnekli başvuru: `basic/basic-what-is-new.md`.
+*   **Grubun `gap: [x, y]`'si:** x bir satırdaki öğelerin arası, y satırların arası (`wrap: 1` ile kayan bir grupta): çipler ve etiketler için `HGroup({ wrap: 1, gap: [8, 12] })`. `padding`'in sırası. Sayı eskisi gibi çalışır.
+*   **El kitabı: `padding`'in sırası** yanlış yazılmıştı (`[dikey, yatay]`, `[üst, sağ, alt, sol]`). Doğrusu, kodun hep okuduğu gibi, `[yatay, dikey]` ve `[sol, üst, sağ, alt]`: `padding: [20, 10]` solda ve sağda 20, üstte ve altta 10'dur. Kütüphanede bir şey değişmez.
+
+---
+
+## Versiyon 26.11.05
+
+*   **`basic.zIndexAbove(obj, minimum)`:** `obj`'den açılan bir listenin ya da menünün z-index'i: `obj`'yi tutan katmanın (bir Dialog, bir SidePanel, bir Tooltip popover'ı) üstünde, en az `minimum`. Bileşenlerin listeleri ve menüleri açılırken bunu kullanır; bir Dialog ya da SidePanel içindeki SelectBox, SelectDate ya da ContextMenu artık onun üstünde açılır (arkasında açılıyordu). Bir katmanın dışında bir şey değişmez.
+*   **Düzeltme: bir üst kutunun `remove()`'u, bileşenlerinin sahiplendiği panelleri de temizler:** silinen bir kabın (sayfa değişimi) içindeki bileşenlerin liste panelleri ScrollBar'larını, pencere dinleyicilerini ve DOM'larını tutuyordu; doğrudan `remove()` çalışıyordu. Artık ikisi de her şeyi temizler. Örnekli başvuru: `basic/basic-what-is-new.md`.
+
+---
+
 ## Versiyon 26.11.01
 
 *   **Bileşenler sığdırılmış bir sayfada boylarını korur:** `page.fit(600, 800)` ile sığdırılan (telefonda 0.65'e küçülen) bir sayfada bir kez `basic.uiScale = 1 / page.zoom` yazın: Tabs, Dialog, Toast, Tooltip, SelectBox ve SelectDate bunu yeni `scale` parametrelerinin varsayılanı olarak alır ve normal bir sayfadaki kadar büyük kalır. `basic.scaleStyle(style, factor)`, `basic.scaleSize(value, factor)` ve `basic.scaleCssText(text, factor)` (bir gölgenin px'leri) kendi bileşenleriniz için bir stilin ölçülerini çarpar. Varsayılan 1 ile hiçbir şey değişmez. Örnekli başvuru: `basic/basic-what-is-new.md`.

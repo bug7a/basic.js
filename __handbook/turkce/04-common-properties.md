@@ -8,7 +8,7 @@
 Bir nesne oluşturulduğunda, farklı bir nesne oluşturulana kadar geçerliliğini korumak üzere otomatik olarak **`that`** global değişkenine atanır. Bir önceki oluşturulan nesneye ise **`prevThat`** değişkeni üzerinden erişilebilir.
 
 ```javascript
-window.onload = function() {
+const start = function () {
     
     // 1. Nesne: KIRMIZI KUTU
     Box(10, 10, 100, 100, { color: "red" });
@@ -60,8 +60,8 @@ Pek çok nesne `width: "auto"` parametresini destekler. Ayrıca `width: "100%"` 
 - `color` (String) — Objenin zemin / arkaplan rengini ayarlar (Örn: `"red"`, `"#FFFFFF"`, `"rgba(0,0,0,0.5)"`).
 - `visible` (Boolean) — `1` ise ekranda belirir (CSS block), `0` ise tamamen kaybolup diğerlerine yer açar (CSS none).
 - `opacity` (Float) — Şeffaflık seviyesi (Max: `1` görünür, Min: `0` görünmez).
-- `round` (Integer) — Köşelerin yuvarlaklık radius derecesi. Sayı kutunun yarısını aşarsa nesne oval (daire) olur.
-- `border` (Integer) — İç alan sınırları çizen kenarlık kalınlığı (`0` ise gizlenir, `1` ise ince siyah çizgi). Objeyi dışarıya taşırmaz. İçeriden çizer.
+- `round` (Integer / Array) — Köşelerin yuvarlaklık radius derecesi. Sayı kutunun yarısını aşarsa nesne oval (daire) olur. Dizi köşeleri tek tek yuvarlar: `[üst, alt]` (`round: [12, 0]`: yalnızca üstteki köşeler) ya da `[solÜst, sağÜst, sağAlt, solAlt]`.
+- `border` (Integer / Array) — İç alan sınırları çizen kenarlık kalınlığı (`0` ise gizlenir, `1` ise ince siyah çizgi). Objeyi dışarıya taşırmaz. İçeriden çizer. `padding` gibi, dizi her kenara kendi kalınlığını verir: `[yatay, dikey]` ya da `[sol, üst, sağ, alt]` (`border: [0, 0, 0, 1]`: altta bir çizgi).
 - `borderColor` (String) — Kenarlık (border) atandıysa çizginin rengini belirler.
 - `fontSize` / `textColor` / `textAlign` — Nesne metin taşıyorsa onun stili değiştirilir. Standart yazı büyüklüğü `20` px boyutundadır. Hizalama (textAlign) `"center"`, `"right"` vb. olabilir.
 - `rotate` (Integer) — Objeyi çevirir (derece olarak: `90`, `360` vb.). CSS `transform` değerinin yalnızca `rotate()` kısmını değiştirir: oradaki bir `translateY()` ya da `scale()` kalır. `setMotion("transform 0.3s")` ile hareketli olur.
@@ -153,7 +153,8 @@ lblName.onResize(function(resizedLabel) {
 
 ## DOM ve Ebeveyn Ağacı
 
-- `object.elem` — Kütüphanenin yarattığı elemanın bizzat Javascript (Document Object Model) altındaki Element karşılığıdır. `elem.style` ile her şeye müdahale edilebilir.
+- `object.css` — basic.js'te kendi özelliği olmayan bir CSS özelliği için: özelliklerde `css: { whiteSpace: "nowrap" }`, sonradan `object.css = { whiteSpace: "nowrap" }`. Yalnızca verilen anahtarlar değişir.
+- `object.elem` — Kütüphanenin yarattığı elemanın bizzat Javascript (Document Object Model) altındaki Element karşılığıdır. Kütüphanede karşılığı olmayan işler içindir (Örn: `elem.classList`); stil için özellikleri ya da `object.css`'i kullanın.
 - `object.containerBox` veya `object.parentBox` — Objenin eklendiği Container (Box sınıfından doğar) değişkenini getirir. (`page` nesnesi genel varsayılan konteynerdir).
 - `object.remove()` — Objeyi ekrandan DOM modelinden, olaylardan ve ebeveyn ağacından kalıcı siler. İçindeki basic.js nesneleri de silinir. Silinen bir nesneyi tekrar kullanmayın.
-- **Bileşenler de `remove()` ile silinir.** Bir bileşen `remove()` fonksiyonunu kendisi genişletir (`const superRemove = box.remove;` … `superRemove.call(box);`) ve global kayıtlarını orada temizler: `window` / `document` olayları, zamanlayıcılar, `page.onResize` ve doğrudan `page` üzerinde oluşturduğu nesneler (menüler, açılır kutular). Yani tek çağrı yeterlidir: `myComponent.remove();`. (Eski bileşenlerde ayrı bir `destroy()` fonksiyonu vardı. `remove()`, varsa bir alt nesnenin `destroy()` fonksiyonunu hâlâ önce çağırır.)
+- **Bileşenler de `remove()` ile silinir.** Bir bileşen global kayıtlarını kutusu üzerinden yapar, `remove()` da onları temizler: `box.listenTo()` (`window` / `document` olayları), `box.after()` / `box.every()` (zamanlayıcılar), `box.onPageResize()` ve `box.own()` (doğrudan `page` üzerinde oluşturduğu nesneler: menüler, açılır kutular); bkz. `11-other-functions.md`. `remove()` fonksiyonunu (`const superRemove = box.remove;` … `superRemove.call(box);`) yalnızca basic.js'in bilemeyeceği şeyler için genişletir, bileşenin kendi statik listesi gibi. Yani tek çağrı yeterlidir: `myComponent.remove();`. (Eski bileşenlerde ayrı bir `destroy()` fonksiyonu vardı. `remove()`, varsa bir alt nesnenin `destroy()` fonksiyonunu hâlâ önce çağırır.)

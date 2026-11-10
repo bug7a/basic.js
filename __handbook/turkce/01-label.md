@@ -9,7 +9,7 @@ basic.js kütüphanesinde `Label()` nesnesi, kullanıcılar tarafından doğruda
 Bir `Label` oluşturmanın standart yolu:
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     Label({ 
         left: 20, 
@@ -36,7 +36,7 @@ window.onload = function() {
 ### İç Boşluklar (Padding)
 - `padding` (number / array) — Kutu içerisindeki iç boşlukları (piksel) tanımlar (Varsayılan: `0`).
     - Yalnızca sayı verildiğinde tüm kenarlardan uygulanır: `padding: 10`
-    - Array ile `[dikey, yatay]` veya `[üst, sağ, alt, sol]` şeklinde özel tanımlamalar yapılabilir: `padding: [10, 20]`, `padding: [5, 10, 15, 20]`
+    - Array ile `[yatay, dikey]` veya `[sol, üst, sağ, alt]` şeklinde özel tanımlamalar yapılabilir: `padding: [20, 10]` (solda ve sağda 20, üstte ve altta 10), `padding: [5, 10, 15, 20]` (sol 5, üst 10, sağ 15, alt 20)
 
 ---
 
@@ -47,7 +47,7 @@ window.onload = function() {
 HGroup ve VGroup içinde sıralanarak okunabilir başlık ve açıklamalar yaratılabilir.
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     VGroup({ align: "top left", gap: 10, padding: 20 });
 
@@ -89,7 +89,7 @@ const lblLink = Label({
     ...labelStyle,
 });
 // İmleci değiştirmek iyi bir kullanıcı deneyimi (UX) deneyimidir.
-lblLink.elem.style.cursor = "pointer";
+lblLink.cursor = "pointer";
 
 lblLink.on("click", function() {
     println("Label elementine tıklandı.");

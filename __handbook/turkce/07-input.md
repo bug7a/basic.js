@@ -1,4 +1,4 @@
-# basic.js — Input / TextBox (Metin Giriş Nesnesi)
+# basic.js — Input (Metin Giriş Nesnesi)
 
 basic.js kütüphanesinde kullanıcılardan klavye aracılığıyla metin veya sayı girişleri (input) almak için `Input()` nesnesi kullanılır.
 
@@ -9,7 +9,7 @@ basic.js kütüphanesinde kullanıcılardan klavye aracılığıyla metin veya s
 Varsayılan bir metin kutusu ve başlığı ile oluşturulması:
 
 ```javascript
-window.onload = function() {
+const start = function () {
 
     const inpName = Input({ 
         left: 30, 
@@ -47,7 +47,7 @@ Alternatif (Hızlı) Formato:
 Kullanıcı, metin kutusundaki değere bir harf bile eklese ya da çıkarsa bunu canlı olarak (anında) algılamak için `.on("input", ...)` kullanılır.
 
 ```javascript
-window.onload = function() {
+const start = function () {
     
     const inpCity = Input({
         left: 50,
